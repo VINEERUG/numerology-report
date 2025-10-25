@@ -163,8 +163,7 @@
             4: { title: "The Builder", text: "Represents stability, discipline, and hard work. This number is practical, reliable, and dedicated to building a secure foundation." },
             5: { title: "The Adventurer", text: "Represents freedom, versatility, and change. This number signifies a curious, adaptable individual who thrives on new experiences." },
             6: { title: "The Nurturer", text: "Represents responsibility, compassion, and home. This number is a natural caretaker who values family, community, and service." },
-            7.
-            { title: "The Seeker", text: "Represents analysis, intuition, and spirituality. This number is a deep thinker with a love for knowledge, truth, and solitude." },
+            7: { title: "The Seeker", text: "Represents analysis, intuition, and spirituality. This number is a deep thinker with a love for knowledge, truth, and solitude." },
             8: { title: "The Powerhouse", text: "Represents abundance, authority, and ambition. This number signifies a natural executive with strong leadership skills and a drive for material success." },
             9: { title: "The Humanitarian", text: "Represents compassion, generosity, and completion. This number signifies a selfless idealist with a deep concern for the world." },
             11: { title: "The Visionary (Master)", text: "A Master Number representing heightened intuition, idealism, and spiritual insight. You are here to inspire and uplift humanity." },
@@ -181,7 +180,10 @@
             const lastName = document.getElementById('lastName').value.trim().toUpperCase();
             const dob = document.getElementById('dob').value;
             const gender = document.getElementById('gender').value;
-
+            
+            // **VALIDATION LOGIC**
+            // Time of Birth (tob) and Place of Birth (pob) are NOT included in this check
+            // because they are now optional.
             if (!firstName || !lastName || !dob || !gender) {
                 errorEl.textContent = 'Please fill in all required fields: First Name, Last Name, DOB, and Gender.';
                 errorEl.classList.remove('hidden');
@@ -245,6 +247,7 @@
             const driverNumber = reduceToSingleDigit(day);
             const conductorNumber = reduceToSingleDigit(conductorDigitSum);
             
+            // Friend numbers are based on the forced single digit (e.g., 11 becomes 2)
             const driverLuckyNumbers = friendNumbers[forceSingleDigit(driverNumber)] ? friendNumbers[forceSingleDigit(driverNumber)].join(', ') : 'N/A';
             const conductorLuckyNumbers = friendNumbers[forceSingleDigit(conductorNumber)] ? friendNumbers[forceSingleDigit(conductorNumber)].join(', ') : 'N/A';
             
@@ -289,6 +292,7 @@
                 fullGridSourceString += `${day}`;
             }
             
+            // We use the forced single digit for grid calculations
             fullGridSourceString += `${forceSingleDigit(driverNumber)}${forceSingleDigit(conductorNumber)}${kuaNumber}${forceSingleDigit(fullNameNumber)}`;
             fullGridSourceString.split('').forEach(d => { if(fullGridCounts[d] !== undefined) fullGridCounts[d]++; });
 
@@ -340,7 +344,10 @@
         }
 
         function displayResults(report) {
+            // Explanation uses the forced single digit numbers for clarity
             const explanation = `Includes Moolank (${forceSingleDigit(report.driverNumber)}), Bhagyank (${forceSingleDigit(report.conductorNumber)}), Kua No. (${report.kuaNumber}), & Name No. (${forceSingleDigit(report.fullNameNumber)}).`;
+            
+            // We display the actual numbers (including Master Numbers 11/22)
             resultsContent.innerHTML = `
                 ${createResultCard('Driver Number (Moolank)', report.driverNumber, numberInterpretations[report.driverNumber] || null, 100, report.driverLuckyNumbers)}
                 ${createResultCard('Conductor Number (Bhagyank)', report.conductorNumber, numberInterpretations[report.conductorNumber] || null, 200, report.conductorLuckyNumbers)}
