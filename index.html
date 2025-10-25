@@ -89,16 +89,19 @@
                     <div>
                         <label for="dob" class="block text-sm font-medium text-purple-300 mb-2">Date of Birth</label>
                         <input type="date" id="dob" name="dob" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-purple-500 focus:border-purple-500 transition" required>
-<div>
-                        <label for="tob" class="block text-sm font-medium text-purple-300 mb-2">Time of Birth</label>
-                        <input type="time" id="tob" name="tob" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-purple-500 focus:border-purple-500 transition" required>         
-           </div>
- <label for="pob" class="block text-sm font-medium text-purple-300 mb-2">Place of Birth</label>
-                        <input type="text" id="pob" name="pob" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-purple-500 focus:border-purple-500 transition" required>         
-           </div>                 
-   <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/50">
+                    </div>
+                    <div>
+                        <label for="tob" class="block text-sm font-medium text-purple-300 mb-2">Time of Birth (Optional)</label>
+                        <input type="time" id="tob" name="tob" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-purple-500 focus:border-purple-500 transition">        
+                    </div>
+                    <div>
+                        <label for="pob" class="block text-sm font-medium text-purple-300 mb-2">Place of Birth (Optional)</label>
+                        <input type="text" id="pob" name="pob" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-purple-500 focus:border-purple-500 transition">        
+                    </div>                        
+                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-500/50">
                         Reveal My Numbers
                     </button>
+                    <div id="form-error" class="text-red-400 text-sm mt-4 hidden"></div>
                 </form>
             </div>
 
@@ -112,7 +115,7 @@
                 </div>
                 <div id="results-content" class="hidden space-y-6">
                     </div>
-                 <div id="loading-spinner" class="hidden h-full flex items-center justify-center">
+                <div id="loading-spinner" class="hidden h-full flex items-center justify-center">
                     <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-purple-500"></div>
                 </div>
             </div>
@@ -127,6 +130,7 @@
         const resultsPlaceholder = document.getElementById('results-placeholder');
         const resultsContent = document.getElementById('results-content');
         const loadingSpinner = document.getElementById('loading-spinner');
+        const errorEl = document.getElementById('form-error');
 
         // --- DATA ---
         const friendNumbers = {
@@ -152,9 +156,26 @@
             }
         };
 
+        const numberInterpretations = {
+            1: { title: "The Leader", text: "Represents independence, ambition, and leadership. This number signifies a pioneering spirit, self-reliance, and a drive to be number one." },
+            2: { title: "The Diplomat", text: "Represents cooperation, harmony, and sensitivity. This number signifies a peacemaker who thrives in partnership and values relationships." },
+            3: { title: "The Communicator", text: "Represents creativity, self-expression, and optimism. This number brings a gift for words and a joyful, charismatic personality." },
+            4: { title: "The Builder", text: "Represents stability, discipline, and hard work. This number is practical, reliable, and dedicated to building a secure foundation." },
+            5: { title: "The Adventurer", text: "Represents freedom, versatility, and change. This number signifies a curious, adaptable individual who thrives on new experiences." },
+            6: { title: "The Nurturer", text: "Represents responsibility, compassion, and home. This number is a natural caretaker who values family, community, and service." },
+            7.
+            { title: "The Seeker", text: "Represents analysis, intuition, and spirituality. This number is a deep thinker with a love for knowledge, truth, and solitude." },
+            8: { title: "The Powerhouse", text: "Represents abundance, authority, and ambition. This number signifies a natural executive with strong leadership skills and a drive for material success." },
+            9: { title: "The Humanitarian", text: "Represents compassion, generosity, and completion. This number signifies a selfless idealist with a deep concern for the world." },
+            11: { title: "The Visionary (Master)", text: "A Master Number representing heightened intuition, idealism, and spiritual insight. You are here to inspire and uplift humanity." },
+            22: { title: "The Master Builder", text: "A Master Number representing the ability to turn grand dreams into practical reality. You have immense potential for large-scale achievement." }
+        };
+
         // --- Event Listener ---
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
+            errorEl.classList.add('hidden'); // Hide error on new submit
+
             const firstName = document.getElementById('firstName').value.trim().toUpperCase();
             const middleName = document.getElementById('middleName').value.trim().toUpperCase();
             const lastName = document.getElementById('lastName').value.trim().toUpperCase();
@@ -162,7 +183,8 @@
             const gender = document.getElementById('gender').value;
 
             if (!firstName || !lastName || !dob || !gender) {
-                console.error('Please fill in all required fields.');
+                errorEl.textContent = 'Please fill in all required fields: First Name, Last Name, DOB, and Gender.';
+                errorEl.classList.remove('hidden');
                 return;
             }
             
@@ -170,22 +192,26 @@
             resultsContent.classList.add('hidden');
             loadingSpinner.classList.remove('hidden');
 
-            const numerologyReport = calculateNumerology(firstName, middleName, lastName, dob, gender);
-            
-            loadingSpinner.classList.add('hidden');
-            resultsContent.classList.remove('hidden');
-            resultsContent.innerHTML = ''; // Clear previous results
-            displayResults(numerologyReport);
+            // Simulate a short delay for a better UX
+            setTimeout(() => {
+                const numerologyReport = calculateNumerology(firstName, middleName, lastName, dob, gender);
+                
+                loadingSpinner.classList.add('hidden');
+                resultsContent.classList.remove('hidden');
+                resultsContent.innerHTML = ''; // Clear previous results
+                displayResults(numerologyReport);
+            }, 500); // 0.5 second delay
         });
         
         // --- Calculation Logic ---
         function reduceToSingleDigit(num) {
-            if (num === 11 || num === 22) return num;
+            if (num === 11 || num === 22) return num; // Keep Master Numbers
             let sum = String(num).split('').reduce((acc, digit) => acc + Number(digit), 0);
             return (sum > 9 && sum !== 11 && sum !== 22) ? reduceToSingleDigit(sum) : sum;
         }
         
         function forceSingleDigit(num) {
+            // This function will reduce master numbers (e.g., 11 -> 2)
             let sum = String(num).split('').reduce((acc, digit) => acc + Number(digit), 0);
             return sum > 9 ? forceSingleDigit(sum) : sum;
         }
@@ -213,12 +239,14 @@
             const year = date.getUTCFullYear();
             const fullName = [firstName, middleName, lastName].filter(Boolean).join('');
 
-            const driverNumber = forceSingleDigit(day);
             const conductorDigitSum = (String(day) + String(month) + String(year)).split('').reduce((s, d) => s + Number(d), 0);
-            const conductorNumber = forceSingleDigit(conductorDigitSum);
-
-            const driverLuckyNumbers = friendNumbers[driverNumber] ? friendNumbers[driverNumber].join(', ') : 'N/A';
-            const conductorLuckyNumbers = friendNumbers[conductorNumber] ? friendNumbers[conductorNumber].join(', ') : 'N/A';
+            
+            // --- FIX: Use reduceToSingleDigit to preserve Master Numbers ---
+            const driverNumber = reduceToSingleDigit(day);
+            const conductorNumber = reduceToSingleDigit(conductorDigitSum);
+            
+            const driverLuckyNumbers = friendNumbers[forceSingleDigit(driverNumber)] ? friendNumbers[forceSingleDigit(driverNumber)].join(', ') : 'N/A';
+            const conductorLuckyNumbers = friendNumbers[forceSingleDigit(conductorNumber)] ? friendNumbers[forceSingleDigit(conductorNumber)].join(', ') : 'N/A';
             
             const letterValues = { 'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 8, 'G': 3, 'H': 5, 'I': 1, 'J': 1, 'K': 2, 'L': 3, 'M': 4, 'N': 5, 'O': 7, 'P': 8, 'Q': 1, 'R': 2, 'S': 3, 'T': 4, 'U': 6, 'V': 6, 'W': 6, 'X': 5, 'Y': 1, 'Z': 7 };
             const vowels = ['A', 'E', 'I', 'O', 'U'];
@@ -230,17 +258,19 @@
                     else personalitySum += letterValues[char];
                 }
             });
-            const soulUrgeNumber = forceSingleDigit(soulUrgeSum);
+
+            // Name numbers are also reduced, preserving master numbers
+            const soulUrgeNumber = reduceToSingleDigit(soulUrgeSum);
             const personalityNumber = reduceToSingleDigit(personalitySum);
             const fullNameNumber = reduceToSingleDigit(soulUrgeSum + personalitySum);
             
             const currentYear = new Date().getFullYear();
             const personalYear = forceSingleDigit(forceSingleDigit(day) + forceSingleDigit(month) + forceSingleDigit(currentYear));
             const universalYear = forceSingleDigit(currentYear);
-            const successNumber = forceSingleDigit(day + month);
+            const successNumber = reduceToSingleDigit(day + month); // Use reduce to catch 11/22
 
             const karmicDebt = [13, 14, 16, 19].includes(day) || [13, 14, 16, 19].includes(conductorDigitSum) ? "Yes" : "No";
-            const masterNumber = [11, 22].includes(day) || [11, 22, 33].includes(conductorDigitSum) ? "Yes" : "No";
+            const masterNumber = [11, 22].includes(day) || [11, 22].includes(conductorDigitSum) || [11, 22].includes(soulUrgeSum) || [11, 22].includes(personalitySum) ? "Yes" : "No";
 
             const zodiacSign = getZodiacSign(day, month);
             let yearSum = forceSingleDigit(year);
@@ -259,7 +289,7 @@
                 fullGridSourceString += `${day}`;
             }
             
-            fullGridSourceString += `${driverNumber}${conductorNumber}${kuaNumber}${fullNameNumber}`;
+            fullGridSourceString += `${forceSingleDigit(driverNumber)}${forceSingleDigit(conductorNumber)}${kuaNumber}${forceSingleDigit(fullNameNumber)}`;
             fullGridSourceString.split('').forEach(d => { if(fullGridCounts[d] !== undefined) fullGridCounts[d]++; });
 
             return { driverNumber, conductorNumber, driverLuckyNumbers, conductorLuckyNumbers, soulUrgeNumber, personalityNumber, personalYear, successNumber, universalYear, karmicDebt, masterNumber, zodiacSign, kuaNumber, fullNameNumber, baseGridCounts, fullGridCounts };
@@ -310,23 +340,23 @@
         }
 
         function displayResults(report) {
-            const explanation = `Includes Moolank (${report.driverNumber}), Bhagyank (${report.conductorNumber}), Kua No. (${report.kuaNumber}), & Name No. (${report.fullNameNumber}).`;
+            const explanation = `Includes Moolank (${forceSingleDigit(report.driverNumber)}), Bhagyank (${forceSingleDigit(report.conductorNumber)}), Kua No. (${report.kuaNumber}), & Name No. (${forceSingleDigit(report.fullNameNumber)}).`;
             resultsContent.innerHTML = `
-                ${createResultCard('Driver Number (Moolank)', report.driverNumber, null, 100, report.driverLuckyNumbers)}
-                ${createResultCard('Conductor Number (Bhagyank)', report.conductorNumber, null, 200, report.conductorLuckyNumbers)}
+                ${createResultCard('Driver Number (Moolank)', report.driverNumber, numberInterpretations[report.driverNumber] || null, 100, report.driverLuckyNumbers)}
+                ${createResultCard('Conductor Number (Bhagyank)', report.conductorNumber, numberInterpretations[report.conductorNumber] || null, 200, report.conductorLuckyNumbers)}
                 ${createResultCard('Zodiac Sign', report.zodiacSign, interpretations.zodiac ? interpretations.zodiac[report.zodiacSign] : null, 300)}
-                ${createResultCard('Kua Number', report.kuaNumber, null, 400)}
-                ${createResultCard('Soul Urge Number', report.soulUrgeNumber, null, 500)}
-                ${createResultCard('Personality Number', report.personalityNumber, null, 600)}
-                ${createResultCard('Name Number', report.fullNameNumber, null, 700)}
+                ${createResultCard('Kua Number', report.kuaNumber, numberInterpretations[report.kuaNumber] || null, 400)}
+                ${createResultCard('Soul Urge Number', report.soulUrgeNumber, numberInterpretations[report.soulUrgeNumber] || null, 500)}
+                ${createResultCard('Personality Number', report.personalityNumber, numberInterpretations[report.personalityNumber] || null, 600)}
+                ${createResultCard('Name Number', report.fullNameNumber, numberInterpretations[report.fullNameNumber] || null, 700)}
                 <div class="grid md:grid-cols-2 gap-6">
                     ${createResultCard('Karmic Debt', report.karmicDebt, {title: "Indicator", text:"Reflects lessons from past actions that need to be addressed in this lifetime."}, 800)}
                     ${createResultCard('Master Number', report.masterNumber, {title: "Indicator", text:"Signifies a higher potential for achievement and spiritual purpose, but with greater challenges."}, 800)}
                 </div>
                 <div class="grid md:grid-cols-3 gap-6">
-                    ${createResultCard('Personal Year', report.personalYear, {title: "Current Vibe", text:"The theme for your current year from one birthday to the next."}, 900)}
-                    ${createResultCard('Universal Year', report.universalYear, {title: "Global Vibe", text:"The collective energy influencing everyone on the planet this year."}, 900)}
-                    ${createResultCard('Success Number', report.successNumber, {title: "Achievement Key", text:"A number that aids in achieving your life's goals and ambitions."}, 900)}
+                    ${createResultCard('Personal Year', report.personalYear, {title: "Current Vibe", text:"The theme for your current year from one birthday to the next.", ...numberInterpretations[report.personalYear]}, 900)}
+                    ${createResultCard('Universal Year', report.universalYear, {title: "Global Vibe", text:"The collective energy influencing everyone on the planet this year.", ...numberInterpretations[report.universalYear]}, 900)}
+                    ${createResultCard('Success Number', report.successNumber, {title: "Achievement Key", text:"A number that aids in achieving your life's goals and ambitions.", ...numberInterpretations[report.successNumber]}, 900)}
                 </div>
                 ${createLoShuGrid('Lo Shu Grid (Date of Birth)', report.baseGridCounts, 1000)}
                 ${createLoShuGrid('Lo Shu Grid (Full Chart)', report.fullGridCounts, 1100, explanation)}
