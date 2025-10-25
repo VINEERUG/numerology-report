@@ -183,6 +183,9 @@
             const dob = document.getElementById('dob').value;
             const gender = document.getElementById('gender').value;
 
+            const tob = document.getElementById('tob').value;
+            const pob = document.getElementById('pob').value.trim();
+
             if (!firstName || !lastName || !dob || !gender) {
                 errorEl.textContent = 'Please fill in all required fields: First Name, Last Name, DOB, and Gender.';
                 errorEl.classList.remove('hidden');
@@ -194,7 +197,7 @@
             loadingSpinner.classList.remove('hidden');
 
             setTimeout(() => {
-                const numerologyReport = calculateNumerology(firstName, middleName, lastName, dob, gender);
+                const numerologyReport = calculateNumerology(firstName, middleName, lastName, dob, gender, tob, pob);
                 
                 loadingSpinner.classList.add('hidden');
                 resultsContent.classList.remove('hidden');
@@ -204,24 +207,27 @@
         });
         
         // --- Calculation Logic ---
+        
+        // Preserves Master Numbers 11 & 22 (for Date-based numbers)
         function reduceToSingleDigit(num) {
             if (num === 11 || num === 22) return num; 
             let sum = String(num).split('').reduce((acc, digit) => acc + Number(digit), 0);
             return (sum > 9 && sum !== 11 && sum !== 22) ? reduceToSingleDigit(sum) : sum;
         }
         
+        // Forces reduction to a single digit (e.g., 11 -> 2) (for Name-based numbers)
         function forceSingleDigit(num) {
             let sum = String(num).split('').reduce((acc, digit) => acc + Number(digit), 0);
             return sum > 9 ? forceSingleDigit(sum) : sum;
         }
 
-        // --- MODIFIED HELPER: Returns object with sum and reduced number ---
+        // Uses forceSingleDigit for names
         function calculateNameNumber(name) {
-            if (!name) return { sum: 0, reduced: 0 }; // Return object
+            if (!name) return { sum: 0, reduced: 0 };
             const sum = name.split('').reduce((acc, char) => {
                 return acc + (letterValues[char] || 0); 
             }, 0);
-            return { sum: sum, reduced: reduceToSingleDigit(sum) }; // Return object
+            return { sum: sum, reduced: forceSingleDigit(sum) }; 
         }
 
         function getZodiacSign(day, month) {
@@ -240,23 +246,27 @@
             return "Unknown";
         }
         
-        // --- MODIFIED: Calculates totals and correction status ---
-        function calculateNumerology(firstName, middleName, lastName, dobString, gender) {
+        // --- MODIFIED: Implements COMBINED friend number AND 4/8 check ---
+        function calculateNumerology(firstName, middleName, lastName, dobString, gender, tob, pob) {
             const date = new Date(dobString);
             const day = date.getUTCDate();
             const month = date.getUTCMonth() + 1;
             const year = date.getUTCFullYear();
+            
             const fullName = [firstName, middleName, lastName].filter(Boolean).join('');
 
             const conductorDigitSum = (String(day) + String(month) + String(year)).split('').reduce((s, d) => s + Number(d), 0);
             
+            // Date numbers preserve Master Numbers
             const driverNumber = reduceToSingleDigit(day);
             const conductorNumber = reduceToSingleDigit(conductorDigitSum);
             
             const driverLuckyNumbers = friendNumbers[forceSingleDigit(driverNumber)] ? friendNumbers[forceSingleDigit(driverNumber)].join(', ') : 'N/A';
             const conductorLuckyNumbers = friendNumbers[forceSingleDigit(conductorNumber)] ? friendNumbers[forceSingleDigit(conductorNumber)].join(', ') : 'N/A';
             
+            // Name parts use forceSingleDigit
             const firstNameData = calculateNameNumber(firstName);
+            const middleNameData = calculateNameNumber(middleName);
             const lastNameData = calculateNameNumber(lastName);
             
             const vowels = ['A', 'E', 'I', 'O', 'U'];
@@ -269,17 +279,21 @@
                 }
             });
 
-            const fullNameSum = soulUrgeSum + personalitySum; // This is the unreduced full name total
+            const fullNameSum = soulUrgeSum + personalitySum; 
 
-            const soulUrgeNumber = reduceToSingleDigit(soulUrgeSum);
-            const personalityNumber = reduceToSingleDigit(personalitySum);
-            const fullNameNumber = reduceToSingleDigit(fullNameSum); // This is the reduced full name
+            // All name numbers use forceSingleDigit
+            const soulUrgeNumber = forceSingleDigit(soulUrgeSum);
+            const personalityNumber = forceSingleDigit(personalitySum);
+            const fullNameNumber = forceSingleDigit(fullNameSum); 
+            
             const firstNameNumber = firstNameData.reduced;
+            const middleNameNumber = middleNameData.reduced;
             const lastNameNumber = lastNameData.reduced;
             
             const currentYear = new Date().getFullYear();
             const personalYear = forceSingleDigit(forceSingleDigit(day) + forceSingleDigit(month) + forceSingleDigit(currentYear));
             const universalYear = forceSingleDigit(currentYear);
+            
             const successNumber = reduceToSingleDigit(day + month);
 
             const karmicDebt = [13, 14, 16, 19].includes(day) || [13, 14, 16, 19].includes(conductorDigitSum) ? "Yes" : "No";
@@ -291,10 +305,58 @@
             kuaNumber = forceSingleDigit(kuaNumber);
             if (kuaNumber === 5) kuaNumber = (gender === 'male') ? 2 : 8;
             
-            // --- NEW: Add Name Correction Check ---
+            // --- Combined Name Correction Check ---
             let nameCorrectionRequired = "No";
-            if (firstNameNumber === 4 || firstNameNumber === 8 || fullNameNumber === 4 || fullNameNumber === 8) {
+            let correctionReasons = []; // To store all reasons
+
+            // LOGIC 1: Check for 4 or 8
+            if (firstNameNumber === 4 || firstNameNumber === 8) {
+                correctionReasons.push(`your First Name number (${firstNameNumber}) is a 4 or 8, which can represent struggle`);
+            }
+            if (fullNameNumber === 4 || fullNameNumber === 8) {
+                correctionReasons.push(`your Total Name number (${fullNameNumber}) is a 4 or 8, which can represent struggle`);
+            }
+
+            // LOGIC 2: Check for friend number compatibility
+            const baseDriver = forceSingleDigit(driverNumber);
+            const baseConductor = forceSingleDigit(conductorNumber);
+            const driverFriends = friendNumbers[baseDriver] || [];
+            const conductorFriends = friendNumbers[baseConductor] || [];
+
+            const firstIsCompatible = driverFriends.includes(firstNameNumber) && conductorFriends.includes(firstNameNumber);
+            const fullIsCompatible = driverFriends.includes(fullNameNumber) && conductorFriends.includes(fullNameNumber);
+
+            // --- BUG FIX HERE: Changed from '&&' to '||' logic ---
+            // We want to check if First Name is bad, OR Full Name is bad
+            if (!firstIsCompatible) { 
+                correctionReasons.push(`your First Name (${firstNameNumber}) is not compatible with both your Driver (${baseDriver}) and Conductor (${baseConductor}) numbers`);
+            }
+            if (!fullIsCompatible) { 
+                correctionReasons.push(`your Total Name (${fullNameNumber}) is not compatible with both your Driver (${baseDriver}) and Conductor (${baseConductor}) numbers`);
+            }
+            
+            // --- Set final status and reason string ---
+            let finalCorrectionReason = "";
+            if (correctionReasons.length > 0) {
+                // Remove duplicate reasons if they exist (e.g., 4 is bad AND not a friend)
+                const uniqueReasons = [...new Set(correctionReasons)];
                 nameCorrectionRequired = "Yes";
+                finalCorrectionReason = "A name correction is recommended. Reason(s): " + uniqueReasons.join('; and ') + ".";
+            } else {
+                nameCorrectionRequired = "No";
+                finalCorrectionReason = "Your name is harmonious! Your core name numbers are not 4 or 8, and are compatible with your Driver and Conductor numbers.";
+            }
+            
+            // --- Moon Sign Placeholder ---
+            let moonSign = null;
+            let moonSignInterpretation = null;
+            if (tob && pob) {
+                // --- THIS IS A PLACEHOLDER ---
+                moonSign = "Cancer"; // Example placeholder
+                moonSignInterpretation = {
+                    title: "The Crab",
+                    text: "Your Moon is in Cancer (Note: This is a placeholder. A real calculation requires an API). This indicates a deep need for emotional security and a strong connection to home and family."
+                };
             }
             
             const baseGridCounts = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0};
@@ -311,16 +373,29 @@
             fullGridSourceString += `${forceSingleDigit(driverNumber)}${forceSingleDigit(conductorNumber)}${kuaNumber}${forceSingleDigit(fullNameNumber)}`;
             fullGridSourceString.split('').forEach(d => { if(fullGridCounts[d] !== undefined) fullGridCounts[d]++; });
 
-            // --- NEW: Add totals and correction status to return object ---
             return { 
                 driverNumber, conductorNumber, driverLuckyNumbers, conductorLuckyNumbers, 
                 soulUrgeNumber, personalityNumber, personalYear, successNumber, 
                 universalYear, karmicDebt, masterNumber, zodiacSign, kuaNumber, 
-                fullNameNumber, firstNameNumber, lastNameNumber, 
-                firstNameTotal: firstNameData.sum, // <-- NEW
-                lastNameTotal: lastNameData.sum,   // <-- NEW
-                fullNameTotal: fullNameSum,       // <-- NEW
-                nameCorrectionRequired,           // <-- NEW
+                
+                fullNameNumber,       
+                fullNameTotal: fullNameSum, 
+
+                firstNameNumber,      
+                firstNameTotal: firstNameData.sum, 
+                
+                middleNameNumber,     
+                middleNameTotal: middleNameData.sum, 
+
+                lastNameNumber,       
+                lastNameTotal: lastNameData.sum,   
+                
+                nameCorrectionRequired,
+                correctionReason: finalCorrectionReason,
+
+                moonSign,
+                moonSignInterpretation,
+
                 baseGridCounts, fullGridCounts 
             };
         }
@@ -331,7 +406,6 @@
             const isText = isNaN(parseFloat(number));
             const numberDisplayClass = isText ? 'text-4xl md:text-5xl' : 'text-6xl';
             
-            // --- MODIFIED: Now supports totals in the footer ---
             const footerHTML = footerText ? `<div class="mt-4 pt-3 border-t border-gray-700 text-sm text-purple-200/80"><strong class="text-purple-300">${footerText.startsWith("Total:") ? "" : "Friend Numbers: "}</strong> ${footerText}</div>` : '';
 
             return `
@@ -371,29 +445,62 @@
                 </div>`;
         }
 
-        // --- MODIFIED: Displays new cards and totals ---
+        // --- Display Function for Name Parts (First, Middle, Last) ---
+        function createNamePartsCard(report, delay) {
+            const parts = [
+                { label: 'First Name', number: report.firstNameNumber, total: report.firstNameTotal },
+                ...(report.middleNameTotal > 0 ? [{ label: 'Middle Name', number: report.middleNameNumber, total: report.middleNameTotal }] : []),
+                { label: 'Last Name', number: report.lastNameNumber, total: report.lastNameTotal }
+            ];
+
+            let contentHTML = parts.map(part => `
+                <div class="flex-1 text-center px-2">
+                    <p class="text-purple-300 text-sm">${part.label}</p>
+                    <p class="number-display text-5xl font-bold">${part.number}</p>
+                    <p class="text-gray-400 text-xs mt-1">Total: ${part.total}</p>
+                </div>
+            `).join('<div class="border-l border-gray-700 mx-2"></div>'); // Add dividers
+
+            return `
+                <div class="result-card bg-gray-800/50 p-6 rounded-xl border border-gray-700 shadow-lg" style="animation-delay: ${delay}ms;">
+                    <h3 class="font-serif text-2xl text-white mb-4 text-center">Name Component Numbers</h3>
+                    <div class="flex justify-around items-center">
+                        ${contentHTML}
+                    </div>
+                </div>`;
+        }
+        
+        // --- MODIFIED: Uses new combined cards for names ---
         function displayResults(report) {
-            const explanation = `Includes Moolank (${forceSingleDigit(report.driverNumber)}), Bhagyank (${forceSingleDigit(report.conductorNumber)}), Kua No. (${report.kuaNumber}), & Name No. (${forceSingleDigit(report.fullNameNumber)}).`;
+            const explanation = `Includes Moolank (${forceSingleDigit(report.driverNumber)}), Bhagyank (${forceSingleDigit(report.conductorNumber)}), Kua No. (${report.kuaNumber}), & Name No. (${report.fullNameNumber}).`;
             
             const correctionInterpretation = {
                 title: report.nameCorrectionRequired === "Yes" ? "Correction Recommended" : "Harmonious Name",
-                text: report.nameCorrectionRequired === "Yes" ? "Your reduced First Name or Full Name number is 4 or 8. These numbers can represent struggle and challenges. A numerological name correction might be beneficial." : "Your core name numbers are harmonious and do not fall into the challenging categories of 4 or 8."
+                text: report.correctionReason // This text now contains all reasons
             };
+
+            // --- Conditionally create Moon Sign Card HTML ---
+            let moonSignCardHTML = '';
+            if (report.moonSign) {
+                moonSignCardHTML = createResultCard('Moon Sign', report.moonSign, report.moonSignInterpretation, 450);
+            }
 
             resultsContent.innerHTML = `
                 ${createResultCard('Driver Number (Moolank)', report.driverNumber, numberInterpretations[report.driverNumber] || null, 100, report.driverLuckyNumbers)}
                 ${createResultCard('Conductor Number (Bhagyank)', report.conductorNumber, numberInterpretations[report.conductorNumber] || null, 200, report.conductorLuckyNumbers)}
                 ${createResultCard('Zodiac Sign', report.zodiacSign, interpretations.zodiac ? interpretations.zodiac[report.zodiacSign] : null, 300)}
                 ${createResultCard('Kua Number', report.kuaNumber, numberInterpretations[report.kuaNumber] || null, 400)}
+
+                ${moonSignCardHTML}
+
                 ${createResultCard('Soul Urge Number', report.soulUrgeNumber, numberInterpretations[report.soulUrgeNumber] || null, 500)}
+                
                 ${createResultCard('Personality Number', report.personalityNumber, numberInterpretations[report.personalityNumber] || null, 600)}
                 
-                ${createResultCard('Full Name Number (Expression)', report.fullNameNumber, numberInterpretations[report.fullNameNumber] || null, 700, `Total: ${report.fullNameTotal}`)}
+                ${createResultCard('Total Name Number (Expression)', report.fullNameNumber, numberInterpretations[report.fullNameNumber] || null, 700, `Total: ${report.fullNameTotal}`)}
                 
-                ${createResultCard('First Name Number', report.firstNameNumber, numberInterpretations[report.firstNameNumber] || null, 725, `Total: ${report.firstNameTotal}`)}
+                ${createNamePartsCard(report, 725)}
                 
-                ${createResultCard('Last Name Number', report.lastNameNumber, numberInterpretations[report.lastNameNumber] || null, 750, `Total: ${report.lastNameTotal}`)}
-
                 ${createResultCard('Name Correction Status', report.nameCorrectionRequired, correctionInterpretation, 775)}
 
                 <div class="grid md:grid-cols-2 gap-6">
