@@ -170,6 +170,8 @@
             22: { title: "The Master Builder", text: "A Master Number representing the ability to turn grand dreams into practical reality. You have immense potential for large-scale achievement." }
         };
 
+        const letterValues = { 'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 8, 'G': 3, 'H': 5, 'I': 1, 'J': 1, 'K': 2, 'L': 3, 'M': 4, 'N': 5, 'O': 7, 'P': 8, 'Q': 1, 'R': 2, 'S': 3, 'T': 4, 'U': 6, 'V': 6, 'W': 6, 'X': 5, 'Y': 1, 'Z': 7 };
+
         // --- Event Listener ---
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -180,10 +182,7 @@
             const lastName = document.getElementById('lastName').value.trim().toUpperCase();
             const dob = document.getElementById('dob').value;
             const gender = document.getElementById('gender').value;
-            
-            // **VALIDATION LOGIC**
-            // Time of Birth (tob) and Place of Birth (pob) are NOT included in this check
-            // because they are now optional.
+
             if (!firstName || !lastName || !dob || !gender) {
                 errorEl.textContent = 'Please fill in all required fields: First Name, Last Name, DOB, and Gender.';
                 errorEl.classList.remove('hidden');
@@ -194,7 +193,6 @@
             resultsContent.classList.add('hidden');
             loadingSpinner.classList.remove('hidden');
 
-            // Simulate a short delay for a better UX
             setTimeout(() => {
                 const numerologyReport = calculateNumerology(firstName, middleName, lastName, dob, gender);
                 
@@ -202,20 +200,28 @@
                 resultsContent.classList.remove('hidden');
                 resultsContent.innerHTML = ''; // Clear previous results
                 displayResults(numerologyReport);
-            }, 500); // 0.5 second delay
+            }, 500); 
         });
         
         // --- Calculation Logic ---
         function reduceToSingleDigit(num) {
-            if (num === 11 || num === 22) return num; // Keep Master Numbers
+            if (num === 11 || num === 22) return num; 
             let sum = String(num).split('').reduce((acc, digit) => acc + Number(digit), 0);
             return (sum > 9 && sum !== 11 && sum !== 22) ? reduceToSingleDigit(sum) : sum;
         }
         
         function forceSingleDigit(num) {
-            // This function will reduce master numbers (e.g., 11 -> 2)
             let sum = String(num).split('').reduce((acc, digit) => acc + Number(digit), 0);
             return sum > 9 ? forceSingleDigit(sum) : sum;
+        }
+
+        // --- MODIFIED HELPER: Returns object with sum and reduced number ---
+        function calculateNameNumber(name) {
+            if (!name) return { sum: 0, reduced: 0 }; // Return object
+            const sum = name.split('').reduce((acc, char) => {
+                return acc + (letterValues[char] || 0); 
+            }, 0);
+            return { sum: sum, reduced: reduceToSingleDigit(sum) }; // Return object
         }
 
         function getZodiacSign(day, month) {
@@ -234,6 +240,7 @@
             return "Unknown";
         }
         
+        // --- MODIFIED: Calculates totals and correction status ---
         function calculateNumerology(firstName, middleName, lastName, dobString, gender) {
             const date = new Date(dobString);
             const day = date.getUTCDate();
@@ -243,15 +250,15 @@
 
             const conductorDigitSum = (String(day) + String(month) + String(year)).split('').reduce((s, d) => s + Number(d), 0);
             
-            // --- FIX: Use reduceToSingleDigit to preserve Master Numbers ---
             const driverNumber = reduceToSingleDigit(day);
             const conductorNumber = reduceToSingleDigit(conductorDigitSum);
             
-            // Friend numbers are based on the forced single digit (e.g., 11 becomes 2)
             const driverLuckyNumbers = friendNumbers[forceSingleDigit(driverNumber)] ? friendNumbers[forceSingleDigit(driverNumber)].join(', ') : 'N/A';
             const conductorLuckyNumbers = friendNumbers[forceSingleDigit(conductorNumber)] ? friendNumbers[forceSingleDigit(conductorNumber)].join(', ') : 'N/A';
             
-            const letterValues = { 'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 8, 'G': 3, 'H': 5, 'I': 1, 'J': 1, 'K': 2, 'L': 3, 'M': 4, 'N': 5, 'O': 7, 'P': 8, 'Q': 1, 'R': 2, 'S': 3, 'T': 4, 'U': 6, 'V': 6, 'W': 6, 'X': 5, 'Y': 1, 'Z': 7 };
+            const firstNameData = calculateNameNumber(firstName);
+            const lastNameData = calculateNameNumber(lastName);
+            
             const vowels = ['A', 'E', 'I', 'O', 'U'];
             let soulUrgeSum = 0;
             let personalitySum = 0;
@@ -262,15 +269,18 @@
                 }
             });
 
-            // Name numbers are also reduced, preserving master numbers
+            const fullNameSum = soulUrgeSum + personalitySum; // This is the unreduced full name total
+
             const soulUrgeNumber = reduceToSingleDigit(soulUrgeSum);
             const personalityNumber = reduceToSingleDigit(personalitySum);
-            const fullNameNumber = reduceToSingleDigit(soulUrgeSum + personalitySum);
+            const fullNameNumber = reduceToSingleDigit(fullNameSum); // This is the reduced full name
+            const firstNameNumber = firstNameData.reduced;
+            const lastNameNumber = lastNameData.reduced;
             
             const currentYear = new Date().getFullYear();
             const personalYear = forceSingleDigit(forceSingleDigit(day) + forceSingleDigit(month) + forceSingleDigit(currentYear));
             const universalYear = forceSingleDigit(currentYear);
-            const successNumber = reduceToSingleDigit(day + month); // Use reduce to catch 11/22
+            const successNumber = reduceToSingleDigit(day + month);
 
             const karmicDebt = [13, 14, 16, 19].includes(day) || [13, 14, 16, 19].includes(conductorDigitSum) ? "Yes" : "No";
             const masterNumber = [11, 22].includes(day) || [11, 22].includes(conductorDigitSum) || [11, 22].includes(soulUrgeSum) || [11, 22].includes(personalitySum) ? "Yes" : "No";
@@ -280,6 +290,12 @@
             let kuaNumber = (gender === 'male') ? 11 - yearSum : 4 + yearSum;
             kuaNumber = forceSingleDigit(kuaNumber);
             if (kuaNumber === 5) kuaNumber = (gender === 'male') ? 2 : 8;
+            
+            // --- NEW: Add Name Correction Check ---
+            let nameCorrectionRequired = "No";
+            if (firstNameNumber === 4 || firstNameNumber === 8 || fullNameNumber === 4 || fullNameNumber === 8) {
+                nameCorrectionRequired = "Yes";
+            }
             
             const baseGridCounts = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0};
             `${day}${month}${year}`.split('').forEach(d => { if(baseGridCounts[d] !== undefined) baseGridCounts[d]++; });
@@ -292,11 +308,21 @@
                 fullGridSourceString += `${day}`;
             }
             
-            // We use the forced single digit for grid calculations
             fullGridSourceString += `${forceSingleDigit(driverNumber)}${forceSingleDigit(conductorNumber)}${kuaNumber}${forceSingleDigit(fullNameNumber)}`;
             fullGridSourceString.split('').forEach(d => { if(fullGridCounts[d] !== undefined) fullGridCounts[d]++; });
 
-            return { driverNumber, conductorNumber, driverLuckyNumbers, conductorLuckyNumbers, soulUrgeNumber, personalityNumber, personalYear, successNumber, universalYear, karmicDebt, masterNumber, zodiacSign, kuaNumber, fullNameNumber, baseGridCounts, fullGridCounts };
+            // --- NEW: Add totals and correction status to return object ---
+            return { 
+                driverNumber, conductorNumber, driverLuckyNumbers, conductorLuckyNumbers, 
+                soulUrgeNumber, personalityNumber, personalYear, successNumber, 
+                universalYear, karmicDebt, masterNumber, zodiacSign, kuaNumber, 
+                fullNameNumber, firstNameNumber, lastNameNumber, 
+                firstNameTotal: firstNameData.sum, // <-- NEW
+                lastNameTotal: lastNameData.sum,   // <-- NEW
+                fullNameTotal: fullNameSum,       // <-- NEW
+                nameCorrectionRequired,           // <-- NEW
+                baseGridCounts, fullGridCounts 
+            };
         }
 
         // --- Display Logic ---
@@ -304,7 +330,9 @@
             const interp = interpretation || { title: "Cosmic Insight", text: "This value represents a key aspect of your life's blueprint, influencing your personality, challenges, and opportunities." };
             const isText = isNaN(parseFloat(number));
             const numberDisplayClass = isText ? 'text-4xl md:text-5xl' : 'text-6xl';
-            const footerHTML = footerText ? `<div class="mt-4 pt-3 border-t border-gray-700 text-sm text-purple-200/80"><strong class="text-purple-300">Friend Numbers:</strong> ${footerText}</div>` : '';
+            
+            // --- MODIFIED: Now supports totals in the footer ---
+            const footerHTML = footerText ? `<div class="mt-4 pt-3 border-t border-gray-700 text-sm text-purple-200/80"><strong class="text-purple-300">${footerText.startsWith("Total:") ? "" : "Friend Numbers: "}</strong> ${footerText}</div>` : '';
 
             return `
                 <div class="result-card bg-gray-800/50 p-6 rounded-xl border border-gray-700 shadow-lg" style="animation-delay: ${delay}ms;">
@@ -343,11 +371,15 @@
                 </div>`;
         }
 
+        // --- MODIFIED: Displays new cards and totals ---
         function displayResults(report) {
-            // Explanation uses the forced single digit numbers for clarity
             const explanation = `Includes Moolank (${forceSingleDigit(report.driverNumber)}), Bhagyank (${forceSingleDigit(report.conductorNumber)}), Kua No. (${report.kuaNumber}), & Name No. (${forceSingleDigit(report.fullNameNumber)}).`;
             
-            // We display the actual numbers (including Master Numbers 11/22)
+            const correctionInterpretation = {
+                title: report.nameCorrectionRequired === "Yes" ? "Correction Recommended" : "Harmonious Name",
+                text: report.nameCorrectionRequired === "Yes" ? "Your reduced First Name or Full Name number is 4 or 8. These numbers can represent struggle and challenges. A numerological name correction might be beneficial." : "Your core name numbers are harmonious and do not fall into the challenging categories of 4 or 8."
+            };
+
             resultsContent.innerHTML = `
                 ${createResultCard('Driver Number (Moolank)', report.driverNumber, numberInterpretations[report.driverNumber] || null, 100, report.driverLuckyNumbers)}
                 ${createResultCard('Conductor Number (Bhagyank)', report.conductorNumber, numberInterpretations[report.conductorNumber] || null, 200, report.conductorLuckyNumbers)}
@@ -355,7 +387,15 @@
                 ${createResultCard('Kua Number', report.kuaNumber, numberInterpretations[report.kuaNumber] || null, 400)}
                 ${createResultCard('Soul Urge Number', report.soulUrgeNumber, numberInterpretations[report.soulUrgeNumber] || null, 500)}
                 ${createResultCard('Personality Number', report.personalityNumber, numberInterpretations[report.personalityNumber] || null, 600)}
-                ${createResultCard('Name Number', report.fullNameNumber, numberInterpretations[report.fullNameNumber] || null, 700)}
+                
+                ${createResultCard('Full Name Number (Expression)', report.fullNameNumber, numberInterpretations[report.fullNameNumber] || null, 700, `Total: ${report.fullNameTotal}`)}
+                
+                ${createResultCard('First Name Number', report.firstNameNumber, numberInterpretations[report.firstNameNumber] || null, 725, `Total: ${report.firstNameTotal}`)}
+                
+                ${createResultCard('Last Name Number', report.lastNameNumber, numberInterpretations[report.lastNameNumber] || null, 750, `Total: ${report.lastNameTotal}`)}
+
+                ${createResultCard('Name Correction Status', report.nameCorrectionRequired, correctionInterpretation, 775)}
+
                 <div class="grid md:grid-cols-2 gap-6">
                     ${createResultCard('Karmic Debt', report.karmicDebt, {title: "Indicator", text:"Reflects lessons from past actions that need to be addressed in this lifetime."}, 800)}
                     ${createResultCard('Master Number', report.masterNumber, {title: "Indicator", text:"Signifies a higher potential for achievement and spiritual purpose, but with greater challenges."}, 800)}
