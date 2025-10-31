@@ -6,6 +6,7 @@
 <title>Numerology Report Portal</title>
 <link rel="stylesheet" href="style.css" />
 <style>
+/* You can move this to style.css if you want */
 body{
   background:#020b20;
   color:#fff;
@@ -29,6 +30,7 @@ input,select{
   margin:8px 0;
   border:none;
   border-radius:5px;
+  box-sizing: border-box; /* Added for better layout */
 }
 button{
   width:100%;
@@ -40,9 +42,15 @@ button{
   font-size:1rem;
   cursor:pointer;
   transition:0.3s;
+  margin-top: 10px; /* Added margin */
 }
 button:hover{
   box-shadow:0 0 15px #c000ff;
+}
+button:disabled {
+    background: #555;
+    cursor: not-allowed;
+    opacity: 0.7;
 }
 </style>
 </head>
@@ -55,8 +63,8 @@ button:hover{
   <input type="date" id="dob" required />
   <select id="gender" required>
     <option value="">Select Gender</option>
-    <option value="Male">Male</option>
-    <option value="Female">Female</option>
+    <option value="male">Male</option>
+    <option value="female">Female</option>
   </select>
   <input type="text" id="mobile" placeholder="Mobile (optional)" />
   <button type="submit">Reveal My Numbers</button>
