@@ -5,6 +5,7 @@ document.getElementById('numerologyForm').addEventListener('submit', async (e) =
   submitButton.disabled = true;
   submitButton.textContent = 'Calculating...';
 
+  // 1. GATHER THE USER'S INPUTS
   const payload = {
     firstName: document.getElementById('firstName').value.trim(),
     middleName: document.getElementById('middleName').value.trim(),
@@ -23,10 +24,11 @@ document.getElementById('numerologyForm').addEventListener('submit', async (e) =
 
     const data = await res.json();
     
-    // Check for 'report' (from success) or 'error' (from failure)
-    if(data.report && !data.error){
+    // 2. CHECK FOR SUCCESS ('report' key) OR FAILURE ('error' key)
+    if (data.report && !data.error) {
       
-      // Store BOTH the user's inputs and the backend's results
+      // 3. STORE *BOTH* INPUTS AND RESULTS
+      // This is so the report page can display the user's name and DOB
       const reportData = {
         inputs: payload,
         results: data.report 
@@ -36,12 +38,15 @@ document.getElementById('numerologyForm').addEventListener('submit', async (e) =
       window.location.href = 'report.html';
       
     } else {
+      // Handle errors from the backend (e.g., "Missing required fields")
       alert('Error: ' + (data.error || 'Something went wrong.'));
     }
 
-  } catch(err){
-    alert('Network error: 's + err.message);
+  } catch(err) {
+    // Handle network errors (e.g., server is down)
+    alert('Network error: ' + err.message);
   } finally {
+    // 4. ALWAYS RE-ENABLE THE BUTTON
     submitButton.disabled = false;
     submitButton.textContent = 'Reveal My Numbers';
   }

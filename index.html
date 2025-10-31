@@ -4,9 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Numerology Report Portal</title>
-<link rel="stylesheet" href="style.css" />
 <style>
-/* You can move this to style.css if you want */
 body{
   background:#020b20;
   color:#fff;
@@ -16,6 +14,10 @@ body{
   align-items:center;
   height:100vh;
   flex-direction:column;
+  margin: 0;
+}
+h2 {
+    font-weight: 300;
 }
 form{
   background:rgba(0,0,40,0.6);
@@ -23,14 +25,31 @@ form{
   border-radius:15px;
   box-shadow:0 0 20px #8800ff;
   width:300px;
+  box-sizing: border-box;
 }
 input,select{
   width:100%;
-  padding:8px;
+  padding: 10px; /* Increased padding */
   margin:8px 0;
   border:none;
   border-radius:5px;
-  box-sizing: border-box; /* Added for better layout */
+  box-sizing: border-box; /* Added for consistent sizing */
+  background: #fff; /* Ensured white background */
+  color: #000; /* Ensured text is dark */
+}
+/* Fix for date placeholder */
+input[type="date"] {
+    color: #000;
+}
+input[type="date"]:invalid {
+    color: #757575; /* Placeholder color */
+}
+/* Fix for select placeholder */
+select:invalid {
+    color: #757575;
+}
+select option {
+    color: #000;
 }
 button{
   width:100%;
@@ -42,7 +61,7 @@ button{
   font-size:1rem;
   cursor:pointer;
   transition:0.3s;
-  margin-top: 10px; /* Added margin */
+  margin-top: 10px;
 }
 button:hover{
   box-shadow:0 0 15px #c000ff;
@@ -62,7 +81,7 @@ button:disabled {
   <input type="text" id="lastName" placeholder="Last Name" required />
   <input type="date" id="dob" required />
   <select id="gender" required>
-    <option value="">Select Gender</option>
+    <option value="" disabled selected>Select Gender</option>
     <option value="male">Male</option>
     <option value="female">Female</option>
   </select>

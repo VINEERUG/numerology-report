@@ -20,6 +20,7 @@
             font-family: 'Inter', sans-serif;
             background: var(--bg-dark); 
             background: linear-gradient(135deg, #1E293B, #0F172A);
+            color: #e2e8f0; /* Default text color (slate-200) */
         }
         .font-serif {
             font-family: 'Playfair Display', serif;
@@ -60,3 +61,563 @@
         .number-display {
             background: -webkit-linear-gradient(45deg, var(--primary-color), var(--secondary-color));
             -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            word-break: break-all;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--card-bg); }
+        ::-webkit-scrollbar-thumb { background: #4B5563; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-color); }
+        .ruler-text { font-size: 0.8rem; color: #9ca3af; }
+        .loshu-cell {
+            border: 2px solid #374151;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .loshu-cell.has-number {
+            font-weight: 700;
+            color: #E9D5FF;
+        }
+        /* Simple button for 'Back' */
+        .back-button {
+            display: inline-block;
+            max-width: 320px; /* max-w-xs */
+            width: 100%;
+            padding: 12px 0; /* py-3 */
+            margin-top: 24px; /* mt-6 */
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600; /* font-semibold */
+            color: white;
+            border-radius: 0.75rem; /* rounded-xl */
+            background-color: #7c3aed; /* bg-violet-600 */
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.5), 0 4px 6px -2px rgba(124, 58, 237, 0.25); /* shadow-lg shadow-violet-500/50 */
+            text-decoration: none;
+        }
+        .back-button:hover {
+            background-color: #6d28d9; /* hover:bg-violet-700 */
+            box-shadow: 0 20px 25px -5px rgba(124, 58, 237, 0.6), 0 10px 10px -5px rgba(124, 58, 237, 0.3); /* hover:shadow-xl hover:shadow-violet-400/60 */
+        }
+    </style>
+</head>
+<body class="text-gray-200">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-10">
+            <h1 class="font-serif text-4xl md:text-6xl font-bold text-white">Numerology Analysis Portal</h1>
+            <p class="text-lg text-purple-300 mt-2">Your cosmic blueprint, revealed.</p>
+        </header>
+
+        <main class="max-w-4xl mx-auto">
+
+            <div id="results-container">
+                
+                <div id="results-placeholder" class="hidden h-full flex flex-col items-center justify-center bg-gray-800/30 p-8 rounded-2xl border-2 border-dashed border-gray-700 text-center">
+                    <svg class="w-16 h-16 text-gray-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    <h3 class="font-serif text-2xl text-white">No report data found.</h3>
+                    <p class="text-gray-400 mt-2">Please go back and generate your report first.</p>
+                    <a href="index.html" class="back-button">Back to Input Page</a>
+                </div>
+                
+                <div id="loading-spinner" class="hidden h-full flex items-center justify-center">
+                    <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-purple-500"></div>
+                </div>
+
+                <div id="results-content" class="hidden space-y-6">
+                    
+                    <div id="basic-details-header" class="result-card p-6 mb-8 opacity-0" style="animation-delay: 50ms;">
+                        <h2 class="font-serif text-3xl font-bold text-white mb-4">Your Numerology Report</h2>
+                        <p class="text-purple-300 text-lg">Full Name: <span id="display-full-name" class="text-white"></span></p>
+                        <p class="text-purple-300 text-lg">Date of Birth: <span id="display-dob" class="text-white"></span></p>
+                        <p class="text-purple-300 text-lg">Current Date: <span id="display-current-date" class="text-white"></span></p>
+                    </div>
+                    
+                    </div>
+                
+                <div id="back-button-container" class="text-center mt-8 hidden">
+                     <a href="index.html" class="back-button">Back to Input Page</a>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // --- ALL THE DATA AND DISPLAY FUNCTIONS FROM YOUR ORIGINAL FILE ---
+
+        // --- DOM Elements ---
+        const resultsPlaceholder = document.getElementById('results-placeholder');
+        const resultsContent = document.getElementById('results-content');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const displayFullName = document.getElementById('display-full-name');
+        const displayDob = document.getElementById('display-dob');
+        const displayCurrentDate = document.getElementById('display-current-date');
+        const basicDetailsHeader = document.getElementById('basic-details-header');
+        const backButtonContainer = document.getElementById('back-button-container');
+
+        // --- DATA (Copied from original) ---
+        const friendNumbers = {
+            1: [1, 2, 3, 5, 6, 9], 2: [1, 2, 3, 5], 3: [1, 2, 3, 5, 7],
+            4: [1, 5, 7, 6], 5: [1, 2, 3, 5, 6], 6: [1, 4, 5, 6, 7],
+            7: [1, 3, 5, 4, 6], 8: [5, 3, 6, 7], 9: [1, 3, 5]
+        };
+        const planetaryRulers = {
+            1: { name: "Sun", keyword: "King, Authority" },
+            2: { name: "Moon", keyword: "Queen, Emotions" },
+            3: { name: "Jupiter", keyword: "Guru, Wisdom" },
+            4: { name: "Rahu / Uranus", keyword: "Shadow, Suddenness, Unorthodoxy" },
+            5: { name: "Mercury", keyword: "Prince, Intellect, Communication" },
+            6: { name: "Venus", keyword: "Guru, Love, Luxury" },
+            7: { name: "Ketu / Neptune", keyword: "Shadow, Spirituality, Intuition" },
+            8: { name: "Saturn", keyword: "Judge, Karma, Discipline" },
+            9: { name: "Mars", keyword: "Commander, Energy, Aggression" }
+        };
+        const luckyColors = {
+            1: { primary: "Orange", secondary: "Gold" },
+            2: { primary: "White", secondary: "Silver" },
+            3: { primary: "Yellow", secondary: "Gold" },
+            4: { primary: "Blue", secondary: "Grey" },
+            5: { primary: "Green", secondary: "Light Green" },
+            6: { primary: "Silver", secondary: "Pink" },
+            7: { primary: "Light Green", secondary: "Smoky Grey" },
+            8: { primary: "Dark Blue", secondary: "Black" },
+            9: { primary: "Red", secondary: "Crimson" }
+        };
+        const interpretations = {
+             zodiac: { 
+                 'Aries': { title: 'Aries', text: 'Dynamic, competitive, and driven. You are a natural leader.' },
+                 'Taurus': { title: 'Taurus', text: 'Grounded, patient, and sensual. You value stability and comfort.' },
+                 'Gemini': { title: 'Gemini', text: 'Curious, adaptable, and communicative. You are a social butterfly.' },
+                 'Cancer': { title: 'Cancer', text: 'Nurturing, intuitive, and protective. You are deeply connected to home and family.' },
+                 'Leo': { title: 'Leo', text: 'Charismatic, generous, and dramatic. You love to be in the spotlight.' },
+                 'Virgo': { title: 'Virgo', text: 'Practical, analytical, and detail-oriented. You seek to be of service.' },
+                 'Libra': { title: 'Libra', text: 'Harmonious, diplomatic, and charming. You seek balance and justice.' },
+                 'Scorpio': { title: 'Scorpio', text: 'Intense, magnetic, and resilient. You are powerful and transformative.' },
+                 'Sagittarius': { title: 'Sagittarius', text: 'Optimistic, adventurous, and philosophical. You seek freedom and truth.' },
+                 'Capricorn': { title: 'Capricorn', text: 'Ambitious, disciplined, and responsible. You are a master of the material world.' },
+                 'Aquarius': { title: 'Aquarius', text: 'Innovative, eccentric, and humanitarian. You are a forward-thinker.' },
+                 'Pisces': { title: 'Pisces', text: 'Compassionate, artistic, and intuitive. You are deeply spiritual.' }
+             } 
+        };
+        const zodiacSymbols = { 
+            'Aries': '♈', 'Taurus': '♉', 'Gemini': '♊', 'Cancer': '♋', 
+            'Leo': '♌', 'Virgo': '♍', 'Libra': '♎', 'Scorpio': '♏', 
+            'Sagittarius': '♐', 'Capricorn': '♑', 'Aquarius': '♒', 'Pisces': '♓', 
+            'Unknown': '?' 
+        };
+        const numberInterpretations = { 
+            1: { title: "The Leader", text: "Represents leadership, independence, and pioneering spirit." },
+            2: { title: "The Peacemaker", text: "Represents cooperation, diplomacy, and sensitivity." },
+            3: { title: "The Communicator", text: "Represents creativity, self-expression, and joy." },
+            4: { title: "The Builder", text: "Represents stability, hard work, and practicality." },
+            5: { title: "The Adventurer", text: "Represents freedom, change, and versatility." },
+            6: { title: "The Nurturer", text: "Represents responsibility, love, and community." },
+            7: { title: "The Seeker", text: "Represents intuition, analysis, and spirituality." },
+            8: { title: "The Powerhouse", text: "Represents ambition, authority, and material success." },
+            9: { title: "The Humanitarian", text: "Represents compassion, idealism, and completion." },
+            11: { title: "The Visionary", text: "Master number. Represents intuition, charisma, and spiritual insight." },
+            22: { title: "The Master Builder", text: "Master number. Represents turning dreams into reality with practicality." },
+            33: { title: "The Master Teacher", text: "Master number. Represents healing, compassion, and spiritual service." }
+        }; 
+        
+        // --- IMPORTANT: COMPATIBILITY DESCRIPTIONS ---
+        // This is the data from your original file. It is 
+        // needed to show the "Core Number Harmony" card.
+        const compatibilityDescriptions = {
+            1: {
+                1: { title: "The Royal Combination", type: "Friendly", text: "Sun driving Sun. This is a powerful, harmonious combination. Your ambitious personality is perfectly aligned with a life path of leadership and authority. You are destined to be in charge. Challenge: The only risk is an inflated ego. You must learn to lead with grace, not just force." },
+                2: { title: "The King and Queen", type: "Neutral", text: "Sun driving Moon. Your personality is firm and decisive (Sun), but your life path is emotional and fluctuating (Moon). This is a neutral path where you must learn to balance your authority with sensitivity and diplomacy. Success comes from winning hearts, not just battles." },
+                3: { title: "The Respected Leader", type: "Friendly", text: "Sun driving Jupiter. An excellent and fortunate combination. Your leadership (Sun) is blessed by wisdom and expansion (Jupiter). This path leads to high positions, respect, and success as a teacher, consultant, or advisor to influential people." },
+                4: { title: "The Eclipsed King", type: "Enemy", text: "Sun driving Rahu. A challenging combination. Your clear, authoritative personality (Sun) is thrown into a life path of sudden ups, downs, and unpredictability (Rahu). You may feel your authority is constantly challenged by chaos. The lesson is to build a stable foundation and avoid shortcuts." },
+                5: { title: "The Charismatic Leader", type: "Friendly", text: "Sun driving Mercury. A very successful combination. Your leadership (Sun) is amplified by sharp intellect and communication (Mercury). This is perfect for business, entrepreneurship, and public speaking. You can lead and persuade." },
+                6: { title: "The King's Indulgence", type: "Enemy", text: "Sun driving Venus. An enemy relationship. There is a clash between your ego (Sun) and your path of luxury and relationships (Venus). You may struggle to balance your career ambitions with your personal life, or your desire for status may clash with your need for harmony." },
+                7: { title: "The Solitary King", type: "Neutral", text: "Sun driving Ketu. A neutral path. Your outward, authoritative personality (Sun) must walk a path of introspection and spirituality (Ketu). You may feel like a leader, but your destiny pulls you toward research, analysis, and finding deeper meaning. Success is found in becoming a spiritual or intellectual authority." },
+                8: { title: "The King vs. The Judge", type: "Enemy", text: "Sun driving Saturn. This is the classic 'struggle' combination. Your fiery, impatient ego (Sun) is on a life path of delays, discipline, and hard work (Saturn). Life will constantly teach you patience. Success is guaranteed, but it will be slow, hard-won, and will only come after you've learned humility." },
+                9: { title: "The Warrior King", type: "Friendly", text: "Sun driving Mars. A superb, high-power combination. Your leadership (Sun) is fueled by the unstoppable energy and courage of Mars. This is a path of action, command, and achievement. Perfect for roles in management, military, government, or sports." }
+            },
+            2: {
+                1: { title: "The Queen and The King", type: "Neutral", text: "Moon driving Sun. A neutral combination. Your soft, emotional personality (Moon) is on a path that demands leadership and authority (Sun). You may feel uncomfortable in the spotlight but are destined for it. The lesson is to develop confidence and lead with your intuition." },
+                2: { title: "The Pure Heart", type: "Friendly", text: "Moon driving Moon. A harmonious path. Your intuitive personality is perfectly aligned with a life path of emotion, creativity, and nurturing. You are here to heal, support, and create. Challenge: You must learn to control your own mood swings and not be overly influenced by others." },
+                3: { title: "The Nurturing Guru", type: "Neutral", text: "Moon driving Jupiter. A good, neutral path. Your sensitivity (Moon) is guided by a path of wisdom and teaching (Jupiter). You can be a wonderful counselor, teacher, or guide. Your emotional nature is a strength, but you must learn to be more decisive and expansive." },
+                4: { title: "The Emotional Storm", type: "Neutral", text: "Moon driving Rahu. A neutral but volatile combination. Your sensitive mind (Moon) is on an unpredictable path (Rahu). This can cause a lot of mental anxiety, confusion, and emotional ups and downs. The lesson is to find a grounding spiritual practice to navigate the chaos." },
+                5: { title: "Emotional Intelligence", type: "Friendly", text: "Moon driving Mercury. An excellent combination. Your intuition (Moon) is perfectly paired with intellect and communication (Mercury). This is fantastic for writing, public relations, creative arts, and any field requiring you to connect with an audience on an emotional level." },
+                6: { title: "The Loving Caregiver", type: "Neutral", text: "Moon driving Venus. A good, neutral path. Your nurturing personality (Moon) walks a path of love, family, and luxury (Venus). This is a great combination for a happy family life and for careers in hospitality, design, or the arts. You must simply put in the effort to achieve it." },
+                7: { title: "The Psychic", type: "Friendly", text: "Moon driving Ketu. An excellent, deeply intuitive combination. Your sensitive mind (Moon) is perfectly aligned with a spiritual and introspective path (Ketu). This combination produces natural healers, psychics, researchers, and spiritual seekers. Trust your gut." },
+                8: { title: "The Emotional Weight", type: "Enemy", text: "Moon driving Saturn. A very difficult and challenging path. Your soft, emotional nature (Moon) is on a path of hardship, delays, and discipline (Saturn). This can lead to feelings of depression or loneliness. The lesson is to develop immense emotional resilience and to find strength in your own solitude." },
+                9: { title: "The Emotional Warrior", type: "Neutral", text: "Moon driving Mars. A neutral but conflicting path. Your personality is soft (Moon), but your path is aggressive and energetic (Mars). You may feel peaceful one moment and angry the next. The lesson is to channel your emotional energy into decisive action, perhaps by fighting for a cause you care about." }
+            },
+            3: {
+                1: { title: "The Royal Guru", type: "Friendly", text: "Jupiter driving Sun. An excellent combination. Your wisdom (Jupiter) finds a path of leadership and authority (Sun). You are destined to be a respected leader, a director, or a high-level consultant. Your advice will be sought by those in power." },
+                2: { title: "The Wise Counselor", type: "Neutral", text: "Jupiter driving Moon. A neutral path. Your expansive, knowledge-seeking personality (Jupiter) is on a path that requires emotional sensitivity (Moon). You must learn to deliver your wisdom with kindness and empathy. A great combination for a teacher or counselor." },
+                3: { title: "The Great Teacher", type: "Friendly", text: "Jupiter driving Jupiter. A highly fortunate and harmonious path. Your entire life is about expansion, knowledge, and wisdom. This is a path of continuous growth, learning, and teaching. You are here to guide others. Challenge: You can be overly optimistic or preachy. Learn to stay grounded." },
+                4: { title: "The Guru's Illusion", type: "Enemy", text: "Jupiter driving Rahu. A challenging combination. Your traditional, wise personality (Jupiter) is on an unconventional and chaotic path (Rahu). You may be drawn to unorthodox beliefs or get-rich-quick schemes. The lesson is to apply your wisdom to see through illusions." },
+                5: { title: "The Expressive Teacher", type: "Neutral", text: "Jupiter driving Mercury. A neutral path. Your deep wisdom (Jupiter) is paired with a path of fast-moving intellect (Mercury). You must work to turn your vast knowledge into clear, simple communication. Good for writing, publishing, or sales in the education sector." },
+                6: { title: "The Clash of Gurus", type: "Enemy", text: "Jupiter driving Venus. An enemy relationship. This is a clash of two 'gurus.' Your personality seeks wisdom (Jupiter), but your path pulls you toward material luxury (Venus). You may struggle between a life of principle and a life of pleasure. The lesson is to find a balance." },
+                7: { title: "The Spiritual Master", type: "Friendly", text: "Jupiter driving Ketu. An excellent combination for spiritual growth. Your wisdom (Jupiter) is perfectly aligned with an introspective, spiritual path (Ketu). This combination produces profound thinkers, philosophers, and spiritual guides. Your knowledge is deep and intuitive." },
+                8: { title: "The Wise Judge", type: "Enemy", text: "Jupiter driving Saturn. A challenging path. Your optimistic, expansive personality (Jupiter) is on a path of delays and discipline (Saturn). You will feel 'held back' by life. Your grand ideas will be met with practical obstacles. Success comes by combining your big vision with Saturn's patience and hard work." },
+                9: { title: "The Righteous Commander", type: "Friendly", text: "Jupiter driving Mars. An excellent and powerful combination. Your wisdom (Jupiter) is backed by the energy and action of Mars. You don't just talk; you *do*. This is a path of righteous action, perfect for a leader in law, social reform, or a purpose-driven organization." }
+            },
+            4: {
+                1: { title: "The Rebel and The King", type: "Enemy", text: "Rahu driving Sun. A challenging combination. Your unconventional personality (Rahu) rebels against a life path that demands authority and order (Sun). You may have constant conflicts with father figures or bosses. The lesson is to channel your revolutionary ideas in a disciplined, structured way." },
+                2: { title: "The Unconventional Heart", type: "Neutral", text: "Rahu driving Moon. A neutral but unstable path. Your chaotic personality (Rahu) is on an emotional life path (Moon). This can create significant mental and emotional turmoil, anxiety, and confusion. You must work hard to find a grounding, stabilizing force in your life." },
+                3: { title: "The Unorthodox Guru", type: "Enemy", text: "Rahu driving Jupiter. A challenging combination. Your unconventional personality (Rahu) clashes with a traditional path of wisdom (Jupiter). You may reject all forms of traditional advice. The lesson is to learn that true wisdom (Jupiter) can provide the stable foundation your (Rahu) nature needs." },
+                4: { title: "The Game Changer", type: "Friendly", text: "Rahu driving Rahu. A harmonious, if chaotic, path. Your unconventional personality is on an unconventional life path. This is a life of extreme and sudden ups and downs. You are here to break all the rules. This can lead to massive, sudden fame or a life of instability. Not for the faint of heart." },
+                5: { title: "The Cunning Thinker", type: "Friendly", text: "Rahu driving Mercury. An excellent combination for material success. Your unconventional mind (Rahu) is paired with a path of sharp intellect (Mercury). This creates a 'master of a-plan,' perfect for technology, a stock market, or innovative marketing. You see angles others miss." },
+                6: { title: "The Rebellious Artist", type: "Neutral", text: "Rahu driving Venus. A neutral path. Your unconventional nature (Rahu) is on a path of luxury and love (Venus). This can lead to unconventional relationships or a career in modern, edgy art, fashion, or media. You must work to create harmony from your chaotic energy." },
+                7: { title: "The Eccentric Genius", type: "Friendly", text: "Rahu driving Ketu. A harmonious combination. The 'head' (Rahu) and 'body' (Ketu) of the shadow planet. Your outward personality is chaotic (Rahu), while your inner path is spiritual and introspective (Ketu). This creates a person who is outwardly unconventional but inwardly a deep, intuitive thinker. Great for research or occult sciences." },
+                8: { title: "The Great Struggle", type: "Enemy", text: "Rahu driving Saturn. A very difficult and challenging combination. Your personality seeks shortcuts (Rahu), but your path is one of hard work and delays (Saturn). You will feel constantly frustrated. This is a highly karmic path. Success *only* comes when you stop rebelling and accept Saturn's demand for discipline." },
+                9: { title: "The Explosive Rebel", type: "Enemy", text: "Rahu driving Mars. A volatile and challenging combination. Your chaotic energy (Rahu) is on an aggressive path (Mars). This can lead to a quick, violent temper, accidents, and making powerful enemies. The lesson is to channel this explosive energy into productive work, like engineering or technology, rather than conflict." }
+            },
+            5: {
+                1: { title: "The Intelligent Leader", type: "Friendly", text: "Mercury driving Sun. An excellent combination. Your intellect (Mercury) is on a path of leadership (Sun). This creates a person who leads with their mind—a smart, charismatic, and effective leader. Perfect for running your own company or rising to the top of a large one." },
+                2: { title: "The Persuasive Speaker", type: "Friendly", text: "Mercury driving Moon. An excellent combination. Your communication skills (Mercury) are on an emotional path (Moon). You know how to connect with people's hearts. This is perfect for sales, marketing, media, or any field where you need to win over the public." },
+                3: { title: "The Knowledge Broker", type: "Neutral", text: "Mercury driving Jupiter. A neutral path. Your fast, intellectual personality (Mercury) is on a path of deep wisdom (Jupiter). You may be a 'jack of all trades' (Mercury) who needs to learn to become a 'master of one' (Jupiter). Success comes when you add depth to your quick wit." },
+                4: { title: "The Quick-Witted Problem Solver", type: "Friendly", text: "Mercury driving Rahu. A friendly combination. Your adaptable mind (Mercury) is perfectly suited to a life of sudden changes (Rahu). You can think on your feet and profit from chaos. This is a great combination for traders, tech innovators, or problem-solvers." },
+                5: { title: "The Master Communicator", type: "Friendly", text: "Mercury driving Mercury. A harmonious and dynamic path. This is a life of non-stop communication, travel, and networking. You are a true 'people person' with a brilliant, fast mind. Challenge: You can be restless and superficial. Learn to focus your energy." },
+                6: { title: "The Charming Diplomat", type: "Friendly", text: "Mercury driving Venus. An excellent and very fortunate combination. Your intellect (Mercury) is on a path of luxury and harmony (Venus). You have a 'silver tongue' and great taste. This leads to success in creative fields, media, or any business related to beauty and luxury." },
+                7: { title: "The Analytical Mind", type: "Neutral", text: "Mercury driving Ketu. A neutral path. Your chatty, social personality (Mercury) is on an introspective path (Ketu). You may feel like an extrovert, but your destiny is to be a deep-thinking introvert. This is a great combination for a researcher, data analyst, or writer." },
+                8: { title: "The Strategic Planner", type: "Neutral", text: "Mercury driving Saturn. A neutral path. Your fast mind (Mercury) is on a slow, disciplined path (Saturn). This is a 'work hard, be smart' combination. Your quick ideas must be backed by patience and hard work. Success comes from meticulous, long-term planning." },
+                9: { title: "The Sharp Debater", type: "Neutral", text: "Mercury driving Mars. A neutral path. Your intellect (Mercury) is on an energetic, aggressive path (Mars). This creates a sharp, argumentative, and witty mind. You are a fantastic debater. The lesson is to use your words to build, not just to win arguments." }
+            },
+            6: {
+                1: { title: "The Diplomat vs. The King", type: "Enemy", text: "Venus driving Sun. A challenging combination. Your personality seeks harmony and equality (Venus), but your life path demands you be an authoritative leader (Sun). You may struggle with being 'too nice' when you need to be tough. The lesson is to find the balance between grace and command." },
+                2: { title: "The Gracious Host", type: "Neutral", text: "Venus driving Moon. A neutral path. Your loving personality (Venus) is on an emotional path (Moon). This is a wonderful combination for a life filled with art, family, and beauty. Success is found in creative and nurturing fields, like design, hospitality, or healing." },
+                3: { title: "The Pleasure vs. Principle", type: "Enemy", text: "Venus driving Jupiter. An enemy relationship (the clash of gurus). Your personality seeks material pleasure (Venus), while your path demands wisdom and principle (Jupiter). You may feel a constant guilt or conflict between what you *want* and what you feel you *should* do." },
+                4: { title: "The Unconventional Beauty", type: "Neutral", text: "Venus driving Rahu. A neutral path. Your love for harmony (Venus) is on a chaotic life path (Rahu). This can lead to unconventional relationships, a love for foreign luxuries, or a career in glamorous, high-tech media. You must work to find stability in an unstable world." },
+                5: { title: "The Silver-Tongued Artist", type: "Friendly", text: "Venus driving Mercury. An excellent and charming combination. Your grace (Venus) is paired with a path of sharp communication (Mercury). You can charm anyone. This is a path of success in media, entertainment, luxury sales, or the arts." },
+                6: { title: "The Life of Pleasure", type: "Friendly", text: "Venus driving Venus. A harmonious and fortunate path. Your entire life is aligned with love, luxury, art, and harmony. This is a path of attraction, where good things come to you. Challenge: You must avoid laziness or over-indulgence." },
+                7: { title: "The Spiritual Artist", type: "Neutral", text: "Venus driving Ketu. A neutral path. Your worldly, luxury-loving personality (Venus) is on a spiritual, detached path (Ketu). This creates a person who seeks 'divine beauty.' You may be an artist who channels spiritual concepts or a person who must learn to find beauty in simplicity, not just in riches." },
+                8: { title: "The Disciplined Creator", type: "Friendly", text: "Venus driving Saturn. A friendly and powerful combination. Your creative, luxury-loving nature (Venus) is on a path of hard work and discipline (Saturn). This is how empires are built. You have the good taste of Venus and the work ethic of Saturn. Excellent for success in real estate, high-end manufacturing, or architecture." },
+                9: { title: "The Passionate Lover", type: "Neutral", text: "Venus driving Mars. A neutral but very passionate path. Your loving nature (Venus) is on an aggressive path (Mars). This creates intense, passionate relationships but also a risk of jealousy and conflict. In career, this is good for active, creative fields like a performance or brand management." }
+            },
+            7: {
+                1: { title: "The Spiritual Leader", type: "Neutral", text: "Ketu driving Sun. A neutral path. Your introverted, analytical personality (Ketu) is on a path of high-profile leadership (Sun). You may not want the spotlight, but you are destined for it. You will succeed as an 'authority' or 'expert' in a specialized field (like a top surgeon or researcher)." },
+                2: { title: "The Deep Intuitive", type: "Friendly", text: "Ketu driving Moon. An excellent combination. Your psychic, introspective nature (Ketu) is perfectly aligned with an emotional, intuitive path (Moon). This creates a powerful healer, counselor, or spiritual guide. You understand what others feel without words." },
+                3: { title: "The Deep Thinker", type: "Friendly", text: "Ketu driving Jupiter. An excellent combination. Your introspective, research-oriented mind (Ketu) is on a path of wisdom and expansion (Jupiter). This is the combination of a true philosopher, professor, or spiritual master. You are here to find and share deep truths." },
+                4: { title: "The Code Breaker", type: "Friendly", text: "Ketu driving Rahu. A harmonious combination. The 'body' (Ketu) and 'head' (Rahu). Your inner nature is analytical (Ketu), while your life path is chaotic (Rahu). You have the unique ability to see the hidden patterns within chaos. Perfect for research, data science, or occult studies." },
+                5: { title: "The Quiet Analyst", type: "Neutral", text: "Ketu driving Mercury. A neutral path. Your chatty, social personality (Mercury) is on a fast-paced, social path (Mercury). You will feel a push-pull between wanting to be alone and needing to network. Success comes from using your analytical mind in a communication-based field, like writing or coding." },
+                6: { title: "The Detached Artist", type: "Neutral", text: "Ketu driving Venus. A neutral path. Your ascetic, simple-living personality (Ketu) is on a path of luxury and relationships (Venus). You may feel detached from the material world your path offers. The lesson is to learn to appreciate beauty and love without being attached to it." },
+                7: { title: "The True Mystic", type: "Friendly", text: "Ketu driving Ketu. A harmonious path. This is a life of total introspection, spirituality, and detachment. You are not here for material success, but for spiritual enlightenment and deep research. Challenge: This path can be very lonely. You must learn to live in the world, even if you are not 'of' it." },
+                8: { title: "The Karmic Lesson", type: "Enemy", text: "Ketu driving Saturn. A challenging combination. Your intuitive, free-flowing mind (Ketu) is on a rigid, disciplined path (Saturn). You may feel stuck, isolated, and misunderstood. This is a path of deep karmic lessons, where you must learn patience and structure to unlock your spiritual gifts." },
+                9: { title: "The Conflicted Warrior", type: "Enemy", text: "Ketu driving Mars. A challenging combination. Your peaceful, introverted personality (Ketu) is on an aggressive, action-oriented path (Mars). This can create deep, suppressed anger that explodes unexpectedly. The lesson is to find a spiritual or meditative way to channel your powerful (Mars) energy." }
+            },
+            8: {
+                1: { title: "The Judge vs. The King", type: "Enemy", text: "Saturn driving Sun. A very challenging combination. Your slow, cautious personality (Saturn) is on a path of fast-paced leadership (Sun). You will constantly clash with authority figures, or you will be placed in a leadership role you feel unready for. Success comes after 40, through immense hard work." },
+                2: { title: "The Stone Heart", type: "Enemy", text: "Saturn driving Moon. A very challenging combination. Your hard, disciplined personality (Saturn) is on a soft, emotional path (Moon). You may find it very difficult to express or understand emotions, leading to loneliness. The life lesson is to learn empathy and to allow yourself to be vulnerable." },
+                3: { title: "The Strict Teacher", type: "Enemy", text: "Saturn driving Jupiter. A challenging combination. Your practical, slow personality (Saturn) clashes with an expansive, optimistic path (Jupiter). Your big ideas (Jupiter) will be met with your own pessimism (Saturn). Success comes when you use your discipline to *build* your big vision, one brick at a time." },
+                4: { title: "The Path of Shocks", type: "Enemy", text: "Saturn driving Rahu. A very challenging path. Your personality wants slow, steady progress (Saturn), but your life is full of sudden, chaotic shocks (Rahu). You may feel like you are building a house in an earthquake. The lesson is to build foundations so strong they can withstand any shock." },
+                5: { title: "The Methodical Thinker", type: "Neutral", text: "Saturn driving Mercury. A neutral path. Your slow, patient nature (Saturn) is on a fast, intellectual path (Mercury). This combination requires effort, but can be very successful. You can be the 'master planner' who thinks through every detail. Great for law, engineering, or complex project management." },
+                6: { title: "The Wealth Builder", type: "Friendly", text: "Saturn driving Venus. An excellent and friendly combination. Your discipline (Saturn) is on a path of luxury (Venus). This is a 'slow and steady' path to great wealth. You are not a 'get rich quick' person; you are a 'build an empire' person. Excellent for real estate, business, and long-term investments." },
+                7: { title: "The Isolated Hermit", type: "Enemy", text: "Saturn driving Ketu. A challenging path. Your practical, worldly personality (Saturn) is on a spiritual, detached path (Ketu). This can be a very lonely combination, as both numbers are isolating. You may feel like an outsider. The lesson is to find your life's purpose in deep, solitary work." },
+                8: { title: "The Master of Karma", type: "Friendly", text: "Saturn driving Saturn. A harmonious path, but a hard one. Your entire life is a lesson in discipline, justice, and hard work. You are here to pay karmic debts and build something of lasting value. You will be a pillar of your community." },
+                9: { title: "The Immovable Object vs. Unstoppable Force", type: "Enemy", text: "Saturn driving Mars. A very difficult combination. Your slow, cautious nature (Saturn) is on an aggressive, impatient path (Mars). This creates immense internal frustration, like driving with the brakes on. Can lead to accidents or explosive anger. The lesson is to learn to apply your energy with discipline." }
+            },
+            9: {
+                1: { title: "The Commander-in-Chief", type: "Friendly", text: "Mars driving Sun. An excellent, high-power combination. Your energy and courage (Mars) are on a path of leadership (Sun). You are a born leader, destined for a position of command. You have the drive and the authority to make things happen." },
+                2: { title: "The Protector", type: "Neutral", text: "Mars driving Moon. A neutral path. Your aggressive, active personality (Mars) is on a soft, emotional path (Moon). You are a fierce protector of your family and loved ones. You must learn to channel your (Mars) energy into *caring* for others, not just fighting with them." },
+                3: { title: "The Righteous Leader", type: "Friendly", text: "Mars driving Jupiter. An excellent combination. Your energy (Mars) is guided by a path of wisdom (Jupiter). This creates a 'warrior for a cause.' You are not just aggressive; you are principled. This is a path of success in law, social reform, or purpose-driven leadership." },
+                4: { title: "The Reckless Force", type: "Enemy", text: "Mars driving Rahu. A very challenging and volatile combination. Your aggressive personality (Mars) is on a chaotic, unpredictable path (Rahu). This is an 'accident-prone' combination that can lead to explosive anger, legal trouble, and sudden conflicts. You MUST learn to control your temper." },
+                5: { title: "The Quick-Witted Warrior", type: "Neutral", text: "Mars driving Mercury. A neutral path. Your active personality (Mars) is on an intellectual path (Mercury). This creates a sharp, argumentative mind. You must work to use your energy to support your ideas, not just to fight. Good for a trial lawyer or a high-energy salesperson." },
+                6: { title: "The Passionate Protector", type: "Neutral", text: "Mars driving Venus. A neutral path. Your aggressive energy (Mars) is on a path of love and harmony (Venus). This creates a person who is extremely passionate in love, but also prone to jealousy. In career, this is a path of 'active creativity,' like a performer or designer." },
+                7: { title: "The Angry Mystic", type: "Enemy", text: "Mars driving Ketu. A challenging combination. Your active, outward personality (Mars) is on a path of introspection and spirituality (Ketu). This can create deep, suppressed anger that you don't understand. The lesson is to channel your (Mars) energy into spiritual pursuits, like yoga or martial arts." },
+                8: { title: "The Warrior vs. The Judge", type: "Enemy", text: "Mars driving Saturn. A very difficult combination. Your impatient, fiery personality (Mars) is on a path of delays and discipline (Saturn). You will feel like you are constantly hitting a brick wall. This is a life of extreme frustration. Success only comes when you learn to channel your high energy with Saturn's patience." },
+                9: { title: "The Unstoppable Force", type: "Friendly", text: "Mars driving Mars. A harmonious and extremely high-energy path. You are pure action and courage. This is a path of success in sports, military, police, engineering, or any field that requires immense physical and mental energy. Challenge: You must learn to control your temper and avoid recklessness." }
+            }
+        };
+        
+        // --- Date Formatting Helper Functions (Copied from original) ---
+        function getOrdinalSuffix(day) {
+            if (day > 3 && day < 21) return 'th';
+            switch (day % 10) {
+                case 1:  return "st";
+                case 2:  return "nd";
+                case 3:  return "rd";
+                default: return "th";
+            }
+        }
+        function formatDateWithOrdinal(date) {
+            const day = date.getUTCDate();
+            const suffix = getOrdinalSuffix(day);
+            const month = date.toLocaleDateString('en-US', { month: 'long', timeZone: 'UTC' });
+            const year = date.getUTCFullYear();
+            return `${day}${suffix}, ${month} ${year}`;
+        }
+        
+        // --- Display Logic Functions (Copied from original) ---
+        function createResultCard(title, number, interpretation, delay, footerText = '', ruler = null) {
+            const interp = interpretation || { title: "Cosmic Insight", text: "This value represents a key aspect of your life's blueprint." };
+            const isHarmonyTitle = title === 'Core Number Harmony' && typeof number === 'string' && number.includes('-');
+            const isText = (typeof number === 'string' && !/^\d+(\.\d+)?$/.test(number)) || isHarmonyTitle; 
+            
+            let numberDisplayClass = 'text-4xl md:text-5xl';
+            
+            let extraStyles = '';
+            if (isText) {
+                extraStyles = 'style="white-space: nowrap;"';
+            }
+            if (title === 'Mobile Number Analysis') {
+                // Use a smaller, wrapping font for the mobile number
+                extraStyles = 'style="font-size: 1.5rem; white-space: normal; word-break: break-all;"'; 
+            }
+
+
+            const footerHTML = footerText ? `<div class="mt-4 pt-3 border-t border-gray-700 text-sm text-purple-200/80"><strong class="text-purple-300">${footerText.startsWith("Total:") ? "" : "Friend Numbers: "}</strong> ${footerText}</div>` : '';
+            let displayValue = number;
+            const rulerHTML = ruler ? `<p class="ruler-text mt-1">Ruler: ${ruler.name} (${ruler.keyword})</p>` : '';
+            let cardTitle = title;
+            if (title === 'Core Number Harmony' && interpretation?.type && interpretation.type !== 'N/A') {
+                 cardTitle += ` (${interpretation.type})`; 
+            }
+            let interpText = interp.text;
+            if (title === 'Mobile Number Analysis') {
+                interpText = (interpText || '')
+                    .replace(/\*\*not compatible\*\*/g, '<strong class="text-red-400">not compatible</strong>')
+                    .replace(/\*\*not\*\*/g, '<strong class="text-yellow-400">not</strong>');
+            }
+
+            const minHeightClass = interpText === '' ? '' : 'min-h-[140px]';
+            
+            if (title === 'Lucky Numbers' || title === 'Lucky Colors') {
+                const valueDisplayClass = 'text-3xl'; 
+                extraStyles = ''; 
+
+                return `
+                <div class="result-card p-6" style="animation-delay: ${delay}ms;">
+                    <div>
+                        <p class="text-purple-300">${cardTitle}</p> 
+                        <h3 class="font-serif text-2xl text-white mt-1">${interp.title}</h3>
+                        <div class="number-display ${valueDisplayClass} font-bold mt-2" ${extraStyles}>${displayValue}</div> 
+                    </div>
+                    ${interpText ? `<p class="text-gray-400 mt-4">${interpText}</p>` : ''}
+                    ${footerHTML}
+                </div>`;
+            } else {
+                let displayClass = `number-display ${numberDisplayClass} font-bold`;
+                if (title === 'Zodiac Sign') {
+                    displayClass = `text-white ${numberDisplayClass} font-bold`; 
+                }
+                
+                return `
+                    <div class="result-card p-6 ${minHeightClass}" style="animation-delay: ${delay}ms;">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-purple-300">${cardTitle}</p> 
+                                ${rulerHTML}
+                                <h3 class="font-serif text-2xl text-white mt-1">${interp.title}</h3>
+                            </div>
+                            <div class="${displayClass}" ${extraStyles}>${displayValue}</div> 
+                        </div>
+                        ${interpText ? `<p class="text-gray-400 mt-4">${interpText}</p>` : ''}
+                        ${footerHTML}
+                    </div>`;
+            }
+        }
+        
+        function createLoShuGrid(title, counts, delay, explanationText = '') {
+             const gridLayout = [[4, 9, 2], [3, 5, 7], [8, 1, 6]];
+             let tableRows = '';
+             gridLayout.forEach(row => {
+                 let tableCells = '';
+                 row.forEach(num => {
+                     // Ensure counts[num] is treated as a number
+                     const count = Number(counts[num]) || 0;
+                     const displayVal = count > 0 ? String(num).repeat(count) : '&nbsp;';
+                     const cellClass = count > 0 ? 'loshu-cell has-number' : 'loshu-cell';
+                     tableCells += `<td class="${cellClass} h-16 w-16 text-center text-xl align-middle p-1">${displayVal}</td>`;
+                 });
+                 tableRows += `<tr>${tableCells}</tr>`;
+             });
+             const explanationHTML = explanationText ? `<p class="text-center text-sm text-gray-400 mb-4">${explanationText}</p>` : '';
+             return `
+                 <div class="result-card p-6" style="animation-delay: ${delay}ms;">
+                     <h3 class="font-serif text-2xl text-white mb-2 text-center">${title}</h3>
+                     ${explanationHTML}
+                     <table class="w-full border-collapse bg-gray-900/50"><tbody>${tableRows}</tbody></table>
+                 </div>`;
+        }
+
+        function createNamePartsCard(report, delay) { 
+            const parts = [
+                 { label: 'First Name', number: report.firstNameNumber, total: report.firstNameTotal },
+                 // Only show Middle Name if its total is greater than 0
+                 ...(report.middleNameTotal > 0 ? [{ label: 'Middle Name', number: report.middleNameNumber, total: report.middleNameTotal }] : []),
+                 { label: 'Last Name', number: report.lastNameNumber, total: report.lastNameTotal }
+             ];
+             let contentHTML = parts.map(part => `
+                 <div class="flex-1 text-center px-2">
+                     <p class="text-purple-300 text-sm">${part.label}</p>
+                     <p class="number-display text-5xl font-bold">${part.number}</p>
+                     <p class="text-gray-400 text-xs mt-1">Total: ${part.total}</p>
+                 </div>
+             `).join('<div class="border-l border-gray-700 mx-2"></div>');
+             return `
+                 <div class="result-card p-6" style="animation-delay: ${delay}ms;">
+                     <h3 class="font-serif text-2xl text-white mb-4 text-center">Name Component Numbers</h3>
+                     <div class="flex justify-around items-center">
+                         ${contentHTML}
+                     </div>
+                 </div>`;
+        }
+        
+        // This is the main display function, now takes 2 args
+        function displayResults(report, inputs) {
+            // --- Populate Header (from inputs) ---
+            const fullDisplayName = [inputs.firstName, inputs.middleName, inputs.lastName]
+                                    .filter(Boolean).map(name => name.toUpperCase()).join(' ');
+            
+            const dateParts = inputs.dob.split('-').map(Number);
+            const dateObj = new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]));
+            const formattedDob = formatDateWithOrdinal(dateObj);
+            const formattedCurrentDate = formatDateWithOrdinal(new Date()); 
+
+            displayFullName.textContent = fullDisplayName;
+            displayDob.textContent = formattedDob;
+            displayCurrentDate.textContent = formattedCurrentDate;
+            basicDetailsHeader.classList.remove('opacity-0'); 
+
+            // --- Populate rest of report (from report object) ---
+            const harmonyDisplay = `${report.baseDriver}-${report.baseConductor}`;
+            const gridExplanation = `Includes Moolank (${report.baseDriver}), Bhagyank (${report.baseConductor}), Kua No. (${report.kuaNumber}), & Name No. (${report.fullNameNumber}).`;
+            const correctionInterpretation = {
+                title: report.nameCorrectionRequired === "Yes" ? "Correction Recommended" : "Harmonious Name",
+                text: report.correctionReason 
+            };
+            let mobileCardHTML = '';
+            if (report.mobileAnalysis !== 'No mobile number provided for analysis.') {
+                const mobileInterp = {
+                    title: "Mobile Compatibility",
+                    text: report.mobileAnalysis 
+                };
+                // Use mobileNumber from report, not inputs, as it might be formatted
+                mobileCardHTML = createResultCard('Mobile Number Analysis', report.mobileNumber, mobileInterp, 0); 
+            }
+
+            const zodiacSymbol = zodiacSymbols[report.zodiacSign] || '?';
+            const zodiacInterp = interpretations.zodiac[report.zodiacSign] || { title: report.zodiacSign || "Unknown", text: "Basic astrological influence based on Sun's position." };
+
+            const luckyNumbersInterp = { title: "Harmonious Numbers", text: "" };
+            const luckyColorsInterp = { title: "Vibrational Colors", text: "" };
+
+
+            let delay = 100; 
+            const delayIncrement = 100; 
+            const createSectionHeader = (title) => {
+                const header = `<h2 class="font-serif text-3xl text-white mb-4 mt-8 border-b border-purple-500/30 pb-2 result-card text-center" style="animation-delay: ${delay}ms;">${title}</h2>`;
+                delay += delayIncrement; 
+                return header;
+            };
+            resultsContent.innerHTML = ''; // Clear any old content
+            resultsContent.appendChild(basicDetailsHeader); // Add the header back
+            basicDetailsHeader.classList.remove('opacity-0'); 
+
+            // --- Build Sections ---
+            const header1 = createSectionHeader("Core Numbers");
+            const section1 = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    ${createResultCard('Driver Number (Moolank)', report.driverNumber, numberInterpretations[report.driverNumber] || null, delay, report.driverLuckyNumbers, report.driverRuler)}
+                    ${createResultCard('Conductor Number (Bhagyank)', report.conductorNumber, numberInterpretations[report.conductorNumber] || null, delay += delayIncrement, report.conductorLuckyNumbers, report.conductorRuler)} 
+                </div>
+                <div class="mt-6">
+                    ${createResultCard('Core Number Harmony', harmonyDisplay, compatibilityDescriptions[report.baseDriver]?.[report.baseConductor] || { title: "Unique Pair", type: "N/A", text: "This is a unique and karmic combination." }, delay += delayIncrement)} 
+                </div>`;
+            
+            const header2 = createSectionHeader("Name Analysis");
+            const section2 = `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                    ${createResultCard('Total Name Number (Expression)', report.fullNameNumber, numberInterpretations[report.fullNameNumber] || null, delay += delayIncrement, `Total: ${report.fullNameTotal}`)}
+                    ${createResultCard('Soul Urge Number', report.soulUrgeNumber, numberInterpretations[report.soulUrgeNumber] || null, delay += delayIncrement)}
+                    ${createResultCard('Personality Number', report.personalityNumber, numberInterpretations[report.personalityNumber] || null, delay += delayIncrement)}
+                </div>
+                ${createNamePartsCard(report, delay += delayIncrement)}
+                <div class="mt-6">
+                    ${createResultCard('Name Correction Required', report.nameCorrectionRequired, correctionInterpretation, delay += delayIncrement)}
+                </div>`;
+            
+            const header3 = createSectionHeader("Influences & Indicators");
+            const section3 = `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                    ${createResultCard('Zodiac Sign', zodiacSymbol, zodiacInterp, delay += delayIncrement)} 
+                    ${createResultCard('Kua Number', report.kuaNumber, numberInterpretations[report.kuaNumber] || null, delay += delayIncrement)}
+                    ${createResultCard('Success Number', report.successNumber, {title: "Achievement Key", text:"A number that aids in achieving your life's goals and ambitions.", ...numberInterpretations[report.successNumber]}, delay += delayIncrement)}
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    ${createResultCard('Karmic Debt', report.karmicDebt, {title: "Indicator", text:"Reflects lessons from past actions that need to be addressed in this lifetime."}, delay += delayIncrement)}
+                    ${createResultCard('Master Number', report.masterNumber, {title: "Indicator", text:"Signifies a higher potential for achievement and spiritual purpose, but with greater challenges (11, 22, or 33)."}, delay += delayIncrement)}
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    ${createResultCard('Lucky Numbers', report.luckyNumbers, luckyNumbersInterp, delay += delayIncrement)}
+                    ${createResultCard('Lucky Colors', report.luckyColors, luckyColorsInterp, delay += delayIncrement)}
+                </div>`;
+            
+            const header4 = createSectionHeader("Current Year");
+            const section4 = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    ${createResultCard('Personal Year', report.personalYear, {title: "Current Vibe", text:"The theme for your current year from one birthday to the next.", ...numberInterpretations[report.personalYear]}, delay += delayIncrement)}
+                    ${createResultCard('Universal Year', report.universalYear, {title: "Global Vibe", text:"The collective energy influencing everyone on the planet this year.", ...numberInterpretations[report.universalYear]}, delay += delayIncrement)}
+                </div>`;
+            
+            const header5 = createSectionHeader("Charts & Grids");
+            const section5 = `
+                <div class="grid grid-cols-1 gap-6 mb-6">
+                    ${createLoShuGrid('Lo Shu Grid (Date of Birth)', report.baseGridCounts, delay += delayIncrement)}
+                    ${createLoShuGrid('Lo Shu Grid (Full Chart)', report.fullGridCounts, delay += delayIncrement, gridExplanation)}
+                </div>
+                ${mobileCardHTML ? `<div class="mt-6">${mobileCardHTML.replace(`style="animation-delay: 0ms;"`, `style="animation-delay: ${delay += delayIncrement}ms;"`)}</div>` : ''}
+            `;
+            
+            resultsContent.insertAdjacentHTML('beforeend', 
+                header1 + section1 + 
+                header2 + section2 + 
+                header3 + section3 + 
+                header4 + section4 + 
+                header5 + section5);
+        }
+
+        // --- NEW SCRIPT TO RUN ON PAGE LOAD ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Show loading spinner by default
+            loadingSpinner.classList.remove('hidden');
+            resultsContent.classList.add('hidden');
+            resultsPlaceholder.classList.add('hidden');
+
+            try {
+                // 1. Get the data from localStorage
+                const storedData = localStorage.getItem('numerologyReport');
+                
+                if (!storedData) {
+                    // No data found, show the placeholder
+                    throw new Error('No report data found.');
+                }
+
+                // 2. Parse the data
+                const reportData = JSON.parse(storedData);
+                
+                if (!reportData.inputs || !reportData.results) {
+                    // Data is malformed
+                    throw new Error('Report data is invalid.');
+                }
+
+                // 3. We have data! Call the display function
+                // We pass both the backend results and the user inputs
+                displayResults(reportData.results, reportData.inputs);
+
+                // 4. Hide spinner, show content
+                loadingSpinner.classList.add('hidden');
+                resultsContent.classList.remove('hidden');
+                backButtonContainer.classList.remove('hidden');
+
+            } catch (error) {
+                // An error occurred, show the placeholder
+                console.error(error);
+                loadingSpinner.classList.add('hidden');
+                resultsPlaceholder.classList.remove('hidden');
+                backButtonContainer.classList.add('hidden'); // Hide main back button
+            }
+        });
+    </script>
+</body>
+</html>
