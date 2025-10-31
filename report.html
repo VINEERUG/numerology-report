@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your Numerology Report</title>
+<style>
+body{
+  background:#020b20;
+  color:#fff;
+  font-family:Arial, Helvetica, sans-serif;
+  padding:2rem;
+}
+.report-box{
+  background:rgba(0,0,40,0.7);
+  border-radius:15px;
+  box-shadow:0 0 20px #8800ff;
+  padding:2rem;
+  max-width:700px;
+  margin:auto;
+}
+button{
+  background:linear-gradient(90deg,#7f00ff,#e100ff);
+  border:none;
+  border-radius:8px;
+  color:#fff;
+  padding:10px 20px;
+  cursor:pointer;
+  margin-top:20px;
+}
+button:hover{ box-shadow:0 0 15px #c000ff; }
+</style>
+</head>
+<body>
+<div class="report-box">
+  <h2>Your Numerology Report</h2>
+  <div id="reportContent">Loading your report...</div>
+  <button onclick="window.location.href='index.html'">Back to Input Page</button>
+</div>
+<script>
+const data = JSON.parse(localStorage.getItem('numerologyReport'));
+if(!data){
+  document.getElementById('reportContent').innerText='No report found. Please generate from main page.';
+}else{
+  document.getElementById('reportContent').innerHTML =
+    `<pre>${JSON.stringify(data.report, null, 2)}</pre>`;
+}
+</script>
+</body>
+</html>

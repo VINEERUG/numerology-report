@@ -1,174 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Numerology Portal</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #d9e4f5, #f6f0ff);
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-      padding: 2rem;
-      color: #333;
-    }
-    .card {
-      background: white;
-      border-radius: 1rem;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      max-width: 500px;
-      width: 100%;
-      padding: 2rem;
-      text-align: center;
-    }
-    h1 {
-      color: #4a3aff;
-    }
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
-      text-align: left;
-    }
-    label {
-      font-weight: 500;
-    }
-    input, select, button {
-      padding: 0.6rem;
-      border-radius: 0.5rem;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-    }
-    button {
-      background: #4a3aff;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: 0.3s;
-    }
-    button:hover {
-      background: #3a2adb;
-    }
-    .result {
-      margin-top: 1.5rem;
-      padding: 1rem;
-      border-radius: 0.8rem;
-      background: #f7f7ff;
-      text-align: left;
-      animation: fadeIn 0.6s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(10px);}
-      to {opacity: 1; transform: translateY(0);}
-    }
-    .error {
-      color: red;
-      margin-top: 1rem;
-    }
-    .loading {
-      margin-top: 1rem;
-      color: #4a3aff;
-      font-style: italic;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Numerology Report Portal</title>
+<link rel="stylesheet" href="style.css" />
+<style>
+body{
+  background:#020b20;
+  color:#fff;
+  font-family:Arial, Helvetica, sans-serif;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  flex-direction:column;
+}
+form{
+  background:rgba(0,0,40,0.6);
+  padding:2rem;
+  border-radius:15px;
+  box-shadow:0 0 20px #8800ff;
+  width:300px;
+}
+input,select{
+  width:100%;
+  padding:8px;
+  margin:8px 0;
+  border:none;
+  border-radius:5px;
+}
+button{
+  width:100%;
+  padding:10px;
+  background:linear-gradient(90deg,#7f00ff,#e100ff);
+  border:none;
+  border-radius:8px;
+  color:#fff;
+  font-size:1rem;
+  cursor:pointer;
+  transition:0.3s;
+}
+button:hover{
+  box-shadow:0 0 15px #c000ff;
+}
+</style>
 </head>
 <body>
-
-  <div class="card">
-    <h1>🔢 Numerology Portal</h1>
-    <form id="numForm">
-      <label>First Name</label>
-      <input type="text" id="firstName" required>
-
-      <label>Middle Name</label>
-      <input type="text" id="middleName">
-
-      <label>Last Name</label>
-      <input type="text" id="lastName" required>
-
-      <label>Date of Birth</label>
-      <input type="date" id="dob" required>
-
-      <label>Gender</label>
-      <select id="gender" required>
-        <option value="">Select</option>
-        <option>Male</option>
-        <option>Female</option>
-      </select>
-
-      <label>Mobile Number</label>
-      <input type="text" id="mobile">
-
-      <button type="submit">Generate Report</button>
-    </form>
-
-    <div class="loading" id="loading" style="display:none;">Calculating... 🔮</div>
-    <div class="error" id="error"></div>
-    <div class="result" id="result"></div>
-  </div>
-
-  <script>
-    const form = document.getElementById('numForm');
-    const resultDiv = document.getElementById('result');
-    const errorDiv = document.getElementById('error');
-    const loadingDiv = document.getElementById('loading');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      resultDiv.innerHTML = '';
-      errorDiv.innerHTML = '';
-      loadingDiv.style.display = 'block';
-
-      const payload = {
-        firstName: document.getElementById('firstName').value.trim(),
-        middleName: document.getElementById('middleName').value.trim(),
-        lastName: document.getElementById('lastName').value.trim(),
-        dob: document.getElementById('dob').value,
-        gender: document.getElementById('gender').value,
-        mobile: document.getElementById('mobile').value.trim()
-      };
-
-      try {
-        const res = await fetch('https://keshvaggrawal.pythonanywhere.com/api/calc', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': 'yourSuperSecretKey123' // replace with your real key
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await res.json();
-        loadingDiv.style.display = 'none';
-
-        if (!data.ok) {
-          errorDiv.textContent = data.error || 'Calculation failed.';
-          return;
-        }
-
-        const r = data.report;
-        resultDiv.innerHTML = `
-          <h3>Numerology Report for ${r.name}</h3>
-          <p><strong>Life Path:</strong> ${r.numbers.lifePath}</p>
-          <p><strong>Expression:</strong> ${r.numbers.expression}</p>
-          <p><strong>Soul Urge:</strong> ${r.numbers.soulUrge}</p>
-          <p><strong>Personality:</strong> ${r.numbers.personality}</p>
-          <p><strong>Lucky Color:</strong> ${r.colors.luckyColor}</p>
-          <p><strong>Aura Color:</strong> ${r.colors.auraColor}</p>
-          <hr>
-          <p>${r.summary}</p>
-        `;
-      } catch (err) {
-        console.error(err);
-        loadingDiv.style.display = 'none';
-        errorDiv.textContent = 'Something went wrong. Please try again.';
-      }
-    });
-  </script>
-
+<h2>Numerology Report Portal</h2>
+<form id="numerologyForm">
+  <input type="text" id="firstName" placeholder="First Name" required />
+  <input type="text" id="middleName" placeholder="Middle Name" />
+  <input type="text" id="lastName" placeholder="Last Name" required />
+  <input type="date" id="dob" required />
+  <select id="gender" required>
+    <option value="">Select Gender</option>
+    <option value="Male">Male</option>
+    <option value="Female">Female</option>
+  </select>
+  <input type="text" id="mobile" placeholder="Mobile (optional)" />
+  <button type="submit">Reveal My Numbers</button>
+</form>
+<script src="script.js"></script>
 </body>
 </html>
