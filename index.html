@@ -124,11 +124,12 @@
       };
 
       try {
-        const res = await fetch('https://YOUR_USERNAME.pythonanywhere.com/api/calc', {
+        const res = await fetch('https://keshavaggarwal.pythonanywhere.com/api/calc', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'x-api-key': 'YOUR_SECRET_KEY'
+            'x-api-key': 'yourSuperSecretKey123
+'
           },
           body: JSON.stringify(payload)
         });
