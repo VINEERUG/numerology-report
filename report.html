@@ -1,50 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Your Numerology Report</title>
-<style>
-body{
-  background:#020b20;
-  color:#fff;
-  font-family:Arial, Helvetica, sans-serif;
-  padding:2rem;
-}
-.report-box{
-  background:rgba(0,0,40,0.7);
-  border-radius:15px;
-  box-shadow:0 0 20px #8800ff;
-  padding:2rem;
-  max-width:700px;
-  margin:auto;
-}
-button{
-  background:linear-gradient(90deg,#7f00ff,#e100ff);
-  border:none;
-  border-radius:8px;
-  color:#fff;
-  padding:10px 20px;
-  cursor:pointer;
-  margin-top:20px;
-}
-button:hover{ box-shadow:0 0 15px #c000ff; }
-</style>
-</head>
-<body>
-<div class="report-box">
-  <h2>Your Numerology Report</h2>
-  <div id="reportContent">Loading your report...</div>
-  <button onclick="window.location.href='index.html'">Back to Input Page</button>
-</div>
-<script>
-const data = JSON.parse(localStorage.getItem('numerologyReport'));
-if(!data){
-  document.getElementById('reportContent').innerText='No report found. Please generate from main page.';
-}else{
-  document.getElementById('reportContent').innerHTML =
-    `<pre>${JSON.stringify(data.report, null, 2)}</pre>`;
-}
-</script>
-</body>
-</html>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Numerology Portal | Your Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* ALL THE CSS FROM YOUR ORIGINAL FILE */
+        :root {
+            --primary-color: #6D28D9; /* Violet-700 */
+            --secondary-color: #EC4899; /* Pink-500 */
+            --bg-dark: #0F172A; /* Slate-900 */
+            --card-bg: #1E293B; /* Slate-800 */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark); 
+            background: linear-gradient(135deg, #1E293B, #0F172A);
+        }
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        .result-card {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s ease-out forwards;
+            position: relative; 
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background-color: var(--card-bg);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 0 15px rgba(109, 40, 217, 0.2);
+            border-radius: 0.75rem;
+        }
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 0 8px var(--primary-color), 0 0 10px var(--secondary-color);
+            border-top-left-radius: 0.75rem;
+            border-top-right-radius: 0.75rem;
+        }
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6), 0 0 25px var(--secondary-color);
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .number-display {
+            background: -webkit-linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
