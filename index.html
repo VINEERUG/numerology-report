@@ -2,21 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale-1.0">
     <title>Numerology Portal | Discover Your Numbers</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-        /* Styles from your original file (Request #1) */
         :root {
-            --primary-color: #6D28D9; /* Violet-700 */
-            --secondary-color: #EC4899; /* Pink-500 */
-            --bg-dark: #0F172A; /* Slate-900 */
-            --card-bg: #1E293B; /* Slate-800 */
+            --primary-color: #6D28D9;
+            --secondary-color: #EC4899;
+            --bg-dark: #0F172A;
+            --card-bg: #1E293B;
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -26,12 +24,10 @@
         .font-serif {
             font-family: 'Playfair Display', serif;
         }
-        /* Style for form inputs */
         .form-input-field:focus {
             border-color: var(--primary-color) !important;
             box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.5);
         }
-        /* Custom scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--card-bg); }
         ::-webkit-scrollbar-thumb { background: #4B5563; border-radius: 10px; }
@@ -47,9 +43,9 @@
             <p class="text-lg text-purple-300 mt-2">Unveil the cosmic blueprint hidden in your name and birth date.</p>
         </header>
 
-        <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <main class="max-w-2xl mx-auto">
 
-            <div class="lg:col-span-2 bg-slate-800/60 p-6 md:p-8 rounded-2xl border border-slate-700 h-fit shadow-2xl">
+            <div class="bg-slate-800/60 p-6 md:p-8 rounded-2xl border border-slate-700 h-fit shadow-2xl">
                 <h2 class="font-serif text-3xl font-bold text-white mb-6">Enter Your Details</h2>
              
                 <form id="numerology-form" class="space-y-6">
@@ -110,14 +106,6 @@
                     </button>
                     <div id="form-error" class="text-pink-400 text-sm mt-4 hidden p-3 bg-slate-700/50 rounded-lg"></div>
                 </form>
-            </div>
-
-            <div id="results-placeholder" class="lg:col-span-3 h-full min-h-[400px] flex flex-col items-center justify-center bg-gray-800/30 p-8 rounded-2xl border-2 border-dashed border-gray-700 text-center">
-                <svg class="w-16 h-16 text-gray-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                </svg>
-                <h3 class="font-serif text-2xl text-white">Your personal report awaits.</h3>
-                <p class="text-gray-400 mt-2">Fill in your details to generate your numerology chart.</p>
             </div>
 
         </main>

@@ -1,4 +1,5 @@
-// Wait for the document to be fully loaded
+// script.js (Corrected URL)
+
 document.addEventListener('DOMContentLoaded', () => {
     
     const form = document.getElementById('numerology-form');
@@ -9,13 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Disable button and show loading text
             submitButton.disabled = true;
             submitButton.textContent = 'Calculating...';
             errorEl.classList.add('hidden');
             errorEl.textContent = '';
 
-            // 1. GATHER THE USER'S INPUTS using FormData
             const formData = new FormData(form);
             const payload = {
                 firstName: formData.get('firstName'),
@@ -27,7 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             try {
-                const res = await fetch('https://keshvaggrawal.python-anywhere.com/api/calc', {
+                // --- THIS IS THE FIX ---
+                // The URL is now correct (no hyphen)
+                const res = await fetch('https://keshvaggrawal.pythonanywhere.com/api/calc', {
+                // --- END FIX ---
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -35,31 +37,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const data = await res.json();
                 
-                // 2. CHECK FOR SUCCESS ('report' key) OR FAILURE ('error' key)
                 if (data.report && !data.error) {
-                    
-                    // 3. STORE *BOTH* INPUTS AND RESULTS
                     const reportData = {
                         inputs: payload,
                         results: data.report 
                     };
                     
                     localStorage.setItem('numerologyReport', JSON.stringify(reportData));
-                    // Redirect to the report page
                     window.location.href = 'report.html';
                     
                 } else {
-                    // Show error from backend in the error box
                     errorEl.textContent = data.error || 'Something went wrong. Please try again.';
                     errorEl.classList.remove('hidden');
                 }
 
             } catch(err) {
-                // Handle network errors
+                // This is the error you are seeing
+                console.error('Fetch Error:', err);
                 errorEl.textContent = 'Network error. Please check your connection and try again.';
                 errorEl.classList.remove('hidden');
             } finally {
-                // 4. ALWAYS RE-ENABLE THE BUTTON
                 submitButton.disabled = false;
                 submitButton.textContent = 'Reveal My Numbers';
             }
