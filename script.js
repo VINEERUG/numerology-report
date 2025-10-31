@@ -1,53 +1,68 @@
-document.getElementById('numerologyForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const submitButton = e.target.querySelector('button[type="submit"]');
-  submitButton.disabled = true;
-  submitButton.textContent = 'Calculating...';
-
-  // 1. GATHER THE USER'S INPUTS
-  const payload = {
-    firstName: document.getElementById('firstName').value.trim(),
-    middleName: document.getElementById('middleName').value.trim(),
-    lastName: document.getElementById('lastName').value.trim(),
-    dob: document.getElementById('dob').value,
-    gender: document.getElementById('gender').value,
-    mobile: document.getElementById('mobile').value.trim()
-  };
-
-  try {
-    const res = await fetch('https://keshvaggrawal.pythonanywhere.com/api/calc', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
+// Wait for the document to be fully loaded
+document.addEventListener('DOMContentLoaded', () => {
     
-    // 2. CHECK FOR SUCCESS ('report' key) OR FAILURE ('error' key)
-    if (data.report && !data.error) {
-      
-      // 3. STORE *BOTH* INPUTS AND RESULTS
-      // This is so the report page can display the user's name and DOB
-      const reportData = {
-        inputs: payload,
-        results: data.report 
-      };
-      
-      localStorage.setItem('numerologyReport', JSON.stringify(reportData));
-      window.location.href = 'report.html';
-      
-    } else {
-      // Handle errors from the backend (e.g., "Missing required fields")
-      alert('Error: ' + (data.error || 'Something went wrong.'));
-    }
+    const form = document.getElementById('numerology-form');
+    const submitButton = document.getElementById('submit-button');
+    const errorEl = document.getElementById('form-error');
 
-  } catch(err) {
-    // Handle network errors (e.g., server is down)
-    alert('Network error: ' + err.message);
-  } finally {
-    // 4. ALWAYS RE-ENABLE THE BUTTON
-    submitButton.disabled = false;
-    submitButton.textContent = 'Reveal My Numbers';
-  }
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Disable button and show loading text
+            submitButton.disabled = true;
+            submitButton.textContent = 'Calculating...';
+            errorEl.classList.add('hidden');
+            errorEl.textContent = '';
+
+            // 1. GATHER THE USER'S INPUTS using FormData
+            const formData = new FormData(form);
+            const payload = {
+                firstName: formData.get('firstName'),
+                middleName: formData.get('middleName'),
+                lastName: formData.get('lastName'),
+                dob: formData.get('dob'),
+                gender: formData.get('gender'),
+                mobile: formData.get('mobile')
+            };
+
+            try {
+                const res = await fetch('https://keshvaggrawal.python-anywhere.com/api/calc', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                
+                // 2. CHECK FOR SUCCESS ('report' key) OR FAILURE ('error' key)
+                if (data.report && !data.error) {
+                    
+                    // 3. STORE *BOTH* INPUTS AND RESULTS
+                    const reportData = {
+                        inputs: payload,
+                        results: data.report 
+                    };
+                    
+                    localStorage.setItem('numerologyReport', JSON.stringify(reportData));
+                    // Redirect to the report page
+                    window.location.href = 'report.html';
+                    
+                } else {
+                    // Show error from backend in the error box
+                    errorEl.textContent = data.error || 'Something went wrong. Please try again.';
+                    errorEl.classList.remove('hidden');
+                }
+
+            } catch(err) {
+                // Handle network errors
+                errorEl.textContent = 'Network error. Please check your connection and try again.';
+                errorEl.classList.remove('hidden');
+            } finally {
+                // 4. ALWAYS RE-ENABLE THE BUTTON
+                submitButton.disabled = false;
+                submitButton.textContent = 'Reveal My Numbers';
+            }
+        });
+    }
 });
