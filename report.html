@@ -82,52 +82,27 @@
             const resultsPlaceholder = document.getElementById('results-placeholder');
             const backButtonContainer = document.getElementById('back-button-container');
 
-            // --- Helper Functions for HTML Generation ---
+            // --- Helper Functions for HTML Generation (Simplified) ---
 
-            /** Creates an individual data box for core numbers. */
-            const createDataBox = (title, value, ruler = '', description = '') => `
-                <div class="bg-slate-700/50 p-4 rounded-xl shadow-xl border border-violet-500/30 transition duration-300 hover:bg-slate-700 hover:shadow-violet-600/30 h-full">
-                    <p class="text-sm font-medium text-purple-300 uppercase">${title}</p>
-                    <p class="text-5xl font-serif font-bold text-white mt-1">${value}</p>
-                    ${ruler ? `<p class="text-sm text-pink-400 font-semibold mt-1">Ruler: ${ruler}</p>` : ''}
-                    ${description ? `<p class="text-xs text-gray-400 mt-2">${description}</p>` : ''}
-                </div>
+            /** Creates a visually appealing list item for display. */
+            const createListItem = (title, value) => `
+                <li class="flex justify-between items-center py-3 border-b border-slate-700/50 hover:bg-slate-700/30 px-2 -mx-2 rounded">
+                    <span class="text-lg text-purple-300 font-medium">${title}</span>
+                    <span class="text-xl font-bold text-white">${value}</span>
+                </li>
             `;
-
-            /** Creates a visually appealing grid representing Lo Shu. */
-            const createGrid = (counts, gridName) => {
-                // The grid is 3x3, numbered as: 4 9 2 / 3 5 7 / 8 1 6
-                const order = [4, 9, 2, 3, 5, 7, 8, 1, 6];
-                const gridHtml = order.map(num => {
-                    const count = counts[num] || 0;
-                    // Display the number of times it appears, or a dash if missing
-                    const countText = count > 0 ? Array(count).fill(num).join('') : '—';
-                    const bgColor = count > 0 ? 'bg-violet-600/70 hover:bg-violet-700' : 'bg-slate-800/50';
-                    const textColor = count > 0 ? 'text-white' : 'text-gray-500';
-
-                    return `
-                        <div class="p-2 text-center border border-slate-600 rounded-lg flex flex-col justify-center items-center h-20 w-full ${bgColor} transition duration-150">
-                            <span class="text-sm font-light text-purple-300">${num}</span>
-                            <span class="font-bold text-xl ${textColor} mt-0.5">${countText}</span>
-                        </div>
-                    `;
-                }).join('');
-
-                return `
-                    <div class="mt-8">
-                        <h3 class="text-2xl font-serif text-purple-300 mb-4 text-center border-b border-slate-700 pb-2">${gridName} Grid (Vibrational Counts)</h3>
-                        <div class="grid grid-cols-3 gap-2 max-w-xs mx-auto p-4 bg-slate-900/50 rounded-xl shadow-inner">
-                            ${gridHtml}
-                        </div>
-                        <p class="text-xs text-gray-400 mt-3 text-center">Base Grid is from Date of Birth; Full Grid includes Name Numbers.</p>
-                    </div>
-                `;
-            };
             
             /** Renders the entire report based on JSON data. */
             const displayResults = (results, inputs) => {
                 const fullName = `${inputs.firstName} ${inputs.middleName ? inputs.middleName + ' ' : ''}${inputs.lastName}`.toUpperCase();
                 const dob = inputs.dob;
+
+                let correctionStatus = 'text-green-400';
+                let correctionReason = 'No suggested correction. Your name vibrates harmoniously with your DOB.';
+                if (results.nameCorrectionRequired) {
+                    correctionStatus = 'text-red-400';
+                    correctionReason = `Correction suggested: ${results.correctionReason}`;
+                }
                 
                 // 1. Header Section
                 let html = `
@@ -141,88 +116,68 @@
                     </header>
                 `;
 
-                // 2. Core Identity Numbers
+                // 2. Main Report Content - Two Columns for Core Numbers and Cycles
                 html += `
-                    <section class="mb-10">
-                        <h2 class="text-3xl font-serif text-pink-400 mb-6 border-b border-slate-700 pb-2">Core Identity</h2>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            ${createDataBox('Driver (Life Path) Number', results.driverNumber, results.driverRuler, 'Core destiny & direction.')}
-                            ${createDataBox('Conductor (Destiny) Number', results.conductorNumber, results.conductorRuler, 'Your identity and interaction with the world.')}
-                            ${createDataBox('Soul Urge Number', results.soulUrgeNumber, '', 'The hidden desire of your heart.')}
-                            ${createDataBox('Personality Number', results.personalityNumber, '', 'The outward persona you project.')}
-                        </div>
-                    </section>
-                `;
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Left Column: Core Identity -->
+                        <section class="p-6 bg-slate-800 rounded-2xl shadow-xl h-fit">
+                            <h2 class="text-3xl font-serif text-pink-400 mb-6 border-b border-slate-700 pb-2">Core Identity Numbers</h2>
+                            <ul class="divide-y divide-slate-700">
+                                ${createListItem('Life Path (Driver)', `${results.driverNumber} (Ruler: ${results.driverRuler})`)}
+                                ${createListItem('Destiny (Conductor)', `${results.conductorNumber} (Ruler: ${results.conductorRuler})`)}
+                                ${createListItem('Soul Urge Number', results.soulUrgeNumber)}
+                                ${createListItem('Personality Number', results.personalityNumber)}
+                                ${createListItem('Karmic Debt / Master No.', results.karmicDebt || results.masterNumber || 'N/A')}
+                                ${createListItem('Success Number', results.successNumber)}
+                            </ul>
+                        </section>
 
-                // 3. Current Cycles & Secondary Numbers
-                html += `
-                    <section class="mb-10">
-                        <h2 class="text-3xl font-serif text-pink-400 mb-6 border-b border-slate-700 pb-2">Vibrational Influences</h2>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
-                            ${createDataBox('Personal Year', results.personalYear, '', 'Current theme for your life.')}
-                            ${createDataBox('Universal Year', results.universalYear, '', 'Global energy affecting everyone.')}
-                            ${createDataBox('Success Number', results.successNumber, '', 'Energy leading to achievement.')}
-                        </div>
-                    </section>
+                        <!-- Right Column: Cycles and Vibe -->
+                        <section class="p-6 bg-slate-800 rounded-2xl shadow-xl h-fit">
+                            <h2 class="text-3xl font-serif text-pink-400 mb-6 border-b border-slate-700 pb-2">Cycles and Name Vibe</h2>
+                            <ul class="divide-y divide-slate-700">
+                                ${createListItem('Personal Year Cycle', results.personalYear)}
+                                ${createListItem('Universal Year Cycle', results.universalYear)}
+                                ${createListItem('Full Name Number', `${results.fullNameNumber} (Total: ${results.fullNameTotal})`)}
+                                ${createListItem('First Name Number', `${results.firstNameNumber} (Total: ${results.firstNameTotal})`)}
+                                ${createListItem('Last Name Number', `${results.lastNameNumber} (Total: ${results.lastNameTotal})`)}
+                                ${createListItem('Kua Number (Feng Shui)', results.kuaNumber)}
+                            </ul>
+                        </section>
+                    </div>
                 `;
-
-                // 4. Name & Mobile Analysis
-                let correctionStatus = 'text-green-400';
-                let correctionReason = 'No suggested correction. Your name vibrates harmoniously with your DOB.';
-                if (results.nameCorrectionRequired) {
-                    correctionStatus = 'text-red-400';
-                    correctionReason = `Correction suggested: ${results.correctionReason}`;
-                }
                 
+                // 3. Additional Analysis Section
                 html += `
-                    <section class="mb-10 p-6 bg-slate-800/70 rounded-2xl shadow-xl">
-                        <h2 class="text-3xl font-serif text-pink-400 mb-4">Name and Mobile Vibe</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                            ${createDataBox('Full Name Total', results.fullNameTotal, '', 'Sum of all letters in your full name.')}
-                            ${createDataBox('Reduced Name Number', results.fullNameNumber, '', 'The single-digit essence of your name.')}
-                            ${createDataBox('Karmic Debt / Master No.', results.karmicDebt || results.masterNumber || 'N/A', '', 'Special numbers indicating life lessons.')}
-                        </div>
+                    <section class="mt-8 p-6 bg-slate-800 rounded-2xl shadow-xl">
+                        <h2 class="text-3xl font-serif text-pink-400 mb-6 border-b border-slate-700 pb-2">Supporting Analysis & Luck</h2>
                         
+                        <!-- Lucky Info Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                            <div class="bg-slate-700/50 p-4 rounded-xl border border-violet-500/30">
+                                <p class="text-sm font-medium text-purple-300">Lucky Numbers</p>
+                                <p class="text-xl font-bold text-white mt-1">${results.luckyNumbers || 'N/A'}</p>
+                            </div>
+                            <div class="bg-slate-700/50 p-4 rounded-xl border border-violet-500/30">
+                                <p class="text-sm font-medium text-purple-300">Lucky Colors</p>
+                                <p class="text-xl font-bold text-white mt-1">${results.luckyColors || 'N/A'}</p>
+                            </div>
+                            <div class="bg-slate-700/50 p-4 rounded-xl border border-violet-500/30">
+                                <p class="text-sm font-medium text-purple-300">Driver/Conductor Compatibility</p>
+                                <p class="text-base text-gray-300 mt-1">${results.compatibilityData || 'N/A'}</p>
+                            </div>
+                        </div>
+
                         <!-- Name Correction Status -->
-                        <div class="p-4 rounded-xl border-l-4 ${correctionStatus === 'text-green-400' ? 'border-green-500 bg-green-900/30' : 'border-red-500 bg-red-900/30'}">
-                            <p class="text-xl font-semibold ${correctionStatus}">${results.nameCorrectionRequired ? 'Name Correction Suggested' : 'Name is Harmonious'}</p>
-                            <p class="text-sm mt-1 text-gray-300">${correctionReason}</p>
+                        <div class="p-4 rounded-xl border-l-4 ${correctionStatus === 'text-green-400' ? 'border-green-500 bg-green-900/30' : 'border-red-500 bg-red-900/30'} mb-6">
+                            <p class="text-xl font-semibold ${correctionStatus} mb-1">${results.nameCorrectionRequired ? 'Name Correction Suggested' : 'Name is Harmonious'}</p>
+                            <p class="text-sm text-gray-300">${correctionReason}</p>
                         </div>
 
                         <!-- Mobile Analysis -->
-                        <div class="mt-6 p-4 bg-slate-700/50 rounded-xl border border-violet-500/30">
+                        <div class="p-4 bg-slate-700/50 rounded-xl border border-violet-500/30">
                             <h3 class="text-xl font-serif text-purple-300 mb-2">Mobile Number (${results.mobileNumber || 'N/A'}) Analysis</h3>
                             <p class="text-gray-300 text-sm">${results.mobileAnalysis || 'No mobile number provided for analysis.'}</p>
-                        </div>
-                    </section>
-                `;
-                
-                // 5. Lo Shu Grid and Lucky Vibrations
-                html += `
-                    <section class="mb-10">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                            <!-- Lo Shu Grid -->
-                            <div>
-                                ${createGrid(results.baseGridCounts, 'Base (DOB)')}
-                            </div>
-                            <!-- Lucky Info -->
-                            <div class="p-6 bg-slate-800/70 rounded-2xl shadow-xl mt-8 lg:mt-0 h-fit">
-                                <h3 class="text-3xl font-serif text-pink-400 mb-4 border-b border-slate-700 pb-2">Auspicious Vibrations</h3>
-                                <div class="space-y-4">
-                                    <div class="bg-slate-700/50 p-3 rounded-lg">
-                                        <p class="text-sm font-medium text-purple-300">Lucky Numbers</p>
-                                        <p class="text-xl font-bold text-white mt-0.5">${results.luckyNumbers || 'N/A'}</p>
-                                    </div>
-                                    <div class="bg-slate-700/50 p-3 rounded-lg">
-                                        <p class="text-sm font-medium text-purple-300">Lucky Colors</p>
-                                        <p class="text-xl font-bold text-white mt-0.5">${results.luckyColors || 'N/A'}</p>
-                                    </div>
-                                    <div class="bg-slate-700/50 p-3 rounded-lg">
-                                        <p class="text-sm font-medium text-purple-300">Compatibility Check</p>
-                                        <p class="text-base text-gray-300 mt-0.5">${results.compatibilityData || 'N/A'}</p>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </section>
                 `;
@@ -230,19 +185,14 @@
                 resultsContent.innerHTML = html;
             };
 
-            // --- Main Execution Block ---
+            // --- Main Execution Block with Error Handling ---
             
             try {
-                // Add console log to clearly indicate where we are looking for data
-                console.log('Attempting to retrieve report data from localStorage with key "numerologyReport"...');
-                
                 // 1. Get the data from localStorage
                 const storedData = localStorage.getItem('numerologyReport');
                 
                 if (!storedData) {
-                    // Console log the failure reason for debugging
-                    console.error('FAILED TO LOAD REPORT: Key "numerologyReport" was not found in localStorage. This happens if index.html was not submitted successfully first.');
-                    // No data found, show the placeholder
+                    console.error('FAILED TO LOAD REPORT: Key "numerologyReport" was not found in localStorage. Please ensure you submit the form on index.html successfully first.');
                     throw new Error('No report data found.'); 
                 }
 
@@ -250,12 +200,10 @@
                 const reportData = JSON.parse(storedData);
                 
                 if (!reportData.inputs || !reportData.results) {
-                    // Data is malformed
                     throw new Error('Report data is invalid.');
                 }
 
                 // 3. We have data! Call the display function
-                // We pass both the backend results and the user inputs
                 displayResults(reportData.results, reportData.inputs);
 
                 // 4. Hide spinner, show content
@@ -268,7 +216,7 @@
                 console.error(error);
                 loadingSpinner.classList.add('hidden');
                 resultsPlaceholder.classList.remove('hidden');
-                backButtonContainer.classList.add('hidden'); // Hide main back button
+                backButtonContainer.classList.add('hidden');
             }
         });
     </script>
