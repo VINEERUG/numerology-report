@@ -46,11 +46,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.setItem('numerologyReport', JSON.stringify(reportData));
                     
                     // --- THIS IS THE FIX ---
-                    // Add a 300ms delay to ensure localStorage has time to
+                    // Add a 1000ms delay to ensure localStorage has time to
                     // save before the browser redirects to the new page.
                     setTimeout(() => {
                         window.location.href = 'report.html';
-                    }, 300); // 300 milliseconds
+                    }, 1000); // 1000 milliseconds
                     
                 } else {
                     // This handles server errors (e.g., if you enter a bad date)
@@ -73,3 +73,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+
