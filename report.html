@@ -135,7 +135,7 @@
                         <p class="text-purple-300 text-lg">Current Date: <span id="display-current-date" class="text-white"></span></p>
                     </div>
                     
-                    </div>
+                </div>
                 
                 <div id="back-button-container" class="text-center mt-8 hidden">
                      <a href="index.html" class="back-button">Back to Input Page</a>
@@ -147,21 +147,7 @@
     </div>
 
     <script>
-        // --- ALL THE DATA AND DISPLAY FUNCTIONS FROM YOUR ORIGINAL FILE ---
-
-        // --- DOM Elements ---
-        const resultsPlaceholder = document.getElementById('results-placeholder');
-        const resultsContent = document.getElementById('results-content');
-        const loadingSpinner = document.getElementById('loading-spinner');
-        const displayFullName = document.getElementById('display-full-name');
-        const displayDob = document.getElementById('display-dob');
-        const displayCurrentDate = document.getElementById('display-current-date');
-        const basicDetailsHeader = document.getElementById('basic-details-header');
-        const backButtonContainer = document.getElementById('back-button-container');
-
-        // --- DATA (Copied from original) ---
-        // *** NOTE: Unused 'friendNumbers' variable was removed ***
-        
+        // --- DATA (This can live outside) ---
         const planetaryRulers = {
             1: { name: "Sun", keyword: "King, Authority" },
             2: { name: "Moon", keyword: "Queen, Emotions" },
@@ -222,14 +208,12 @@
         }; 
         
         // --- IMPORTANT: COMPATIBILITY DESCRIPTIONS ---
-        // This is the data from your original file. It is 
-        // needed to show the "Core Number Harmony" card.
         const compatibilityDescriptions = {
             1: {
                 1: { title: "The Royal Combination", type: "Friendly", text: "Sun driving Sun. This is a powerful, harmonious combination. Your ambitious personality is perfectly aligned with a life path of leadership and authority. You are destined to be in charge. Challenge: The only risk is an inflated ego. You must learn to lead with grace, not just force." },
                 2: { title: "The King and Queen", type: "Neutral", text: "Sun driving Moon. Your personality is firm and decisive (Sun), but your life path is emotional and fluctuating (Moon). This is a neutral path where you must learn to balance your authority with sensitivity and diplomacy. Success comes from winning hearts, not just battles." },
                 3: { title: "The Respected Leader", type: "Friendly", text: "Sun driving Jupiter. An excellent and fortunate combination. Your leadership (Sun) is blessed by wisdom and expansion (Jupiter). This path leads to high positions, respect, and success as a teacher, consultant, or advisor to influential people." },
-                4: { title: "The Eclipsed King", type: "Enemy", text: "Sun driving Rahu. A challenging combination. Your clear, authoritative personality (Sun) is thrown into a life path of sudden ups, downs, and unpredictability (Rahu). You may feel your authority is constantly challenged by chaos. The lesson is to build a stable foundation and avoid shortcuts." },
+                4Exiting: { title: "The Eclipsed King", type: "Enemy", text: "Sun driving Rahu. A challenging combination. Your clear, authoritative personality (Sun) is thrown into a life path of sudden ups, downs, and unpredictability (Rahu). You may feel your authority is constantly challenged by chaos. The lesson is to build a stable foundation and avoid shortcuts." },
                 5: { title: "The Charismatic Leader", type: "Friendly", text: "Sun driving Mercury. A very successful combination. Your leadership (Sun) is amplified by sharp intellect and communication (Mercury). This is perfect for business, entrepreneurship, and public speaking. You can lead and persuade." },
                 6: { title: "The King's Indulgence", type: "Enemy", text: "Sun driving Venus. An enemy relationship. There is a clash between your ego (Sun) and your path of luxury and relationships (Venus). You may struggle to balance your career ambitions with your personal life, or your desire for status may clash with your need for harmony." },
                 7: { title: "The Solitary King", type: "Neutral", text: "Sun driving Ketu. A neutral path. Your outward, authoritative personality (Sun) must walk a path of introspection and spirituality (Ketu). You may feel like a leader, but your destiny pulls you toward research, analysis, and finding deeper meaning. Success is found in becoming a spiritual or intellectual authority." },
@@ -255,7 +239,7 @@
                 5: { title: "The Expressive Teacher", type: "Neutral", text: "Jupiter driving Mercury. A neutral path. Your deep wisdom (Jupiter) is paired with a path of fast-moving intellect (Mercury). You must work to turn your vast knowledge into clear, simple communication. Good for writing, publishing, or sales in the education sector." },
                 6: { title: "The Clash of Gurus", type: "Enemy", text: "Jupiter driving Venus. An enemy relationship. This is a clash of two 'gurus.' Your personality seeks wisdom (Jupiter), but your path pulls you toward material luxury (Venus). You may struggle between a life of principle and a life of pleasure. The lesson is to find a balance." },
                 7: { title: "The Spiritual Master", type: "Friendly", text: "Jupiter driving Ketu. An excellent combination for spiritual growth. Your wisdom (Jupiter) is perfectly aligned with an introspective, spiritual path (Ketu). This combination produces profound thinkers, philosophers, and spiritual guides. Your knowledge is deep and intuitive." },
-                8: { title: "The Wise Judge", type: "Enemy", text: "Jupiter driving Saturn. A challenging path. Your optimistic, expansive personality (Jupiter) is on a path of delays and discipline (Saturn). You will feel 'held back' by life. Your grand ideas will be met with practical obstacles. Success comes by combining your big vision with Saturn's patience and hard work." },
+                8: { title: "The Wise Judge", type: "Enemy", text: "Jupiter driving Saturn. A challenging path. Your optimistic, expansive personality (Jupiter) is on a life path of delays and discipline (Saturn). You will feel 'held back' by life. Your grand ideas will be met with practical obstacles. Success comes by combining your big vision with Saturn's patience and hard work." },
                 9: { title: "The Righteous Commander", type: "Friendly", text: "Jupiter driving Mars. An excellent and powerful combination. Your wisdom (Jupiter) is backed by the energy and action of Mars. You don't just talk; you *do*. This is a path of righteous action, perfect for a leader in law, social reform, or a purpose-driven organization." }
             },
             4: {
@@ -282,47 +266,47 @@
             },
             6: {
                 1: { "title": "The Diplomat vs. The King", "type": "Enemy", "text": "Venus driving Sun. A challenging combination. Your personality seeks harmony and equality (Venus), but your life path demands you be an authoritative leader (Sun). You may struggle with being 'too nice' when you need to be tough. The lesson is to find the balance between grace and command." },
-                2: { "title": "The Gracious Host", "type": "Neutral", "text": "Venus driving Moon. A neutral path. Your loving personality (Venus) is on an emotional path (Moon). This is a wonderful combination for a life filled with art, family, and beauty. Success is found in creative and nurturing fields, like design, hospitality, or healing." },
+                2L: { "title": "The Gracious Host", "type": "Neutral", "text": "Venus driving Moon. A neutral path. Your loving personality (Venus) is on an emotional path (Moon). This is a wonderful combination for a life filled with art, family, and beauty. Success is found in creative and nurturing fields, like design, hospitality, or healing." },
                 3: { "title": "The Pleasure vs. Principle", "type": "Enemy", "text": "Venus driving Jupiter. An enemy relationship (the clash of gurus). Your personality seeks material pleasure (Venus), while your path demands wisdom and principle (Jupiter). You may feel a constant guilt or conflict between what you *want* and what you feel you *should* do." },
                 4: { "title": "The Unconventional Beauty", "type": "Neutral", "text": "Venus driving Rahu. A neutral path. Your love for harmony (Venus) is on a chaotic life path (Rahu). This can lead to unconventional relationships, a love for foreign luxuries, or a career in glamorous, high-tech media. You must work to find stability in an unstable world." },
-                5: { "title": "The Silver-Tongued Artist", "type": "Friendly", "text": "Venus driving Mercury. An excellent and charming combination. Your grace (Venus) is paired with a path of sharp communication (Mercury). You can charm anyone. This is a path of success in media, entertainment, luxury sales, or the arts." },
-                6: { "title": "The Life of Pleasure", "type": "Friendly", "text": "Venus driving Venus. A harmonious and fortunate path. Your entire life is aligned with love, luxury, art, and harmony. This is a path of attraction, where good things come to you. Challenge: You must avoid laziness or over-indulgence." },
+                5: { "title": "The Silver-Tongued Artist", type: "Friendly", "text": "Venus driving Mercury. An excellent and charming combination. Your grace (Venus) is paired with a path of sharp communication (Mercury). You can charm anyone. This is a path of success in media, entertainment, luxury sales, or the arts." },
+                6: { "title": "The Life of Pleasure", type: "Friendly", "text": "Venus driving Venus. A harmonious and fortunate path. Your entire life is aligned with love, luxury, art, and harmony. This is a path of attraction, where good things come to you. Challenge: You must avoid laziness or over-indulgence." },
                 7: { "title": "The Spiritual Artist", "type": "Neutral", "text": "Venus driving Ketu. A neutral path. Your worldly, luxury-loving personality (Venus) is on a spiritual, detached path (Ketu). This creates a person who seeks 'divine beauty.' You may be an artist who channels spiritual concepts or a person who must learn to find beauty in simplicity, not just in riches." },
-                8: { "title": "The Disciplined Creator", "type": "Friendly", "text": "Venus driving Saturn. A friendly and powerful combination. Your creative, luxury-loving nature (Venus) is on a path of hard work and discipline (Saturn). This is how empires are built. You have the good taste of Venus and the work ethic of Saturn. Excellent for success in real estate, high-end manufacturing, or architecture." },
-                9: { "title": "The Passionate Lover", "type": "Neutral", "text": "Venus driving Mars. A neutral but very passionate path. Your loving nature (Venus) is on an aggressive path (Mars). This creates intense, passionate relationships but also a risk of jealousy and conflict. In career, this is good for active, creative fields like a performance or brand management." }
+                8: { "title": "The Disciplined Creator", type: "Friendly", "text": "Venus driving Saturn. A friendly and powerful combination. Your creative, luxury-loving nature (Venus) is on a path of hard work and discipline (Saturn). This is how empires are built. You have the good taste of Venus and the work ethic of Saturn. Excellent for success in real estate, high-end manufacturing, or architecture." },
+                9: { "title": "The Passionate Lover", type: "Neutral", "text": "Venus driving Mars. A neutral but very passionate path. Your loving nature (Venus) is on an aggressive path (Mars). This creates intense, passionate relationships but also a risk of jealousy and conflict. In career, this is good for active, creative fields like a performance or brand management." }
             },
             7: {
-                1: { "title": "The Spiritual Leader", "type": "Neutral", "text": "Ketu driving Sun. A neutral path. Your introverted, analytical personality (Ketu) is on a path of high-profile leadership (Sun). You may not want the spotlight, but you are destined for it. You will succeed as an 'authority' or 'expert' in a specialized field (like a top surgeon or researcher)." },
-                2: { "title": "The Deep Intuitive", "type": "Friendly", "text": "Ketu driving Moon. An excellent combination. Your psychic, introspective nature (Ketu) is perfectly aligned with an emotional, intuitive path (Moon). This creates a powerful healer, counselor, or spiritual guide. You understand what others feel without words." },
-                3: { "title": "The Deep Thinker", "type": "Friendly", "text": "Ketu driving Jupiter. An excellent combination. Your introspective, research-oriented mind (Ketu) is on a path of wisdom and expansion (Jupiter). This is the combination of a true philosopher, professor, or spiritual master. You are here to find and share deep truths." },
-                4: { "title": "The Code Breaker", "type": "Friendly", "text": "Ketu driving Rahu. A harmonious combination. The 'body' (Ketu) and 'head' (Rahu). Your inner nature is analytical (Ketu), while your life path is chaotic (Rahu). You have the unique ability to see the hidden patterns within chaos. Perfect for research, data science, or occult studies." },
-                5: { "title": "The Quiet Analyst", "type": "Neutral", "text": "Ketu driving Mercury. A neutral path. Your chatty, social personality (Mercury) is on a fast-paced, social path (Mercury). You will feel a push-pull between wanting to be alone and needing to network. Success comes from using your analytical mind in a communication-based field, like writing or coding." },
-                6: { "title": "The Detached Artist", "type": "Neutral", "text": "Ketu driving Venus. A neutral path. Your ascetic, simple-living personality (Ketu) is on a path of luxury and relationships (Venus). You may feel detached from the material world your path offers. The lesson is to learn to appreciate beauty and love without being attached to it." },
-                7: { "title": "The True Mystic", "type": "Friendly", "text": "Ketu driving Ketu. A harmonious path. This is a life of total introspection, spirituality, and detachment. You are not here for material success, but for spiritual enlightenment and deep research. Challenge: This path can be very lonely. You must learn to live in the world, even if you are not 'of' it." },
-                8: { "title": "The Karmic Lesson", "type": "Enemy", "text": "Ketu driving Saturn. A challenging combination. Your intuitive, free-flowing mind (Ketu) is on a rigid, disciplined path (Saturn). You may feel stuck, isolated, and misunderstood. This is a path of deep karmic lessons, where you must learn patience and structure to unlock your spiritual gifts." },
-                9: { "title": "The Conflicted Warrior", "type": "Enemy", "text": "Ketu driving Mars. A challenging combination. Your peaceful, introverted personality (Ketu) is on an aggressive, action-oriented path (Mars). This can create deep, suppressed anger that you don't understand. The lesson is to find a spiritual or meditative way to channel your powerful (Mars) energy." }
+                1: { "title": "The Spiritual Leader", type: "Neutral", "text": "Ketu driving Sun. A neutral path. Your introverted, analytical personality (Ketu) is on a path of high-profile leadership (Sun). You may not want the spotlight, but you are destined for it. You will succeed as an 'authority' or 'expert' in a specialized field (like a top surgeon or researcher)." },
+                2: { "title": "The Deep Intuitive", type: "Friendly", "text": "Ketu driving Moon. An excellent combination. Your psychic, introspective nature (Ketu) is perfectly aligned with an emotional, intuitive path (Moon). This creates a powerful healer, counselor, or spiritual guide. You understand what others feel without words." },
+                3: { "title": "The Deep Thinker", type: "Friendly", "text": "Ketu driving Jupiter. An excellent combination. Your introspective, research-oriented mind (Ketu) is on a path of wisdom and expansion (Jupiter). This is the combination of a true philosopher, professor, or spiritual master. You are here to find and share deep truths." },
+                4: { "title": "The Code Breaker", type: "Friendly", "text": "Ketu driving Rahu. A harmonious combination. The 'body' (Ketu) and 'head' (Rahu). Your inner nature is analytical (Ketu), while your life path is chaotic (Rahu). You have the unique ability to see the hidden patterns within chaos. Perfect for research, data science, or occult studies." },
+                5: { "title": "The Quiet Analyst", type: "Neutral", "text": "Ketu driving Mercury. A neutral path. Your chatty, social personality (Mercury) is on a fast-paced, social path (Mercury). You will feel a push-pull between wanting to be alone and needing to network. Success comes from using your analytical mind in a communication-based field, like writing or coding." },
+                6: { "title": "The Detached Artist", type: "Neutral", "text": "Ketu driving Venus. A neutral path. Your ascetic, simple-living personality (Ketu) is on a path of luxury and relationships (Venus). You may feel detached from the material world your path offers. The lesson is to learn to appreciate beauty and love without being attached to it." },
+                7: { "title": "The True Mystic", type: "Friendly", "text": "Ketu driving Ketu. A harmonious path. This is a life of total introspection, spirituality, and detachment. You are not here for material success, but for spiritual enlightenment and deep research. Challenge: This path can be very lonely. You must learn to live in the world, even if you are not 'of' it." },
+                8: { "title": "The Karmic Lesson", type: "Enemy", "text": "Ketu driving Saturn. A challenging combination. Your intuitive, free-flowing mind (Ketu) is on a rigid, disciplined path (Saturn). You may feel stuck, isolated, and misunderstood. This is a path of deep karmic lessons, where you must learn patience and structure to unlock your spiritual gifts." },
+                9: { "title": "The Conflicted Warrior", type: "Enemy", "text": "Ketu driving Mars. A challenging combination. Your peaceful, introverted personality (Ketu) is on an aggressive, action-oriented path (Mars). This can create deep, suppressed anger that you don't understand. The lesson is to find a spiritual or meditative way to channel your powerful (Mars) energy." }
             },
             8: {
                 1: { "title": "The Judge vs. The King", "type": "Enemy", "text": "Saturn driving Sun. A very challenging combination. Your slow, cautious personality (Saturn) is on a path of fast-paced leadership (Sun). You will constantly clash with authority figures, or you will be placed in a leadership role you feel unready for. Success comes after 40, through immense hard work." },
-                2: { "title": "The Stone Heart", "type": "Enemy", "text": "Saturn driving Moon. A very challenging combination. Your hard, disciplined personality (Saturn) is on a soft, emotional path (Moon). You may find it very difficult to express or understand emotions, leading to loneliness. The life lesson is to learn empathy and to allow yourself to be vulnerable." },
-                3: { "title": "The Strict Teacher", "type": "Enemy", "text": "Saturn driving Jupiter. A challenging combination. Your practical, slow personality (Saturn) clashes with an expansive, optimistic path (Jupiter). Your big ideas (Jupiter) will be met with your own pessimism (Saturn). Success comes when you use your discipline to *build* your big vision, one brick at a time." },
-                4: { "title": "The Path of Shocks", "type": "Enemy", "text": "Saturn driving Rahu. A very challenging path. Your personality wants slow, steady progress (Saturn), but your life is full of sudden, chaotic shocks (Rahu). You may feel like you are building a house in an earthquake. The lesson is to build foundations so strong they can withstand any shock." },
-                5: { "title": "The Methodical Thinker", "type": "Neutral", "text": "Saturn driving Mercury. A neutral path. Your slow, patient nature (Saturn) is on a fast, intellectual path (Mercury). This combination requires effort, but can be very successful. You can be the 'master planner' who thinks through every detail. Great for law, engineering, or complex project management." },
-                6: { "title": "The Wealth Builder", "type": "Friendly", "text": "Saturn driving Venus. An excellent and friendly combination. Your discipline (Saturn) is on a path of luxury (Venus). This is a 'slow and steady' path to great wealth. You are not a 'get rich quick' person; you are a 'build an empire' person. Excellent for real estate, business, and long-term investments." },
-                7: { "title": "The Isolated Hermit", "type": "Enemy", "text": "Saturn driving Ketu. A challenging path. Your practical, worldly personality (Saturn) is on a spiritual, detached path (Ketu). This can be a very lonely combination, as both numbers are isolating. You may feel like an outsider. The lesson is to find your life's purpose in deep, solitary work." },
-                8: { "title": "The Master of Karma", "type": "Friendly", "text": "Saturn driving Saturn. A harmonious path, but a hard one. Your entire life is a lesson in discipline, justice, and hard work. You are here to pay karmic debts and build something of lasting value. You will be a pillar of your community." },
-                9: { "title": "The Immovable Object vs. Unstoppable Force", "type": "Enemy", "text": "Saturn driving Mars. A very difficult combination. Your slow, cautious nature (Saturn) is on an aggressive, impatient path (Mars). This creates immense internal frustration, like driving with the brakes on. Can lead to accidents or explosive anger. The lesson is to learn to apply your energy with discipline." }
+                2: { "title": "The Stone Heart", type: "Enemy", "text": "Saturn driving Moon. A very challenging combination. Your hard, disciplined personality (Saturn) is on a soft, emotional path (Moon). You may find it very difficult to express or understand emotions, leading to loneliness. The life lesson is to learn empathy and to allow yourself to be vulnerable." },
+                3: { "title": "The Strict Teacher", type: "Enemy", "text": "Saturn driving Jupiter. A challenging combination. Your practical, slow personality (Saturn) clashes with an expansive, optimistic path (Jupiter). Your big ideas (Jupiter) will be met with your own pessimism (Saturn). Success comes when you use your discipline to *build* your big vision, one brick at a time." },
+                4: { "title": "The Path of Shocks", type: "Enemy", "text": "Saturn driving Rahu. A very challenging path. Your personality wants slow, steady progress (Saturn), but your life is full of sudden, chaotic shocks (Rahu). You may feel like you are building a house in an earthquake. The lesson is to build foundations so strong they can withstand any shock." },
+                5: { "title": "The Methodical Thinker", type: "Neutral", "text": "Saturn driving Mercury. A neutral path. Your slow, patient nature (Saturn) is on a fast, intellectual path (Mercury). This combination requires effort, but can be very successful. You can be the 'master planner' who thinks through every detail. Great for law, engineering, or complex project management." },
+                6: { "title": "The Wealth Builder", type: "Friendly", "text": "Saturn driving Venus. An excellent and friendly combination. Your discipline (Saturn) is on a path of luxury (Venus). This is a 'slow and steady' path to great wealth. You are not a 'get rich quick' person; you are a 'build an empire' person. Excellent for real estate, business, and long-term investments." },
+                7: { "title": "The Isolated Hermit", type: "Enemy", "text": "Saturn driving Ketu. A challenging path. Your practical, worldly personality (Saturn) is on a spiritual, detached path (Ketu). This can be a very lonely combination, as both numbers are isolating. You may feel like an outsider. The lesson is to find your life's purpose in deep, solitary work." },
+                8: { "title": "The Master of Karma", type: "Friendly", "text": "Saturn driving Saturn. A harmonious path, but a hard one. Your entire life is a lesson in discipline, justice, and hard work. You are here to pay karmic debts and build something of lasting value. You will be a pillar of your community." },
+                9: { "title": "The Immovable Object vs. Unstoppable Force", type: "Enemy", "text": "Saturn driving Mars. A very difficult combination. Your slow, cautious nature (Saturn) is on an aggressive, impatient path (Mars). This creates immense internal frustration, like driving with the brakes on. Can lead to accidents or explosive anger. The lesson is to learn to apply your energy with discipline." }
             },
             9: {
-                1: { "title": "The Commander-in-Chief", "type": "Friendly", "text": "Mars driving Sun. An excellent, high-power combination. Your energy and courage (Mars) are on a path of leadership (Sun). You are a born leader, destined for a position of command. You have the drive and the authority to make things happen." },
-                2: { "title": "The Protector", "type": "Neutral", "text": "Mars driving Moon. A neutral path. Your aggressive, active personality (Mars) is on a soft, emotional path (Moon). You are a fierce protector of your family and loved ones. You must learn to channel your (Mars) energy into *caring* for others, not just fighting with them." },
-                3: { "title": "The Righteous Leader", "type": "Friendly", "text": "Mars driving Jupiter. An excellent combination. Your energy (Mars) is guided by a path of wisdom (Jupiter). This creates a 'warrior for a cause.' You are not just aggressive; you are principled. This is a path of success in law, social reform, or purpose-driven leadership." },
-                4: { "title": "The Reckless Force", "type": "Enemy", "text": "Mars driving Rahu. A very challenging and volatile combination. Your aggressive personality (Mars) is on a chaotic, unpredictable path (Rahu). This is an 'accident-prone' combination that can lead to explosive anger, legal trouble, and sudden conflicts. You MUST learn to control your temper." },
-                5: { "title": "The Quick-Witted Warrior", "type": "Neutral", "text": "Mars driving Mercury. A neutral path. Your active personality (Mars) is on an intellectual path (Mercury). This creates a sharp, argumentative mind. You must work to use your energy to support your ideas, not just to fight. Good for a trial lawyer or a high-energy salesperson." },
-                6: { "title": "The Passionate Protector", "type": "Neutral", "text": "Mars driving Venus. A neutral path. Your aggressive energy (Mars) is on a path of love and harmony (Venus). This creates a person who is extremely passionate in love, but also prone to jealousy. In career, this is a path of 'active creativity,' like a performer or designer." },
-                7: { "title": "The Angry Mystic", "type": "Enemy", "text": "Mars driving Ketu. A challenging combination. Your active, outward personality (Mars) is on a path of introspection and spirituality (Ketu). This can create deep, suppressed anger that you don't understand. The lesson is to channel your (Mars) energy into spiritual pursuits, like yoga or martial arts." },
-                8: { "title": "The Warrior vs. The Judge", "type": "Enemy", "text": "Mars driving Saturn. A very difficult combination. Your impatient, fiery personality (Mars) is on a path of delays and discipline (Saturn). You will feel like you are constantly hitting a brick wall. This is a life of extreme frustration. Success only comes when you learn to channel your high energy with Saturn's patience." },
-                9: { "title": "The Unstoppable Force", "type": "Friendly", "text": "Mars driving Mars. A harmonious and extremely high-energy path. You are pure action and courage. This is a path of success in sports, military, police, engineering, or any field that requires immense physical and mental energy. Challenge: You must learn to control your temper and avoid recklessness." }
+                1Exiting: { title: "The Commander-in-Chief", type: "Friendly", text: "Mars driving Sun. An excellent, high-power combination. Your energy and courage (Mars) are on a path of leadership (Sun). You are a born leader, destined for a position of command. You have the drive and the authority to make things happen." },
+                2: { title: "The Protector", type: "Neutral", text: "Mars driving Moon. A neutral path. Your aggressive, active personality (Mars) is on a soft, emotional path (Moon). You are a fierce protector of your family and loved ones. You must learn to channel your (Mars) energy into *caring* for others, not just fighting with them." },
+                3: { title: "The Righteous Leader", type: "Friendly", "text": "Mars driving Jupiter. An excellent combination. Your energy (Mars) is guided by a path of wisdom (Jupiter). This creates a 'warrior for a cause.' You are not just aggressive; you are principled. This is a path of success in law, social reform, or purpose-driven leadership." },
+                4: { title: "The Reckless Force", type: "Enemy", "text": "Mars driving Rahu. A very challenging and volatile combination. Your aggressive personality (Mars) is on a chaotic, unpredictable path (Rahu). This is an 'accident-prone' combination that can lead to explosive anger, legal trouble, and sudden conflicts. You MUST learn to control your temper." },
+                5: { title: "The Quick-Witted Warrior", type: "Neutral", "text": "Mars driving Mercury. A neutral path. Your active personality (Mars) is on an intellectual path (Mercury). This creates a sharp, argumentative mind. You must work to use your energy to support your ideas, not just to fight. Good for a trial lawyer or a high-energy salesperson." },
+                6: { title: "The Passionate Protector", type: "Neutral", "text": "Mars driving Venus. A neutral path. Your aggressive energy (Mars) is on a path of love and harmony (Venus). This creates a person who is extremely passionate in love, but also prone to jealousy. In career, this is a path of 'active creativity,' like a performer or designer." },
+                7: { title: "The Angry Mystic", type: "Enemy", "text": "Mars driving Ketu. A challenging combination. Your active, outward personality (Mars) is on a path of introspection and spirituality (Ketu). This can create deep, suppressed anger that you don't understand. The lesson is to channel your (Mars) energy into spiritual pursuits, like yoga or martial arts." },
+                8: { title: "The Warrior vs. The Judge", type: "Enemy", "text": "Mars driving Saturn. A very difficult combination. Your impatient, fiery personality (Mars) is on a path of delays and discipline (Saturn). You will feel like you are constantly hitting a brick wall. This is a life of extreme frustration. Success only comes when you learn to channel your high energy with Saturn's patience." },
+                9: { title: "The Unstoppable Force", type: "Friendly", "text": "Mars driving Mars. A harmonious and extremely high-energy path. You are pure action and courage. This is a path of success in sports, military, police, engineering, or any field that requires immense physical and mental energy. Challenge: You must learn to control your temper and avoid recklessness." }
             }
         };
         
@@ -357,14 +341,9 @@
                 extraStyles = 'style="white-space: nowrap;"';
             }
             
-            // --- UPDATED ---
-            // This now applies to both Mobile and Car number cards
             if (title === 'Mobile Number Analysis' || title === 'Car Number Analysis') {
-                // Use a smaller, wrapping font for the mobile/car number
                 extraStyles = 'style="font-size: 1.5rem; white-space: normal; word-break: break-all;"'; 
             }
-            // --- END UPDATE ---
-
 
             const footerHTML = footerText ? `<div class="mt-4 pt-3 border-t border-gray-700 text-sm text-purple-200/80"><strong class="text-purple-300">${footerText.startsWith("Total:") ? "" : "Friend Numbers: "}</strong> ${footerText}</div>` : '';
             let displayValue = number;
@@ -375,10 +354,7 @@
             }
             let interpText = interp.text;
             
-            // --- UPDATED ---
-            // This now applies to both Mobile and Car analysis text
             if (title === 'Mobile Number Analysis' || title === 'Car Number Analysis') {
-            // --- END UPDATE ---
                 interpText = (interpText || '')
                     .replace(/\*\*not compatible\*\*/g, '<strong class="text-red-400">not compatible</strong>')
                     .replace(/\*\*not\*\*/g, '<strong class="text-yellow-400">not</strong>');
@@ -428,7 +404,6 @@
              gridLayout.forEach(row => {
                  let tableCells = '';
                  row.forEach(num => {
-                     // Ensure counts[num] is treated as a number
                      const count = Number(counts[num]) || 0;
                      const displayVal = count > 0 ? String(num).repeat(count) : '&nbsp;';
                      const cellClass = count > 0 ? 'loshu-cell has-number' : 'loshu-cell';
@@ -448,7 +423,6 @@
         function createNamePartsCard(report, delay) { 
             const parts = [
                  { label: 'First Name', number: report.firstNameNumber, total: report.firstNameTotal },
-                 // Only show Middle Name if its total is greater than 0
                  ...(report.middleNameTotal > 0 ? [{ label: 'Middle Name', number: report.middleNameNumber, total: report.middleNameTotal }] : []),
                  { label: 'Last Name', number: report.lastNameNumber, total: report.lastNameTotal }
              ];
@@ -468,9 +442,14 @@
                  </div>`;
         }
         
-        // This is the main display function, now takes 2 args
-        function displayResults(report, inputs) {
-            // --- Populate Header (from inputs) ---
+        // This function needs the DOM element consts, so we pass them in
+        function displayResults(report, inputs, domElements) {
+            
+            const { 
+                displayFullName, displayDob, displayCurrentDate, 
+                basicDetailsHeader, resultsContent 
+            } = domElements;
+
             const fullDisplayName = [inputs.firstName, inputs.middleName, inputs.lastName]
                                     .filter(Boolean).map(name => name.toUpperCase()).join(' ');
             
@@ -484,7 +463,6 @@
             displayCurrentDate.textContent = formattedCurrentDate;
             basicDetailsHeader.classList.remove('opacity-0'); 
 
-            // --- Populate rest of report (from report object) ---
             const harmonyDisplay = `${report.baseDriver}-${report.baseConductor}`;
             const gridExplanation = `Includes Moolank (${report.baseDriver}), Bhagyank (${report.baseConductor}), Kua No. (${report.kuaNumber}), & Name No. (${report.fullNameNumber}).`;
             const correctionInterpretation = {
@@ -492,7 +470,6 @@
                 text: report.correctionReason 
             };
             
-            // --- UPDATED: Create Mobile Card HTML ---
             let mobileCardHTML = '';
             if (report.mobileAnalysis && report.mobileAnalysis !== 'No mobile number provided for analysis.') {
                 const mobileInterp = {
@@ -502,7 +479,6 @@
                 mobileCardHTML = createResultCard('Mobile Number Analysis', report.mobileNumber, mobileInterp, 0); 
             }
             
-            // --- NEW: Create Car Card HTML ---
             let carCardHTML = '';
             if (report.carAnalysis && report.carAnalysis !== 'No car number provided for analysis.') {
                 const carInterp = {
@@ -511,14 +487,12 @@
                 };
                 carCardHTML = createResultCard('Car Number Analysis', report.carNumber, carInterp, 0);
             }
-            // --- END NEW ---
 
             const zodiacSymbol = zodiacSymbols[report.zodiacSign] || '?';
             const zodiacInterp = interpretations.zodiac[report.zodiacSign] || { title: report.zodiacSign || "Unknown", text: "Basic astrological influence based on Sun's position." };
 
             const luckyNumbersInterp = { title: "Harmonious Numbers", text: "" };
             const luckyColorsInterp = { title: "Vibrational Colors", text: "" };
-
 
             let delay = 100; 
             const delayIncrement = 100; 
@@ -527,11 +501,10 @@
                 delay += delayIncrement; 
                 return header;
             };
-            resultsContent.innerHTML = ''; // Clear any old content
-            resultsContent.appendChild(basicDetailsHeader); // Add the header back
+            resultsContent.innerHTML = ''; 
+            resultsContent.appendChild(basicDetailsHeader); 
             basicDetailsHeader.classList.remove('opacity-0'); 
 
-            // --- Build Sections ---
             const header1 = createSectionHeader("Core Numbers");
             const section1 = `
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -577,7 +550,6 @@
                     ${createResultCard('Universal Year', report.universalYear, {title: "Global Vibe", text:"The collective energy influencing everyone on the planet this year.", ...numberInterpretations[report.universalYear]}, delay += delayIncrement)}
                 </div>`;
             
-            // --- UPDATED: Section 5 now includes Car Card ---
             const header5 = createSectionHeader("Charts & Asset Analysis");
             const section5 = `
                 <div class="grid grid-cols-1 gap-6 mb-6">
@@ -587,7 +559,6 @@
                 ${mobileCardHTML ? `<div class="mt-6">${mobileCardHTML.replace(`style="animation-delay: 0ms;"`, `style="animation-delay: ${delay += delayIncrement}ms;"`)}</div>` : ''}
                 ${carCardHTML ? `<div class="mt-6">${carCardHTML.replace(`style="animation-delay: 0ms;"`, `style="animation-delay: ${delay += delayIncrement}ms;"`)}</div>` : ''}
             `;
-            // --- END UPDATE ---
             
             resultsContent.insertAdjacentHTML('beforeend', 
                 header1 + section1 + 
@@ -597,33 +568,51 @@
                 header5 + section5);
         }
 
-        // --- NEW SCRIPT TO RUN ON PAGE LOAD ---
+        // --- NEW SCRIPT TO RUN ON PAGE LOAD (URL METHOD) ---
         document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- FIX: Define DOM elements INSIDE the listener ---
+            const resultsPlaceholder = document.getElementById('results-placeholder');
+            const resultsContent = document.getElementById('results-content');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const displayFullName = document.getElementById('display-full-name');
+            const displayDob = document.getElementById('display-dob');
+            const displayCurrentDate = document.getElementById('display-current-date');
+            const basicDetailsHeader = document.getElementById('basic-details-header');
+            const backButtonContainer = document.getElementById('back-button-container');
+            // --- END FIX ---
+            
             // Show loading spinner by default
             loadingSpinner.classList.remove('hidden');
             resultsContent.classList.add('hidden');
             resultsPlaceholder.classList.add('hidden');
 
             try {
-                // 1. Get the data from localStorage
-                const storedData = localStorage.getItem('numerologyReport');
+                // 1. Get the data from the URL
+                const params = new URLSearchParams(window.location.search);
+                const encodedData = params.get('data');
                 
-                if (!storedData) {
+                if (!encodedData) {
                     // No data found, show the placeholder
                     throw new Error('No report data found.');
                 }
 
-                // 2. Parse the data
-                const reportData = JSON.parse(storedData);
+                // 2. Decode the data
+                const jsonString = atob(decodeURIComponent(encodedData)); // atob = Base64 decode
+                const reportData = JSON.parse(jsonString);
                 
                 if (!reportData.inputs || !reportData.results) {
                     // Data is malformed
                     throw new Error('Report data is invalid.');
                 }
-
+                
                 // 3. We have data! Call the display function
-                // We pass both the backend results and the user inputs
-                displayResults(reportData.results, reportData.inputs);
+                // We pass the DOM elements to the function
+                const domElements = {
+                    displayFullName, displayDob, displayCurrentDate,
+                    basicDetailsHeader, resultsContent
+                };
+                displayResults(reportData.results, reportData.inputs, domElements);
 
                 // 4. Hide spinner, show content
                 loadingSpinner.classList.add('hidden');

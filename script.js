@@ -1,4 +1,4 @@
-// script.js (Corrected File with setTimeout fix)
+// script.js (Final Version - Using URL Data)
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -37,23 +37,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const data = await res.json();
                 
+                // --- NEW METHOD: Pass data in URL ---
                 if (data.report && !data.error) {
                     const reportData = {
                         inputs: payload,
                         results: data.report 
                     };
                     
-                    localStorage.setItem('numerologyReport', JSON.stringify(reportData));
+                    // Convert the data to a JSON string
+                    const jsonString = JSON.stringify(reportData);
                     
-                    // --- THIS IS THE FIX ---
-                    // Add a 1000ms delay to ensure localStorage has time to
-                    // save before the browser redirects to the new page.
-                    setTimeout(() => {
-                        window.location.href = 'report.html';
-                    }, 1000); // 1000 milliseconds
+                    // Encode the string so it's safe for a URL
+                    const encodedData = btoa(jsonString); // btoa = Base64 encode
+                    
+                    // Redirect to the report page with the data in the URL
+                    window.location.href = 'report.html?data=' + encodeURIComponent(encodedData);
                     
                 } else {
-                    // This handles server errors (e.g., if you enter a bad date)
+                    // This handles server errors
                     errorEl.textContent = data.error || 'Something went wrong. Please try again.';
                     errorEl.classList.remove('hidden');
                     submitButton.disabled = false;
@@ -68,9 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitButton.disabled = false;
                 submitButton.textContent = 'Reveal My Numbers';
             }
-            // We removed 'finally' so the button stays disabled on success
         });
     }
-
 });
-
