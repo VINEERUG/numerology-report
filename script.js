@@ -1,4 +1,4 @@
-// script.js (Corrected File)
+// script.js (Corrected File with setTimeout fix)
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 dob: formData.get('dob'),
                 gender: formData.get('gender'),
                 mobile: formData.get('mobile'),
-                carNumber: formData.get('carNumber') // NEW: Car number input
+                carNumber: formData.get('carNumber')
             };
 
             try {
@@ -44,23 +44,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     };
                     
                     localStorage.setItem('numerologyReport', JSON.stringify(reportData));
-                    window.location.href = 'report.html';
+                    
+                    // --- THIS IS THE FIX ---
+                    // Add a 100ms delay to ensure localStorage has time to
+                    // save before the browser redirects to the new page.
+                    setTimeout(() => {
+                        window.location.href = 'report.html';
+                    }, 100); // 100 milliseconds
                     
                 } else {
+                    // This handles server errors (e.g., if you enter a bad date)
                     errorEl.textContent = data.error || 'Something went wrong. Please try again.';
                     errorEl.classList.remove('hidden');
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Reveal My Numbers';
                 }
 
             } catch(err) {
-                // This is the error you are seeing
+                // This handles network errors (server is down)
                 console.error('Fetch Error:', err);
                 errorEl.textContent = 'Network error. Please check your connection and try again.';
                 errorEl.classList.remove('hidden');
-            } finally {
                 submitButton.disabled = false;
                 submitButton.textContent = 'Reveal My Numbers';
             }
+            // We removed 'finally' so the button stays disabled on success
         });
     }
 });
-// <<< THE EXTRA "}" AT THE END IS GONE >>>
