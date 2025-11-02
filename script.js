@@ -1,4 +1,4 @@
-// script.js (Corrected URL)
+// script.js (Corrected File)
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const formData = new FormData(form);
             
-	const payload = {
+            const payload = {
                 firstName: formData.get('firstName'),
                 middleName: formData.get('middleName'),
                 lastName: formData.get('lastName'),
@@ -28,10 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             try {
-                // --- THIS IS THE FIX ---
-                // The URL is now correct (no hyphen)
+                // This URL is correct.
                 const res = await fetch('https://keshvaggrawal.pythonanywhere.com/api/calc', {
-                // --- END FIX ---
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -65,3 +63,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+// <<< THE EXTRA "}" AT THE END IS GONE >>>
