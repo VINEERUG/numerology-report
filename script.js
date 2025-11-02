@@ -1,4 +1,4 @@
-// script.js (Corrected File)
+// script.js (Final Corrected File)
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -63,4 +63,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-// <<< THE EXTRA "}" AT THE END IS GONE >>>
+// <<< The extra '}' that was here is now GONE.
