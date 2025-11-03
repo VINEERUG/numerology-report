@@ -94,38 +94,47 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         const name = `${inputs.firstName || ''} ${inputs.middleName || ''} ${inputs.lastName || ''}`;
                         
-                        card.innerHTML = `
-                            <h2 class="font-serif text-2xl font-bold text-white mb-2">
-                                ${name.trim()}
-                            </h2>
-                            <p class="text-sm text-purple-300 mb-4">Report ID: ${report.id} | Saved: ${new Date(report.timestamp).toLocaleString()}</p>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <div>
-                                    <p class="text-sm text-gray-400">DOB</p>
-                                    <p class="text-lg font-semibold text-white">${inputs.dob}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-400">Driver (Moolank)</p>
-                                    <p class="text-lg font-semibold text-white">${results.driverNumber}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-400">Conductor (Bhagyank)</p>
-                                    <p class="text-lg font-semibold text-white">${results.conductorNumber}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-400">Name Number</p>
-                                    <p class="text-lg font-semibold text-white">${results.fullNameNumber}</p>
-                                </div>
-                            </div>
-                            <div class="mt-4 pt-4 border-t border-slate-700">
-                                <p class="text-sm text-gray-400">Mobile Analysis</p>
-                                <p class="text-white">${results.mobileAnalysis}</p>
-                            </div>
-                            <div class="mt-4 pt-4 border-t border-slate-700">
-                                <p class="text-sm text-gray-400">Car Analysis</p>
-                                <p class="text-white">${results.carAnalysis}</p>
-                            </div>
-                        `;
+                        // This is the new card.innerHTML for your admin.js file
+
+card.innerHTML = `
+    <h2 class="font-serif text-2xl font-bold text-white mb-2">
+        ${name.trim()}
+    </h2>
+    <p class="text-sm text-purple-300 mb-4">Report ID: ${report.id} | Saved: ${new Date(report.timestamp).toLocaleString()}</p>
+    
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div>
+            <p class="text-sm text-gray-400">DOB</p>
+            <p class="text-lg font-semibold text-white">${inputs.dob}</p>
+        </div>
+        <div>
+            <p class="text-sm text-gray-400">Driver (Moolank)</p>
+            <p class="text-lg font-semibold text-white">${results.driverNumber}</p>
+        </div>
+        <div>
+            <p class="text-sm text-gray-400">Conductor (Bhagyank)</p>
+            <p class="text-lg font-semibold text-white">${results.conductorNumber}</p>
+        </div>
+        <div>
+            <p class="text-sm text-gray-400">Name Number</p>
+            <p class="text-lg font-semibold text-white">${results.fullNameNumber}</p>
+        </div>
+        
+        <div class="md:col-span-2"> 
+            <p class="text-sm text-gray-400">Mobile Number</p>
+            <p class="text-lg font-semibold text-white">${results.mobileNumber || 'N/A'}</p>
+        </div>
+        </div>
+    
+    <div class="mt-4 pt-4 border-t border-slate-700">
+        <p class="text-sm text-gray-400">Mobile Analysis</p>
+        <p class="text-white">${results.mobileAnalysis}</p>
+    </div>
+    <div class="mt-4 pt-4 border-t border-slate-700">
+        <p class="text-sm text-gray-400">Car Analysis</p>
+        <p class="text-white">${results.carAnalysis}</p>
+    </div>
+`;
                         reportsContainer.appendChild(card);
                     });
 
@@ -141,4 +150,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
         fetchReports();
     }
+
 });
