@@ -34,4 +34,43 @@
     </div>
     <script src="admin.js"></script>
 </body>
+
 </html>
+<!-- At the end of view.html -->
+<script>
+const reportsContainer = document.getElementById('reports-container');
+const loadingMessage = document.getElementById('loading-message');
+const token = localStorage.getItem('adminToken');
+
+if (!token) {
+    loadingMessage.textContent = 'Not authenticated. Please login again.';
+    // Optionally redirect to login
+    // window.location.href = 'admin.html';
+} else {
+    fetch('https://keshvaggrawal.pythonanywhere.com/api/get-reports', {
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + token
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        loadingMessage.style.display = 'none';
+        if (!data.ok || !data.reports || data.reports.length === 0) {
+            reportsContainer.innerHTML = '<div style="color: #f87171;">No reports found or unable to load.</div>';
+        } else {
+            // Render the reports
+            data.reports.forEach(report => {
+                const reportDiv = document.createElement('div');
+                reportDiv.className = 'report-card';
+                reportDiv.textContent = report.title || JSON.stringify(report);
+                reportsContainer.appendChild(reportDiv);
+            });
+        }
+    })
+    .catch(() => {
+        loadingMessage.style.display = 'none';
+        reportsContainer.innerHTML = '<div style="color: #f87171;">Error fetching reports.</div>';
+    });
+}
+</script>
