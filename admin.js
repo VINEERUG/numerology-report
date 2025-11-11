@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     
     // --- URLs ---
-    const LOGIN_URL = 'https://keshvaggrawal.pythonanywhere.com/api/client-login';
+    const LOGIN_URL = 'https://keshvaggrawal.pythonanywhere.com/api/user-login';
     const GET_REPORTS_URL = 'https://keshvaggrawal.pythonanywhere.com/api/get-reports';
     
     const token = localStorage.getItem('adminToken');
@@ -152,4 +152,5 @@ card.innerHTML = `
     }
 
 });
+
 
