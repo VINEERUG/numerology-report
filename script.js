@@ -222,7 +222,6 @@ function showErr(id, m) {
   }
 }
 
-// --- Add this function to support past reports ---
 function loadUserReports() {
   const reportsEl = pageSections.myReports;
   if (!APP_STATE.token || !reportsEl) return;
@@ -236,9 +235,15 @@ function loadUserReports() {
     .then(res => res.json())
     .then(data => {
       if (data.ok && data.reports && data.reports.length) {
-        reportsEl.innerHTML = data.reports.map(r =>
-          `<div><b>${r.firstName}</b> - ${r.dob}</div>`
-        ).join('');
+        reportsEl.innerHTML = data.reports
+          .map((r, idx) =>
+            `<div style="margin-bottom: 16px;">
+              <b>${r.firstName}</b> - ${r.dob}
+              <button onclick="viewReport(${idx})" style="margin-left:12px;">View Report</button>
+            </div>`
+          ).join('');
+        // Save entire list in sessionStorage (or a global JS variable)
+        window.LOADED_REPORTS = data.reports;
       } else {
         reportsEl.textContent = "No reports found.";
       }
@@ -248,4 +253,17 @@ function loadUserReports() {
     });
 }
 
+// Add this function globally in the same file:
+function viewReport(idx) {
+  const reports = window.LOADED_REPORTS;
+  if (reports && reports[idx]) {
+    const report = reports[idx];
+    sessionStorage.setItem('viewReportData', JSON.stringify(report.reportData));
+    sessionStorage.setItem('viewInputsData', JSON.stringify(report.inputs));
+    window.location.hash = '#report';
+  }
+}
+
+
 // (Add/keep your renderFullReport and renderTeaserReport and any UI support functions as needed)
+
