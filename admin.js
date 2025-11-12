@@ -7,9 +7,10 @@
 //
 // =============================================================================
 
-// Use relative paths for API endpoints to work with your local dev server.
-const LOGIN_URL = '/api/admin-login';
-const GET_REPORTS_URL = '/api/my-reports'; // This can be the same as the user's report endpoint if the backend protects it.
+// Use the full URL of your PythonAnywhere server.
+const API_BASE_URL = 'https://keshvaggrawal.pythonanywhere.com';
+const LOGIN_URL = `${API_BASE_URL}/api/admin-login`;
+const GET_REPORTS_URL = `${API_BASE_URL}/api/my-reports`;
 
 const token = localStorage.getItem('adminToken');
 
