@@ -1,0 +1,375 @@
+/* --- Base Setup & Fonts --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@400;700&display=swap');
+
+:root {
+    --primary-color: #6D28D9; /* Violet-700 */
+    --secondary-color: #EC4899; /* Pink-500 */
+    --bg-dark: #0F172A; /* Slate-900 */
+    --card-bg: #1E293B; /* Slate-800 */
+    --text-light: #e2e8f0; /* Slate-200 */
+    --text-muted: #94a3b8; /* Slate-400 */
+    --border-color: #334155; /* Slate-700 */
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-light);
+    transition: background-color 0.3s;
+}
+
+.font-serif {
+    font-family: 'Playfair Display', serif;
+}
+
+.container {
+    max-width: 896px; /* max-w-4xl */
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1rem; /* Adjusted padding */
+}
+
+@media (min-width: 768px) {
+    .container {
+        padding: 2rem;
+    }
+}
+
+
+/* --- Page Transitions --- */
+.page {
+    display: none;
+    animation: fadeIn 0.5s ease-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- NEW: Top Navigation Bar --- */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.5rem; /* Shorter bar */
+    padding-bottom: 0.5rem; /* Shorter bar */
+    border-bottom: 1px solid var(--border-color);
+}
+.top-bar .logo a {
+    display: block;
+    line-height: 1; /* Fixes any weird spacing */
+}
+/* NEW: Logo Image Style */
+.logo-img {
+    height: 40px; /* Controls logo height */
+    width: auto;
+    transition: opacity 0.3s ease;
+}
+.logo-img:hover {
+    opacity: 0.8;
+}
+
+/* --- NEW: User Icon Menu Styles --- */
+.user-menu {
+    position: relative;
+}
+.user-menu-button {
+    height: 40px;
+    width: 40px;
+    padding: 8px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+.user-menu-button:hover {
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(109, 40, 217, 0.5);
+}
+.user-menu-dropdown {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 120%; /* Space from icon */
+    right: 0;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem; /* rounded-xl */
+    min-width: 200px;
+    z-index: 50;
+    overflow: hidden; /* To clip rounded corners */
+    animation: fadeIn 0.15s ease-out;
+}
+.user-menu-dropdown.show {
+    display: block; /* Shown by JS */
+}
+.user-menu-email {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.user-menu-link {
+    display: block;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    color: var(--text-light);
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+.user-menu-link:hover {
+    background-color: rgba(109, 40, 217, 0.2);
+    color: white;
+}
+.user-menu-link.logout {
+    color: #f87171; /* red-400 */
+    border-top: 1px solid var(--border-color);
+}
+.user-menu-link.logout:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444; /* red-500 */
+}
+
+
+/* --- Header (Main Title) --- */
+header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+header h1 {
+    font-size: 2.5rem; /* text-4xl */
+    font-weight: 700;
+    color: white;
+}
+@media (min-width: 768px) {
+    header h1 {
+        font-size: 3.75rem; /* md:text-6xl */
+    }
+}
+header #header-subtitle {
+    font-size: 1.125rem; /* text-lg */
+    color: #c4b5fd; /* violet-300 */
+    margin-top: 0.5rem;
+}
+
+/* --- Main Form & Form Cards --- */
+/* (Unchanged) */
+.form-card {
+    background-color: var(--card-bg);
+    padding: 1.5rem; /* p-6 */
+    border-radius: 1rem; /* rounded-2xl */
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+@media (min-width: 768px) {
+    .form-card {
+        padding: 2.5rem; /* md:p-10 */
+    }
+}
+.form-label {
+    display: block;
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+.form-input, .form-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: #0f172a90; /* slate-900/60 */
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem; /* rounded-lg */
+    color: var(--text-light);
+    placeholder-color: #64748b; /* slate-500 */
+    transition: all 0.2s ease-in-out;
+    outline: none;
+}
+.form-input:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.3);
+}
+.form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%config/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+}
+.form-button {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem; /* text-lg */
+    font-weight: 600;
+    color: white;
+    border-radius: 0.5rem; /* rounded-lg */
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    background-size: 200% 100%;
+    transition: background-position 0.3s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.form-button:hover {
+    background-position: 100% 0;
+    box-shadow: 0 10px 15px -3px rgba(109, 40, 217, 0.3);
+}
+.form-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #374151; /* gray-700 */
+}
+.form-error, .form-success {
+    display: none;
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    font-weight: 500;
+}
+.form-error {
+    background-color: rgba(248, 113, 113, 0.1); /* red-400/10 */
+    border: 1px solid #f87171; /* red-400 */
+    color: #fca5a5; /* red-300 */
+}
+.form-success {
+    background-color: rgba(74, 222, 128, 0.1); /* green-400/10 */
+    border: 1px solid #4ade80; /* green-400 */
+    color: #86efac; /* green-300 */
+}
+.link {
+    color: var(--primary-color);
+    font-weight: 500;
+    transition: color 0.2s;
+    text-decoration: none;
+}
+.link:hover {
+    color: #a78bfa; /* violet-400 */
+    text-decoration: underline;
+}
+
+/* --- Spinner --- */
+/* (Unchanged) */
+.spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}
+.spinner::after {
+    content: '';
+    width: 3rem; /* w-12 */
+    height: 3rem; /* h-12 */
+    border: 4px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* --- Report Card Styling (from old report.html) --- */
+/* (Unchanged) */
+.result-card {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.5s ease-out forwards;
+    position: relative; 
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background-color: var(--card-bg);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 0 15px rgba(109, 40, 217, 0.2);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+}
+.result-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    box-shadow: 0 0 8px var(--primary-color), 0 0 10px var(--secondary-color);
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+}
+.result-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6), 0 0 25px var(--secondary-color);
+}
+.number-display {
+    background: -webkit-linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    word-break: break-all;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+.ruler-text { font-size: 0.8rem; color: #9ca3af; }
+.loshu-cell {
+    border: 2px solid #374151;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.loshu-cell.has-number {
+    font-weight: 700;
+    color: #E9D5FF;
+}
+.back-button {
+    display: inline-block;
+    max-width: 320px; /* max-w-xs */
+    width: 100%;
+    padding: 12px 0; /* py-3 */
+    margin-top: 24px; /* mt-6 */
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 600; /* font-semibold */
+    color: white;
+    border-radius: 0.75rem; /* rounded-xl */
+    background-color: #7c3aed; /* bg-violet-600 */
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.5), 0 4px 6px -2px rgba(124, 58, 237, 0.25);
+    text-decoration: none;
+}
+.back-button:hover {
+    background-color: #6d28d9; /* hover:bg-violet-700 */
+    box-shadow: 0 20px 25px -5px rgba(124, 58, 237, 0.6), 0 10px 10px -5px rgba(124, 58, 237, 0.3);
+}
+
+/* Teaser Box */
+/* (Unchanged) */
+.teaser-box {
+    text-align: center;
+    padding: 1.5rem;
+    background-color: rgba(15, 23, 42, 0.5); /* slate-900/50 */
+    border-radius: 0.75rem;
+}
+.teaser-box .form-button {
+    width: 200px;
+    display: inline-block;
+}
+
+/* --- Past Report Card Styling --- */
+/* (Unchanged) */
+.past-report-card {
+    background-color: #334155; /* slate-700 */
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    border-left: 4px solid var(--primary-color);
+}
+.view-report-btn {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.view-report-btn:hover {
+    background-color: #a78bfa; /* violet-400 */
+}
