@@ -1,5 +1,5 @@
-const LOGIN_URL = 'https://keshvaggrawal.pythonanywhere.com/api/login';
-const GET_REPORTS_URL = 'https://keshvaggrawal.pythonanywhere.com/api/get-reports';
+const LOGIN_URL = 'https://keshvaggrawal.pythonanywhere.com/api/admin-login';
+const GET_REPORTS_URL = 'https://keshvaggrawal.pythonanywhere.com/api/my-reports';
 const token = localStorage.getItem('adminToken');
 const loginForm = document.getElementById('login-form');
 
@@ -51,3 +51,4 @@ const reportsContainer = document.getElementById('reports-container');
 if (reportsContainer) {
     // ... your logic for the view.html page ...
 }
+
