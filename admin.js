@@ -1,6 +1,8 @@
-const LOGIN_URL = 'https://keshvaggrawal.pythonanywhere.com/api/admin-login';
-const GET_REPORTS_URL = 'https://keshvaggrawal.pythonanywhere.com/api/my-reports';
+const LOGIN_URL = '/api/admin-login';
+const GET_REPORTS_URL = '/api/my-reports';
+
 const token = localStorage.getItem('adminToken');
+
 const loginForm = document.getElementById('login-form');
 
 if (loginForm) {
@@ -11,6 +13,7 @@ if (loginForm) {
 
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     const errorEl = document.getElementById('login-error');
@@ -26,7 +29,9 @@ if (loginForm) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
+
       const data = await res.json();
+
       if (data.ok && data.token) {
         // SUCCESS! Save the token and redirect
         localStorage.setItem('adminToken', data.token);
@@ -49,6 +54,5 @@ if (loginForm) {
 // For example:
 const reportsContainer = document.getElementById('reports-container');
 if (reportsContainer) {
-    // ... your logic for the view.html page ...
+  // ... your logic for the view.html page ...
 }
-
