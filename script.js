@@ -113,7 +113,7 @@ function attachListeners() {
 async function handleUserLogin(e) {
     e.preventDefault();
     showLoading();
-    apiCall('client-login', {
+    apiCall('user-login', {
         email: e.target.email.value,
         password: e.target.password.value
     }, (d) => {
@@ -339,3 +339,4 @@ function renderFullReport(r, i) {
             </div>
         </div>`;
 }
+
