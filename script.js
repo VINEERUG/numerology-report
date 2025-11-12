@@ -222,6 +222,96 @@ function showErr(id, m) {
   }
 }
 
+function renderTeaserReport(r) {
+    pageSections.report.innerHTML=`<div class="result-card p-6 text-center"><h2 class="font-serif text-3xl text-white mb-4">Basic Numbers</h2><div class="flex justify-center gap-8"><div><p class="text-purple-300">Driver</p><p class="text-6xl font-bold text-white">${r.driverNumber}</p></div><div><p class="text-purple-300">Conductor</p><p class="text-6xl font-bold text-white">${r.conductorNumber}</p></div></div><div class="mt-8 p-4 bg-gray-900/50 rounded"><p class="text-white">Want full report?</p><div class="mt-4"><a href="#login" class="px-6 py-2 bg-violet-600 text-white rounded mr-2">Login</a><a href="#register" class="px-6 py-2 bg-pink-600 text-white rounded">Sign Up</a></div></div><div class="text-center mt-8"><a href="#home" class="text-gray-400">Back</a></div></div>`;
+}
+
+function renderFullReport(r, i) {
+    const c = pageSections.report;
+    const zs={'Aries':'♈','Taurus':'♉','Gemini':'♊','Cancer':'♋','Leo':'♌','Virgo':'♍','Libra':'♎','Scorpio':'♏','Sagittarius':'♐','Capricorn':'♑','Aquarius':'♒','Pisces':'♓'};
+    const ni={1:{title:"The Leader",text:"Core identity."},2:{title:"The Peacemaker",text:"Core identity."},3:{title:"The Communicator",text:"Core identity."},4:{title:"The Builder",text:"Core identity."},5:{title:"The Adventurer",text:"Core identity."},6:{title:"The Nurturer",text:"Core identity."},7:{title:"The Seeker",text:"Core identity."},8:{title:"The Powerhouse",text:"Core identity."},9:{title:"The Humanitarian",text:"Core identity."},11:{title:"The Visionary",text:"Master Number."},22:{title:"The Master Builder",text:"Master Number."},33:{title:"The Master Teacher",text:"Master Number."}};
+    const cd={1:{1:{title:"The Royal Combination",type:"Friendly",text:"Sun driving Sun. Powerful and ambitious."},
+    2:{title:"The King and Queen",type:"Neutral",text:"Sun and Moon. Balance authority with sensitivity."},
+    3:{title:"The Respected Leader",type:"Friendly",text:"Sun and Jupiter. Wisdom guides leadership."},
+    4:{title:"The Eclipsed King",type:"Enemy",text:"Sun and Rahu. Unexpected challenges to authority."},
+    5:{title:"The Charismatic Leader",type:"Friendly",text:"Sun and Mercury. Intellect fuels leadership."},
+    6:{title:"The King's Indulgence",type:"Enemy",text:"Sun and Venus. Struggle between duty and luxury."},
+    7:{title:"The Solitary King",type:"Neutral",text:"Sun and Ketu. Intuitive, spiritual leadership."},
+    8:{title:"The King vs. Judge",type:"Enemy",text:"Sun and Saturn. Success through immense struggle."},
+    9:{title:"The Warrior King",type:"Friendly",text:"Sun and Mars. Unstoppable energy and command."}},
+    2:{1:{title:"The Queen and King",type:"Neutral",text:"Moon driving Sun. Inner sensitivity, outer power."},
+    2:{title:"The Pure Heart",type:"Friendly",text:"Moon driving Moon. deeply emotional and intuitive."},
+    3:{title:"The Nurturing Guru",type:"Neutral",text:"Moon and Jupiter. Wisdom delivered with care."},
+    4:{title:"The Emotional Storm",type:"Neutral",text:"Moon and Rahu. Mental anxiety and high creativity."},
+    5:{title:"Emotional Intelligence",type:"Friendly",text:"Moon and Mercury. Connecting with others easily."},
+    6:{title:"The Loving Caregiver",type:"Neutral",text:"Moon and Venus. Creates harmony and beauty."},
+    7:{title:"The Solitary Creator",type:"Friendly",text:"Moon and Ketu. Deeply intuitive and artistic."},
+    8:{title:"The Stone Heart",type:"Enemy",text:"Moon and Saturn. Emotional restriction and discipline."},
+    9:{title:"The Emotional Warrior",type:"Neutral",text:"Moon and Mars. Passionate but volatile."}},
+    3:{1:{title:"The Royal Guru",type:"Friendly",text:"Jupiter driving Sun. Wisdom guides power."},
+    2:{title:"The Wise Counselor",type:"Neutral",text:"Jupiter and Moon. Emotional wisdom."},
+    3:{title:"The Double Jupiter",type:"Friendly",text:"Pure expansion and knowledge."},
+    4:{title:"The Structured Thinker",type:"Neutral",text:"Jupiter and Rahu. Unconventional wisdom."},
+    5:{title:"The Charismatic Teacher",type:"Friendly",text:"Jupiter and Mercury. Great communication of ideas."},
+    6:{title:"The Balanced Guru",type:"Enemy",text:"Jupiter and Venus. Conflict between wisdom and luxury."},
+    7:{title:"The Spiritual Master",type:"Friendly",text:"Jupiter and Ketu. Deep spiritual insight."},
+    8:{title:"The Wise Judge",type:"Enemy",text:"Jupiter and Saturn. Practical, grounded wisdom."},
+    9:{title:"The Righteous Commander",type:"Friendly",text:"Jupiter and Mars. Wisdom in action."}},
+    4:{1:{title:"The Reliable Foundation",type:"Friendly",text:"Rahu driving Sun. Unconventional leadership."},
+    2:{title:"The Emotional Storm",type:"Enemy",text:"Rahu and Moon. Mental volatility."},
+    3:{title:"The Unconventional Teacher",type:"Neutral",text:"Rahu and Jupiter. Unique wisdom."},
+    4:{title:"The Game Changer",type:"Enemy",text:"Double Rahu. Extreme ups and downs."},
+    5:{title:"The Quick-Witted Problem Solver",type:"Friendly",text:"Rahu and Mercury. Sharp, cunning intellect."},
+    6:{title:"The Rebellious Artist",type:"Friendly",text:"Rahu and Venus. Unconventional relationships/art."},
+    7:{title:"The Great Reformer",type:"Friendly",text:"Rahu and Ketu. Deep investigative skills."},
+    8:{title:"The Sudden Wealth",type:"Enemy",text:"Rahu and Saturn. unexpected gains or losses."},
+    9:{title:"The Reckless Force",type:"Enemy",text:"Rahu and Mars. High energy, accident prone."}},
+    5:{1:{title:"The Smart Leader",type:"Friendly",text:"Mercury driving Sun. Intelligent authority."},
+    2:{title:"The Persuasive Speaker",type:"Friendly",text:"Mercury and Moon. Emotional connection in speech."},
+    3:{title:"The Knowledge Broker",type:"Friendly",text:"Mercury and Jupiter. Business with wisdom."},
+    4:{title:"The Calculated Risk-Taker",type:"Neutral",text:"Mercury and Rahu. Sharp business sense."},
+    5:{title:"The Double Agent",type:"Friendly",text:"Pure intellect and adaptability."},
+    6:{title:"The Charming Negotiator",type:"Friendly",text:"Mercury and Venus. Success in media/arts."},
+    7:{title:"The Inquisitive Analyst",type:"Neutral",text:"Mercury and Ketu. Deep research skills."},
+    8:{title:"The Strategic Planner",type:"Neutral",text:"Mercury and Saturn. Long-term business success."},
+    9:{title:"The Sharp Debater",type:"Neutral",text:"Mercury and Mars. Quick, aggressive intellect."}},
+    6:{1:{title:"The Diplomat vs. King",type:"Enemy",text:"Venus driving Sun. Conflict of ego and harmony."},
+    2:{title:"The Loving Caregiver",type:"Neutral",text:"Venus and Moon. Nurturing and artistic."},
+    3:{title:"The Luxurious Teacher",type:"Enemy",text:"Venus and Jupiter. Wisdom with style."},
+    4:{title:"The Rebellious Artist",type:"Friendly",text:"Venus and Rahu. Unconventional creativity."},
+    5:{title:"The Charming Negotiator",type:"Friendly",text:"Venus and Mercury. Social and business charm."},
+    6:{title:"The Life of Pleasure",type:"Friendly",text:"Double Venus. Focus on luxury and love."},
+    7:{title:"The Spiritual Artist",type:"Friendly",text:"Venus and Ketu. Finding divine beauty."},
+    8:{title:"The Disciplined Creator",type:"Neutral",text:"Venus and Saturn. Lasting success in arts/business."},
+    9:{title:"The Passionate Protector",type:"Neutral",text:"Venus and Mars. Intense passion and energy."}},
+    7:{1:{title:"The Solitary King",type:"Neutral",text:"Ketu driving Sun. Spiritual authority."},
+    2:{title:"The Solitary Creator",type:"Neutral",text:"Ketu and Moon. Intuitive creativity."},
+    3:{title:"The Deep Thinker",type:"Friendly",text:"Ketu and Jupiter. Profound wisdom."},
+    4:{title:"The Code Breaker",type:"Friendly",text:"Ketu and Rahu. Investigative genius."},
+    5:{title:"The Quiet Analyst",type:"Neutral",text:"Ketu and Mercury. Deep research."},
+    6:{title:"The Spiritual Artist",type:"Friendly",text:"Ketu and Venus. Spiritual approach to love/art."},
+    7:{title:"The Mystic",type:"Neutral",text:"Double Ketu. Deeply spiritual and detached."},
+    8:{title:"The Isolated Hermit",type:"Enemy",text:"Ketu and Saturn. Deep solitude and discipline."},
+    9:{title:"The Angry Mystic",type:"Enemy",text:"Ketu and Mars. Inner volatility."}},
+    8:{1:{title:"The Judge vs. King",type:"Enemy",text:"Saturn driving Sun. Struggle with authority."},
+    2:{title:"The Stone Heart",type:"Enemy",text:"Saturn and Moon. Emotional hardship."},
+    3:{title:"The Disciplined Teacher",type:"Friendly",text:"Saturn and Jupiter. Practical wisdom."},
+    4:{title:"The Builder of Foundations",type:"Enemy",text:"Saturn and Rahu. Struggle for stability."},
+    5:{title:"The Strategic Planner",type:"Friendly",text:"Saturn and Mercury. Serious business mind."},
+    6:{title:"The Disciplined Creator",type:"Friendly",text:"Saturn and Venus. Wealth through hard work."},
+    7:{title:"The Isolated Hermit",type:"Neutral",text:"Saturn and Ketu. Deep detachment."},
+    8:{title:"The Master of Karma",type:"Enemy",text:"Double Saturn. Life of immense discipline."},
+    9:{title:"Immovable Object vs Force",type:"Neutral",text:"Saturn and Mars. Enduring energy."}},
+    9:{1:{title:"The Warrior King",type:"Friendly",text:"Mars driving Sun. Unbeatable energy."},
+    2:{title:"The Emotional Warrior",type:"Enemy",text:"Mars and Moon. Volatile emotions."},
+    3:{title:"The Righteous Commander",type:"Friendly",text:"Mars and Jupiter. Principled action."},
+    4:{title:"The Reckless Force",type:"Enemy",text:"Mars and Rahu. Dangerous energy."},
+    5:{title:"The Quick-Witted Warrior",type:"Friendly",text:"Mars and Mercury. Sharp tongue."},
+    6:{title:"The Passionate Protector",type:"Neutral",text:"Mars and Venus. Intense romance."},
+    7:{title:"The Angry Mystic",type:"Enemy",text:"Mars and Ketu. Frustrated energy."},
+    8:{title:"Immovable Object vs Force",type:"Enemy",text:"Mars and Saturn.Constant struggle."},
+    9:{title:"The Double Mars",type:"Friendly",text:"Pure fire and energy."}}};
+
 function loadUserReports() {
   const reportsEl = pageSections.myReports;
   if (!APP_STATE.token || !reportsEl) return;
@@ -266,4 +356,5 @@ function viewReport(idx) {
 
 
 // (Add/keep your renderFullReport and renderTeaserReport and any UI support functions as needed)
+
 
