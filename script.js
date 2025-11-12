@@ -1,5 +1,4 @@
 // --- START OF SCRIPT ---
-// v39 FINAL - Correctly combines Moolank titles AND the custom-width 4-column grid.
 
 const API_URL = "https://keshvaggrawal.pythonanywhere.com/api/";
 
@@ -69,9 +68,12 @@ function navigate() {
       }
       break;
     case '#my-reports':
-      APP_STATE.token
-        ? (pageSections.myReports.style.display = 'block', loadUserReports(), window.location.hash = "#login")
-        : null;
+      if (APP_STATE.token && pageSections.myReports) {
+        pageSections.myReports.style.display = 'block';
+        loadUserReports();
+      } else {
+        window.location.hash = "#login";
+      }
       break;
     case '#home':
     default:
@@ -220,4 +222,30 @@ function showErr(id, m) {
   }
 }
 
-// ... (The rest of your report rendering logic below remains unchanged)
+// --- Add this function to support past reports ---
+function loadUserReports() {
+  const reportsEl = pageSections.myReports;
+  if (!APP_STATE.token || !reportsEl) return;
+  reportsEl.textContent = "Loading reports...";
+  fetch(API_URL + "my-reports", {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${APP_STATE.token}`
+    }
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.ok && data.reports && data.reports.length) {
+        reportsEl.innerHTML = data.reports.map(r =>
+          `<div><b>${r.firstName}</b> - ${r.dob}</div>`
+        ).join('');
+      } else {
+        reportsEl.textContent = "No reports found.";
+      }
+    })
+    .catch(() => {
+      reportsEl.textContent = "Error loading reports.";
+    });
+}
+
+// (Add/keep your renderFullReport and renderTeaserReport and any UI support functions as needed)
