@@ -1,30 +1,51 @@
-<!-- ------------------ REPLACEMENT CODE FOR admin.html ------------------ -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - All Reports</title>
+    <!-- Make sure the path to your style.css is correct -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>All User Reports</h1>
-    <table id="reports-table">
-        <thead>
-            <tr>
-                <th>Report ID</th>
-                <th>User Email</th>
-                <th>User Mobile</th>
-                <th>Name</th>
-                <th>Date of Birth</th>
-                <th>Created At</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Report rows will be inserted here by JavaScript -->
-        </tbody>
-    </table>
-    <div id="pagination-controls"></div>
+
+    <header>
+        <h1>All User Reports</h1>
+        <!-- You can add a navigation link to the users page if you like -->
+        <nav>
+            <a href="users.html">View All Users</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="table-container">
+            <table id="reports-table">
+                <thead>
+                    <tr>
+                        <th>Report ID</th>
+                        <th>User Email</th>
+                        <th>User Mobile</th>
+                        <th>Name</th>
+                        <th>Date of Birth</th>
+                        <th>Created At</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- This will be populated by admin.js -->
+                    <!-- It will show a loading message initially -->
+                    <tr>
+                        <td colspan="7">Loading reports...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination controls will be inserted here by admin.js -->
+        <div id="pagination-controls" class="pagination"></div>
+    </main>
+
+    <!-- This must be placed at the end of the body -->
     <script src="admin.js"></script>
 </body>
 </html>
