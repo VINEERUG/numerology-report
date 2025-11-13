@@ -1,31 +1,92 @@
-// ------------------ REPLACEMENT CODE FOR admin.js ------------------
+// ------------------ REPLACEMENT CODE FOR admin.js (All-in-One) ------------------
 document.addEventListener('DOMContentLoaded', function() {
+    const loginSection = document.getElementById('login-section');
+    const reportsSection = document.getElementById('reports-section');
+    const logoutButton = document.getElementById('logout-button');
     const token = localStorage.getItem('adminToken');
-    if (!token) {
-        window.location.href = 'admin-login.html'; // Redirect if no token exists
-        return;
+    
+    const API_BASE_URL = 'https://keshvaggrawal.pythonanywhere.com';
+
+    if (token) {
+        // If a token exists, try to fetch reports
+        showReportsPage();
+    } else {
+        // If no token, show the login form
+        showLoginPage();
     }
 
-    const API_BASE_URL = 'https://keshvaggrawal.pythonanywhere.com';
+    function showLoginPage() {
+        loginSection.classList.remove('hidden');
+        reportsSection.classList.add('hidden');
+        logoutButton.classList.add('hidden');
+    }
+
+    function showReportsPage() {
+        loginSection.classList.add('hidden');
+        reportsSection.classList.remove('hidden');
+        logoutButton.classList.remove('hidden');
+        fetchReports(1); // Fetch the first page of reports
+    }
+
+    // --- Login Form Logic ---
+    const loginForm = document.getElementById('admin-login-form');
+    loginForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const errorMessage = document.getElementById('error-message');
+        const loginButton = document.getElementById('login-button');
+        errorMessage.textContent = '';
+        loginButton.disabled = true;
+        loginButton.textContent = 'Logging in...';
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        fetch(`${API_BASE_URL}/api/admin-login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, password: password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.token) {
+                localStorage.setItem('adminToken', data.token);
+                showReportsPage(); // Switch to reports view on successful login
+            } else {
+                throw new Error(data.error || 'Login failed.');
+            }
+        })
+        .catch(error => {
+            errorMessage.textContent = error.message;
+            loginButton.disabled = false;
+            loginButton.textContent = 'Login';
+        });
+    });
+
+    // --- Logout Button Logic ---
+    logoutButton.addEventListener('click', function() {
+        localStorage.removeItem('adminToken');
+        showLoginPage(); // Switch back to the login view
+    });
+
+
+    // --- Reports Fetching and Rendering Logic ---
     let currentPage = 1;
 
     function fetchReports(page) {
+        const currentToken = localStorage.getItem('adminToken');
+        if (!currentToken) {
+            showLoginPage();
+            return;
+        }
+
         fetch(`${API_BASE_URL}/api/admin/reports?page=${page}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            headers: { 'Authorization': `Bearer ${currentToken}` }
         })
         .then(response => {
-            // If response is 401 (Unauthorized) OR 403 (Forbidden), redirect to login
             if (response.status === 401 || response.status === 403) {
                 localStorage.removeItem('adminToken');
-                window.location.href = 'admin-login.html';
-                return Promise.reject('Admin access required. Redirecting to login.');
-            }
-            if (!response.ok) {
-                return response.text().then(text => {
-                    throw new Error(`Server responded with ${response.status}: ${text}`);
-                });
+                showLoginPage();
+                return Promise.reject('Session expired. Please log in again.');
             }
             return response.json();
         })
@@ -36,14 +97,16 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             console.error('Error fetching reports:', error);
-            const tableBody = document.querySelector("#reports-table tbody");
-            tableBody.innerHTML = `<tr><td colspan="7">${error.message}</td></tr>`;
+            // Don't show an error in the table if it's just a login redirect
+            if (error !== 'Session expired. Please log in again.') {
+                 const tableBody = document.querySelector("#reports-table tbody");
+                 tableBody.innerHTML = `<tr><td colspan="7">Error loading reports.</td></tr>`;
+            }
         });
     }
 
-    // ... (The rest of the functions: renderReports, renderPagination, etc., remain the same)
-
     function renderReports(reports) {
+        // This function remains the same as before
         const tableBody = document.querySelector("#reports-table tbody");
         tableBody.innerHTML = '';
         if (!reports || reports.length === 0) {
@@ -74,6 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderPagination(page, total_pages) {
+        // This function remains the same as before
         const paginationContainer = document.getElementById('pagination-controls');
         paginationContainer.innerHTML = '';
 
@@ -87,7 +151,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const pageIndicator = document.createElement('span');
         pageIndicator.textContent = ` Page ${page} of ${total_pages} `;
-        pageIndicator.style.margin = '0 10px';
         paginationContainer.appendChild(pageIndicator);
 
         const nextButton = document.createElement('button');
@@ -96,6 +159,4 @@ document.addEventListener('DOMContentLoaded', function() {
         nextButton.addEventListener('click', () => fetchReports(page + 1));
         paginationContainer.appendChild(nextButton);
     }
-
-    fetchReports(currentPage);
 });
