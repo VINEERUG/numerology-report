@@ -2,29 +2,34 @@
 document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('adminToken');
     if (!token) {
-        window.location.href = 'admin-login.html';
+        window.location.href = 'admin-login.html'; // Redirect if no token exists
         return;
     }
 
+    const API_BASE_URL = 'https://keshvaggrawal.pythonanywhere.com';
     let currentPage = 1;
 
     function fetchUsers(page) {
-        fetch(\https://keshvaggrawal.pythonanywhere.com/api/admin/users?page=\${page}\`, {`
+        fetch(`${API_BASE_URL}/api/admin/users?page=${page}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
         .then(response => {
-            if (response.status === 401) {
+            // If response is 401 (Unauthorized) OR 403 (Forbidden), redirect to login
+            if (response.status === 401 || response.status === 403) {
                 localStorage.removeItem('adminToken');
                 window.location.href = 'admin-login.html';
+                return Promise.reject('Admin access required. Redirecting to login.');
+            }
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(`Server responded with ${response.status}: ${text}`);
+                });
             }
             return response.json();
         })
         .then(data => {
-            if (data.error) {
-                throw new Error(data.error);
-            }
             renderUsers(data.users);
             renderPagination(data.page, data.total_pages);
             currentPage = data.page;
@@ -32,14 +37,16 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error fetching users:', error);
             const tableBody = document.querySelector("#users-table tbody");
-            tableBody.innerHTML = `<tr><td colspan="5">Error loading users: ${error.message}</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="5">${error.message}</td></tr>`;
         });
     }
+
+    // ... (The rest of the functions: renderUsers, renderPagination, etc., remain the same)
 
     function renderUsers(users) {
         const tableBody = document.querySelector("#users-table tbody");
         tableBody.innerHTML = '';
-        if (users.length === 0) {
+        if (!users || users.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="5">No users found.</td></tr>';
             return;
         }
@@ -60,22 +67,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const paginationContainer = document.getElementById('pagination-controls');
         paginationContainer.innerHTML = '';
 
-        if (total_pages <= 1) return;
+        if (!total_pages || total_pages <= 1) return;
 
-        // Previous button
         const prevButton = document.createElement('button');
         prevButton.textContent = 'Previous';
         prevButton.disabled = page === 1;
         prevButton.addEventListener('click', () => fetchUsers(page - 1));
         paginationContainer.appendChild(prevButton);
 
-        // Page number indicator
         const pageIndicator = document.createElement('span');
         pageIndicator.textContent = ` Page ${page} of ${total_pages} `;
         pageIndicator.style.margin = '0 10px';
         paginationContainer.appendChild(pageIndicator);
 
-        // Next button
         const nextButton = document.createElement('button');
         nextButton.textContent = 'Next';
         nextButton.disabled = page === total_pages;
@@ -85,4 +89,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
     fetchUsers(currentPage);
 });
-
