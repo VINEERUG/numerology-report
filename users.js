@@ -1,8 +1,9 @@
-// ------------------ REPLACEMENT CODE FOR users.js ------------------
+// ------------------ REPLACEMENT CODE FOR users.js (Corrected API Path) ------------------
 document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('adminToken');
+
     if (!token) {
-        window.location.href = 'admin-login.html'; // Redirect if no token exists
+        window.location.href = 'admin.html';
         return;
     }
 
@@ -10,22 +11,20 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentPage = 1;
 
     function fetchUsers(page) {
+        // *** THIS IS THE CORRECTED LINE ***
         fetch(`${API_BASE_URL}/api/admin/users?page=${page}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
         .then(response => {
-            // If response is 401 (Unauthorized) OR 403 (Forbidden), redirect to login
             if (response.status === 401 || response.status === 403) {
                 localStorage.removeItem('adminToken');
-                window.location.href = 'admin-login.html';
+                window.location.href = 'admin.html';
                 return Promise.reject('Admin access required. Redirecting to login.');
             }
-            if (!response.ok) {
-                return response.text().then(text => {
-                    throw new Error(`Server responded with ${response.status}: ${text}`);
-                });
+             if (!response.ok) {
+                return response.text().then(text => { throw new Error(text) });
             }
             return response.json();
         })
@@ -36,12 +35,12 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             console.error('Error fetching users:', error);
-            const tableBody = document.querySelector("#users-table tbody");
-            tableBody.innerHTML = `<tr><td colspan="5">${error.message}</td></tr>`;
+            if (error.message !== 'Admin access required. Redirecting to login.') {
+                 const tableBody = document.querySelector("#users-table tbody");
+                 tableBody.innerHTML = `<tr><td colspan="5">Error loading users. See console.</td></tr>`;
+            }
         });
     }
-
-    // ... (The rest of the functions: renderUsers, renderPagination, etc., remain the same)
 
     function renderUsers(users) {
         const tableBody = document.querySelector("#users-table tbody");
