@@ -3,49 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - All Reports</title>
-    <!-- Make sure the path to your style.css is correct -->
+    <title>Admin Portal</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* This style will hide elements by default */
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
 
     <header>
-        <h1>All User Reports</h1>
-        <!-- You can add a navigation link to the users page if you like -->
-        <nav>
-            <a href="users.html">View All Users</a>
-        </nav>
+        <h1>Admin Portal</h1>
+        <button id="logout-button" class="hidden">Logout</button>
     </header>
 
     <main>
-        <div class="table-container">
-            <table id="reports-table">
-                <thead>
-                    <tr>
-                        <th>Report ID</th>
-                        <th>User Email</th>
-                        <th>User Mobile</th>
-                        <th>Name</th>
-                        <th>Date of Birth</th>
-                        <th>Created At</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- This will be populated by admin.js -->
-                    <!-- It will show a loading message initially -->
-                    <tr>
-                        <td colspan="7">Loading reports...</td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- Section 1: Admin Login Form -->
+        <div id="login-section">
+            <form id="admin-login-form">
+                <h2>Admin Login</h2>
+                <div id="error-message" class="error-text"></div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" id="login-button">Login</button>
+            </form>
         </div>
 
-        <!-- Pagination controls will be inserted here by admin.js -->
-        <div id="pagination-controls" class="pagination"></div>
+        <!-- Section 2: Reports Display (Hidden by default) -->
+        <div id="reports-section" class="hidden">
+            <h2>All User Reports</h2>
+            <nav>
+                <a href="users.html">View All Users</a>
+            </nav>
+            <div class="table-container">
+                <table id="reports-table">
+                    <thead>
+                        <tr>
+                            <th>Report ID</th>
+                            <th>User Email</th>
+                            <th>User Mobile</th>
+                            <th>Name</th>
+                            <th>Date of Birth</th>
+                            <th>Created At</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="pagination-controls" class="pagination"></div>
+        </div>
+
     </main>
 
-    <!-- This must be placed at the end of the body -->
     <script src="admin.js"></script>
 </body>
 </html>
