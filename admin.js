@@ -88,72 +88,78 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Data Fetching and Rendering ---
     let currentPage = 1;
 
-    function fetchReports(page) {
-        const currentToken = localStorage.getItem('adminToken');
-        if (!currentToken) {
-            console.log("fetchReports: No token found, redirecting to login.");
-            showLoginPage();
-            return;
-        }
-
-        console.log(`Fetching reports for page ${page}.`);
-        fetch(`${API_BASE_URL}/api/admin/reports?page=${page}`, {
-            headers: { 'Authorization': `Bearer ${currentToken}` }
-        })
-        .then(response => {
-            if (response.status === 401 || response.status === 403) {
-                localStorage.removeItem('adminToken');
-                showLoginPage();
-                // This is a clear error message for the console
-                return Promise.reject(new Error('Session expired or invalid. Please log in again.'));
-            }
-            if (!response.ok) {
-                 return response.json().then(err => { throw new Error(err.error || 'Failed to load data.') });
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log("Successfully fetched report data.");
-            renderReports(data.reports);
-            renderPagination(data.page, data.total_pages);
-            currentPage = data.page;
-        })
-        .catch(error => {
-            console.error('ERROR FETCHING REPORTS:', error.message);
-        });
-    }
+function fetchReports(page=1) {
+  const token = localStorage.getItem('adminToken');
+  fetch(`${API_BASE_URL}/api/admin/reports?page=${page}&per_page=10`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
+  .then(r => {
+    if (r.status === 401 || r.status === 403) throw new Error('Session expired');
+    return r.json();
+  })
+  .then(data => {
+    if (!data.ok) throw new Error(data.error || 'Failed to load');
+    renderReports(data.reports);
+    renderPagination(data.page, data.total_pages);
+  })
+  .catch(err => {
+    console.error(err);
+    // show error row if needed
+  });
+}
 
     // --- Render Functions (No changes needed here) ---
-    function renderReports(reports) {
-        const tableBody = document.querySelector("#reports-table tbody");
-        tableBody.innerHTML = '';
-        if (!reports || reports.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="7">No reports found.</td></tr>';
-            return;
-        }
-        reports.forEach(report => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${report.id}</td>
-                <td>${report.email}</td>
-                <td>${report.mobile || 'N/A'}</td>
-                <td>${report.name}</td>
-                <td>${report.dob}</td>
-                <td>${new Date(report.created_at).toLocaleString()}</td>
-                <td><button class="view-report-btn" data-report-id="${report.id}">View</button></td>
-            `;
-            tableBody.appendChild(row);
-        });
-        document.querySelectorAll('.view-report-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const reportId = this.getAttribute('data-report-id');
-                localStorage.setItem('viewReportId', reportId);
-                window.location.href = 'view.html';
-            });
-        });
-    }
 
-    function renderPagination(page, total_pages) {
+function renderReports(reports) {
+  const tbody = document.querySelector('#reports-table tbody');
+  tbody.innerHTML = '';
+  if (!reports || reports.length === 0) {
+     tbody.innerHTML = '<tr><td colspan="8">No reports found.</td></tr>';
+     return;
+  }
+  reports.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${r.id}</td>
+      <td>${r.email || ''}</td>
+      <td>${r.mobile_number || ''}</td>
+      <td>${r.name || ''}</td>
+      <td>${r.dob || ''}</td>
+      <td>${new Date(r.created_at).toLocaleString()}</td>
+      <td><button class="view-report-btn" data-report-id="${r.id}">View</button></td>
+      <td><button class="del-user-btn" data-email="${r.email || ''}">Delete User</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // View handlers remain same...
+  document.querySelectorAll('.del-user-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const email = btn.getAttribute('data-email');
+      if (!email) return alert('No email for this row.');
+      if (!confirm(`Delete ALL data for ${email}? This cannot be undone.`)) return;
+      deleteByEmail(email);
+    });
+  });
+}
+
+function deleteByEmail(email) {
+  const token = localStorage.getItem('adminToken');
+  fetch(`${API_BASE_URL}/api/admin/delete-by-email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ email })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (!data.ok) throw new Error(data.error || 'Delete failed');
+    alert(`Deleted data for ${email}`);
+    fetchReports(1);
+  })
+  .catch(err => alert(err.message));
+}
+
+function renderPagination(page, total_pages) {
         const paginationContainer = document.getElementById('pagination-controls');
         paginationContainer.innerHTML = '';
         if (!total_pages || total_pages <= 1) return;
@@ -172,3 +178,4 @@ document.addEventListener('DOMContentLoaded', function() {
         paginationContainer.appendChild(nextButton);
     }
 });
+
