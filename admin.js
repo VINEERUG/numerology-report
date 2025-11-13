@@ -1,4 +1,4 @@
-// ------------------ REPLACEMENT CODE FOR admin.js (Corrected API Path) ------------------
+// ------------------ FINAL CORRECTED CODE FOR admin.js ------------------
 document.addEventListener('DOMContentLoaded', function() {
     const loginSection = document.getElementById('login-section');
     const reportsSection = document.getElementById('reports-section');
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // *** THIS IS THE CORRECTED LINE ***
+        // *** THIS IS THE LINE THAT IS NOW CORRECT ***
         fetch(`${API_BASE_URL}/api/admin/reports?page=${page}`, {
             headers: { 'Authorization': `Bearer ${currentToken}` }
         })
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return Promise.reject('Session expired. Please log in again.');
             }
             if (!response.ok) {
-                 return response.text().then(text => { throw new Error(text) });
+                 return response.json().then(err => { throw new Error(err.error) });
             }
             return response.json();
         })
@@ -95,9 +95,9 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             console.error('Error fetching reports:', error);
-            if (error.message !== 'Session expired. Please log in again.') {
+            if (String(error) !== 'Error: Session expired. Please log in again.') {
                  const tableBody = document.querySelector("#reports-table tbody");
-                 tableBody.innerHTML = `<tr><td colspan="7">Error loading reports.</td></tr>`;
+                 if (tableBody) tableBody.innerHTML = `<tr><td colspan="7">Error loading reports: ${error}</td></tr>`;
             }
         });
     }
