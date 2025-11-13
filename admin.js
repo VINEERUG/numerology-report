@@ -1,4 +1,4 @@
-// ------------------ REPLACEMENT CODE FOR admin.js (All-in-One) ------------------
+// ------------------ REPLACEMENT CODE FOR admin.js (Corrected API Path) ------------------
 document.addEventListener('DOMContentLoaded', function() {
     const loginSection = document.getElementById('login-section');
     const reportsSection = document.getElementById('reports-section');
@@ -8,10 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const API_BASE_URL = 'https://keshvaggrawal.pythonanywhere.com';
 
     if (token) {
-        // If a token exists, try to fetch reports
         showReportsPage();
     } else {
-        // If no token, show the login form
         showLoginPage();
     }
 
@@ -25,10 +23,9 @@ document.addEventListener('DOMContentLoaded', function() {
         loginSection.classList.add('hidden');
         reportsSection.classList.remove('hidden');
         logoutButton.classList.remove('hidden');
-        fetchReports(1); // Fetch the first page of reports
+        fetchReports(1);
     }
 
-    // --- Login Form Logic ---
     const loginForm = document.getElementById('admin-login-form');
     loginForm.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -50,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.token) {
                 localStorage.setItem('adminToken', data.token);
-                showReportsPage(); // Switch to reports view on successful login
+                showReportsPage();
             } else {
                 throw new Error(data.error || 'Login failed.');
             }
@@ -62,14 +59,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // --- Logout Button Logic ---
     logoutButton.addEventListener('click', function() {
         localStorage.removeItem('adminToken');
-        showLoginPage(); // Switch back to the login view
+        showLoginPage();
     });
 
-
-    // --- Reports Fetching and Rendering Logic ---
     let currentPage = 1;
 
     function fetchReports(page) {
@@ -79,6 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // *** THIS IS THE CORRECTED LINE ***
         fetch(`${API_BASE_URL}/api/admin/reports?page=${page}`, {
             headers: { 'Authorization': `Bearer ${currentToken}` }
         })
@@ -87,6 +82,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.removeItem('adminToken');
                 showLoginPage();
                 return Promise.reject('Session expired. Please log in again.');
+            }
+            if (!response.ok) {
+                 return response.text().then(text => { throw new Error(text) });
             }
             return response.json();
         })
@@ -97,8 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             console.error('Error fetching reports:', error);
-            // Don't show an error in the table if it's just a login redirect
-            if (error !== 'Session expired. Please log in again.') {
+            if (error.message !== 'Session expired. Please log in again.') {
                  const tableBody = document.querySelector("#reports-table tbody");
                  tableBody.innerHTML = `<tr><td colspan="7">Error loading reports.</td></tr>`;
             }
@@ -106,7 +103,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderReports(reports) {
-        // This function remains the same as before
         const tableBody = document.querySelector("#reports-table tbody");
         tableBody.innerHTML = '';
         if (!reports || reports.length === 0) {
@@ -137,7 +133,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderPagination(page, total_pages) {
-        // This function remains the same as before
         const paginationContainer = document.getElementById('pagination-controls');
         paginationContainer.innerHTML = '';
 
