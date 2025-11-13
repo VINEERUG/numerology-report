@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('adminToken');
     if (!token) {
-        window.location.href = 'admin-login.html';
+        window.location.href = 'admin-login.html'; // Redirect if no token exists
         return;
     }
 
@@ -16,13 +16,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .then(response => {
-            if (response.status === 401) {
+            // If response is 401 (Unauthorized) OR 403 (Forbidden), redirect to login
+            if (response.status === 401 || response.status === 403) {
                 localStorage.removeItem('adminToken');
                 window.location.href = 'admin-login.html';
-                return Promise.reject('Unauthorized'); // Stop further processing
+                return Promise.reject('Admin access required. Redirecting to login.');
             }
             if (!response.ok) {
-                 // Get text from the response to see if it's an HTML error page
                 return response.text().then(text => {
                     throw new Error(`Server responded with ${response.status}: ${text}`);
                 });
@@ -30,9 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(data => {
-            if (data.error) {
-                throw new Error(data.error);
-            }
             renderReports(data.reports);
             renderPagination(data.page, data.total_pages);
             currentPage = data.page;
@@ -40,9 +37,11 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error fetching reports:', error);
             const tableBody = document.querySelector("#reports-table tbody");
-            tableBody.innerHTML = `<tr><td colspan="7">Error loading reports. See console for details.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="7">${error.message}</td></tr>`;
         });
     }
+
+    // ... (The rest of the functions: renderReports, renderPagination, etc., remain the same)
 
     function renderReports(reports) {
         const tableBody = document.querySelector("#reports-table tbody");
