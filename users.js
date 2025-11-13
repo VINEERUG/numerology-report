@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentPage = 1;
 
     function fetchUsers(page) {
-        fetch(`/api/admin/users?page=${page}`, {
+        fetch(\https://keshvaggrawal.pythonanywhere.com/api/admin/users?page=\${page}\`, {`
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -85,3 +85,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     fetchUsers(currentPage);
 });
+
