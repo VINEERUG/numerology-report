@@ -5,7 +5,7 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     const API_BASE_URL = 'https://keshvaggrawal.pythonanywhere.com';
-    const GET_REPORTS_URL = `${API_BASE_URL}/api/admin/get-all-reports`;
+    const GET_REPORTS_URL = `${API_BASE_URL}/api/admin/my-reports`;
 
     const reportsContainer = document.getElementById('reports-container');
     const paginationContainer = document.getElementById('pagination-controls');
@@ -146,3 +146,4 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Initial Call ---
     fetchAllReports();
 });
+
