@@ -177,7 +177,6 @@ function renderReports(reports) {
     `;
     reportsContainer.innerHTML = tableHTML;
 }
-    reportsContainer.appendChild(table);
 
     // Add event listeners for the "View" buttons (event delegation)
     reportsContainer.addEventListener('click', (e) => {
