@@ -10,7 +10,6 @@ const SET_STATUS_URL = API_BASE_URL + '/api/admin/set-user-status';
 const DELETE_USER_URL = API_BASE_URL + '/api/admin/delete-by-email'; 
 
 const token = localStorage.getItem('adminToken');
-alert('Token on users page: ' + token);
 
 const usersContainer = document.getElementById('users-container');
 const logoutButton = document.getElementById('logout-button');
@@ -188,5 +187,6 @@ usersContainer.addEventListener('click', (e) => {
 
 // Initial fetch of users when the page loads
 fetchUsers();
+
 
 
