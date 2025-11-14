@@ -1,80 +1,71 @@
 // =================================================================
-// users.js
-// =================================----------------================
+// users.js - Final Corrected Version
+// =================================================================
 
 const API_BASE_URL = 'https://keshvaggrawal.pythonanywhere.com';
-const GET_USERS_URL = API_BASE_URL + '/api/admin/get-users';
-const SET_STATUS_URL = API_BASE_URL + '/api/admin/set-user-status';
-// --- NEW ---
-// Define the URL for the delete endpoint
-const DELETE_USER_URL = API_BASE_URL + '/api/admin/delete-by-email'; 
-
-const token = localStorage.getItem('adminToken');
+const GET_USERS_URL = `${API_BASE_URL}/api/admin/get-users`;
+const SET_STATUS_URL = `${API_BASE_URL}/api/admin/set-user-status`;
+const DELETE_USER_URL = `${API_BASE_URL}/api/admin/delete-by-email`;
 
 const usersContainer = document.getElementById('users-container');
-const logoutButton = document.getElementById('logout-button');
+const token = localStorage.getItem('adminToken');
 
-// Redirect to login if no token is found
+// --- Main Logic ---
+
+// Immediately check for a token. If it's missing, redirect to the admin login page.
 if (!token) {
     window.location.href = 'admin.html';
 }
 
-// Handle logout
-logoutButton.addEventListener('click', () => {
-    localStorage.removeItem('adminToken');
-    window.location.href = 'admin.html';
-});
+// Function to fetch all users from the API
+async function fetchUsers() {
+    if (!token) return;
 
-/**
- * Fetches all users from the API and renders them.
- */
-const fetchUsers = async () => {
+    usersContainer.innerHTML = '<p class="text-white">Loading users...</p>';
+
     try {
-        const res = await fetch(GET_USERS_URL, {
+        const response = await fetch(GET_USERS_URL, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
 
-        if (res.status === 401 || res.status === 403) {
+        if (response.status === 401 || response.status === 403) {
             localStorage.removeItem('adminToken');
             window.location.href = 'admin.html';
             return;
         }
 
-        const data = await res.json();
-        if (data.ok) {
+        const data = await response.json();
+
+        if (data.ok && data.users) {
             renderUsers(data.users);
         } else {
-            usersContainer.innerHTML = `<p class="text-red-400">Error: ${data.error}</p>`;
+            usersContainer.innerHTML = `<p class="text-red-500">Error: ${data.error || 'Could not fetch users.'}</p>`;
         }
-    } catch (err) {
-        usersContainer.innerHTML = `<p class="text-red-400">A network error occurred.</p>`;
+    } catch (error) {
+        console.error('Fetch users error:', error);
+        usersContainer.innerHTML = '<p class="text-red-500">Error: A network error occurred.</p>';
     }
-};
+}
 
-/**
- * Renders the list of users into a table.
- * --- MODIFIED ---
- */
-const renderUsers = (users) => {
+// Function to render the list of users into the HTML table
+function renderUsers(users) {
     if (users.length === 0) {
-        usersContainer.innerHTML = `<p>No users found.</p>`;
+        usersContainer.innerHTML = '<p class="text-white">No users found.</p>';
         return;
     }
 
-    // --- MODIFIED TABLE STRUCTURE ---
-    // Added <th>Mobile</th> and updated the row mapping to include mobilenumber and a delete button.
     const tableHTML = `
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-700">
                 <thead class="bg-gray-700">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Mobile</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Joined</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Mobile</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Joined</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-gray-800 divide-y divide-gray-700">
@@ -83,7 +74,7 @@ const renderUsers = (users) => {
                             <td class="px-6 py-4 whitespace-nowrap">${user.email}</td>
                             <td class="px-6 py-4 whitespace-nowrap">${user.mobilenumber || 'N/A'}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.status === 'active' ? 'bg-green-600 text-green-100' : 'bg-red-600 text-red-100'}">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.status === 'active' ? 'bg-green-800 text-green-100' : 'bg-red-800 text-red-100'}">
                                     ${user.status}
                                 </span>
                             </td>
@@ -92,7 +83,6 @@ const renderUsers = (users) => {
                                 <button class="text-indigo-400 hover:text-indigo-300 toggle-status-btn" data-userid="${user.id}" data-status="${user.status}">
                                     ${user.status === 'active' ? 'Deactivate' : 'Activate'}
                                 </button>
-                                <!-- --- NEW DELETE BUTTON --- -->
                                 <button class="text-red-400 hover:text-red-300 ml-4 delete-user-btn" data-email="${user.email}">
                                     Delete
                                 </button>
@@ -105,131 +95,63 @@ const renderUsers = (users) => {
     `;
 
     usersContainer.innerHTML = tableHTML;
-};
+}
 
-
-/**
- * Toggles the status of a user (active/inactive).
- */
-const toggleUserStatus = async (userId, currentStatus) => {
+// Function to toggle a user's status (active/inactive)
+async function toggleUserStatus(userId, currentStatus) {
     const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
     try {
-        const res = await fetch(SET_STATUS_URL, {
+        const response = await fetch(SET_STATUS_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ user_id: userId, status: newStatus })
         });
-        const data = await res.json();
-        if (data.ok) {
-            fetchUsers(); // Refresh the list to show the new status
-        } else {
-            alert(`Error updating status: ${data.error}`);
-        }
-    } catch (err) {
-        alert('A network error occurred while updating status.');
-    }
-};
-
-// --- NEW ---
-/**
- * Deletes a user and all their data by email.
- */
-const deleteUser = async (email) => {
-    // Confirmation dialog to prevent accidental deletion
-    if (!confirm(`Are you sure you want to delete the user "${email}"?\nThis action cannot be undone and will remove all their reports.`)) {
-        return;
-    }
-
-    try {
-        const res = await fetch(DELETE_USER_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ email: email })
-        });
-
-        const data = await res.json();
-        if (data.ok) {
-            alert('User deleted successfully.');
-            fetchUsers(); // Refresh the user list
-        } else {
-            alert(`Error deleting user: ${data.error}`);
-        }
-    } catch (err) {
-        alert('A network error occurred while deleting the user.');
-    }
-};
-
-// Event delegation to handle clicks on action buttons
-usersContainer.addEventListener('click', (e) => {
-    const target = e.target;
-
-    // Handle status toggle
-    if (target.classList.contains('toggle-status-btn')) {
-        const userId = target.dataset.userid;
-        const currentStatus = target.dataset.status;
-        toggleUserStatus(userId, currentStatus);
-    }
-    
-    // --- NEW ---
-    // Handle delete action
-    if (target.classList.contains('delete-user-btn')) {
-        const email = target.dataset.email;
-        deleteUser(email);
-    }
-});
-
-
-// Initial fetch of users when the page loads
-fetchUsers();
-
-// --- PASTE THIS CLEAN VERSION AT THE END OF users.js ---
-
-document.addEventListener('click', function(event) {
-    if (event.target.classList.contains('delete-user-btn')) {
-        const userEmail = event.target.getAttribute('data-email');
-        if (userEmail) {
-            deleteUser(userEmail);
-        }
-    }
-});
-
-async function deleteUser(email) {
-    if (!confirm(`Are you sure you want to permanently delete the user with email: ${email}? This action cannot be undone.`)) {
-        return;
-    }
-
-    const token = localStorage.getItem('adminToken');
-    if (!token) {
-        window.location.href = 'admin.html';
-        return;
-    }
-
-    try {
-        const response = await fetch(`https://keshvaggrawal.pythonanywhere.com/api/admin/delete-by-email`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ email: email })
-        });
-
         const result = await response.json();
+        if (result.ok) {
+            fetchUsers();
+        } else {
+            alert(`Error updating status: ${result.error}`);
+        }
+    } catch (error) {
+        console.error('Toggle status error:', error);
+    }
+}
 
+// Function to delete a user by email
+async function deleteUser(email) {
+    if (!confirm(`Are you sure you want to permanently delete the user with email: ${email}? This cannot be undone.`)) {
+        return;
+    }
+    try {
+        const response = await fetch(DELETE_USER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ email: email })
+        });
+        const result = await response.json();
         if (result.ok) {
             alert('User deleted successfully.');
             fetchUsers();
         } else {
-            alert(`Error: ${result.error}`);
+            alert(`Error deleting user: ${result.error}`);
         }
     } catch (error) {
-        console.error('Network error during user deletion:', error);
-        alert('A network error occurred. Please try again.');
+        console.error('Delete user error:', error);
     }
 }
+
+// Event delegation for handling clicks on action buttons
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('toggle-status-btn')) {
+        const userId = event.target.getAttribute('data-userid');
+        const currentStatus = event.target.getAttribute('data-status');
+        toggleUserStatus(userId, currentStatus);
+    }
+    if (event.target.classList.contains('delete-user-btn')) {
+        const userEmail = event.target.getAttribute('data-email');
+        deleteUser(userEmail);
+    }
+});
+
+// Initial fetch of users when the page loads
+fetchUsers();
