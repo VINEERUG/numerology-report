@@ -119,41 +119,64 @@ if (reportsContainer) {
  * Renders the list of reports into the reportsContainer.
  * @param {Array} reports - An array of report objects from the API.
  */
+
 function renderReports(reports) {
-    if (reports.length === 0) {
-        reportsContainer.innerHTML = '<p>No reports found.</p>';
+    const reportsContainer = document.getElementById('reports-container');
+    if (!reports || reports.length === 0) {
+        reportsContainer.innerHTML = '<p class="text-center p-8 text-gray-400">No reports have been generated yet.</p>';
         return;
     }
 
-    // Create a table to display the reports
-    const table = document.createElement('table');
-    table.className = 'min-w-full bg-white divide-y divide-gray-200';
-    table.innerHTML = `
-        <thead class="bg-gray-50">
-            <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date of Birth</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">View Details</th>
-            </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-            ${reports.map(report => `
+    let tableHTML = `
+        <table class="min-w-full">
+            <thead>
                 <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">${report.id}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${report.firstName || 'N/A'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${report.dob || 'N/A'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <button class="view-details-btn text-indigo-600 hover:text-indigo-900" data-report='${JSON.stringify(report)}'>
-                            View
-                        </button>
-                    </td>
+                    <th>Date</th>
+                    <th>User Details</th>
+                    <th>Name</th>
+                    <th>Driver #</th>
+                    <th>Conductor #</th>
+                    <th>View</th>
                 </tr>
-            `).join('')}
-        </tbody>
+            </thead>
+            <tbody>
     `;
 
-    reportsContainer.innerHTML = ''; // Clear previous content
+    reports.forEach(report => {
+        const timestamp = new Date(report.timestamp).toLocaleDateString('en-GB', {
+            day: '2-digit', month: '2-digit', year: 'numeric'
+        });
+
+        // --- NEW: User Details Logic ---
+        // This block creates the HTML for the user details, including email and mobile.
+        // It displays "Guest" if the user is not registered.
+        const userDetailsHTML = report.user_email
+            ? `<div>
+                   <div class="font-semibold">${report.user_email}</div>
+                   ${report.user_mobile ? `<div class="text-gray-400">${report.user_mobile}</div>` : ''}
+               </div>`
+            : '<span class="text-gray-500">Guest</span>';
+
+        tableHTML += `
+            <tr>
+                <td>${timestamp}</td>
+                <td>${userDetailsHTML}</td>
+                <td>${report.inputs_data.firstName} ${report.inputs_data.lastName || ''}</td>
+                <td>${report.report_data.driver_number}</td>
+                <td>${report.report_data.conductor_number}</td>
+                <td>
+                    <button class="btn-view-report" data-report-id="${report.id}" onclick="viewReportDetails(${report.id})">View</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    tableHTML += `
+            </tbody>
+        </table>
+    `;
+    reportsContainer.innerHTML = tableHTML;
+}
     reportsContainer.appendChild(table);
 
     // Add event listeners for the "View" buttons (event delegation)
