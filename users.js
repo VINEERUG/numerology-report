@@ -156,15 +156,4 @@ document.addEventListener('click', function(event) {
 // Initial fetch of users when the page loads
 fetchUsers();
 
-// ... (all your existing code in users.js)
-
-document.addEventListener('DOMContentLoaded', () => {
-  const logoutButton = document.getElementById('logout-button');
-  if (logoutButton) {
-    logoutButton.addEventListener('click', () => {
-      localStorage.removeItem('adminToken');
-      window.location.href = 'admin.html';
-    });
-  }
-});
 
