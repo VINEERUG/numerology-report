@@ -188,5 +188,48 @@ usersContainer.addEventListener('click', (e) => {
 // Initial fetch of users when the page loads
 fetchUsers();
 
+// --- PASTE THIS CLEAN VERSION AT THE END OF users.js ---
 
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('delete-user-btn')) {
+        const userEmail = event.target.getAttribute('data-email');
+        if (userEmail) {
+            deleteUser(userEmail);
+        }
+    }
+});
 
+async function deleteUser(email) {
+    if (!confirm(`Are you sure you want to permanently delete the user with email: ${email}? This action cannot be undone.`)) {
+        return;
+    }
+
+    const token = localStorage.getItem('adminToken');
+    if (!token) {
+        window.location.href = 'admin.html';
+        return;
+    }
+
+    try {
+        const response = await fetch(`https://keshvaggrawal.pythonanywhere.com/api/admin/delete-by-email`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ email: email })
+        });
+
+        const result = await response.json();
+
+        if (result.ok) {
+            alert('User deleted successfully.');
+            fetchUsers();
+        } else {
+            alert(`Error: ${result.error}`);
+        }
+    } catch (error) {
+        console.error('Network error during user deletion:', error);
+        alert('A network error occurred. Please try again.');
+    }
+}
