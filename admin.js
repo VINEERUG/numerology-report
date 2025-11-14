@@ -1,181 +1,167 @@
-// ------------------ DEBUG-READY CODE FOR admin.js ------------------
-document.addEventListener('DOMContentLoaded', function() {
-    const loginSection = document.getElementById('login-section');
-    const reportsSection = document.getElementById('reports-section');
-    const logoutButton = document.getElementById('logout-button');
-    const token = localStorage.getItem('adminToken');
-    
-    const API_BASE_URL = 'https://keshvaggrawal.pythonanywhere.com';
+// =============================================================================
+// admin.js
+//
+// This script handles both the admin login page (admin.html) and the
+// reports viewing page (view.html). It checks which page is active
+// and runs the appropriate logic.
+//
+// =============================================================================
 
-    // --- Main Logic: Decide which view to show ---
+// Use the full URL of your PythonAnywhere server.
+const API_BASE_URL = 'https://keshvaggrawal.pythonanywhere.com';
+const LOGIN_URL = `${API_BASE_URL}/api/admin-login`;
+const GET_REPORTS_URL = `${API_BASE_URL}/api/my-reports`;
+
+const token = localStorage.getItem('adminToken');
+
+// --- 1. LOGIN PAGE LOGIC (runs if it finds the login form) ---
+const loginForm = document.getElementById('login-form');
+if (loginForm) {
+    // If we're on the login page but already have a token, redirect to the view page.
     if (token) {
-        console.log("Token found in localStorage. Attempting to show reports page.");
-        showReportsPage();
-    } else {
-        console.log("No token found. Showing login page.");
-        showLoginPage();
+        window.location.href = 'view.html';
     }
 
-    // --- UI Control Functions ---
-    function showLoginPage() {
-        loginSection.classList.remove('hidden');
-        reportsSection.classList.add('hidden');
-        logoutButton.classList.add('hidden');
-    }
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    function showReportsPage() {
-        loginSection.classList.add('hidden');
-        reportsSection.classList.remove('hidden');
-        logoutButton.classList.remove('hidden');
-        fetchReports(1); // Load the first page of reports
-    }
-
-    // --- Event Listener for the Login Form ---
-    const loginForm = document.getElementById('admin-login-form');
-    loginForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const errorMessage = document.getElementById('error-message');
-        const loginButton = document.getElementById('login-button');
-        errorMessage.textContent = '';
-        loginButton.disabled = true;
-        loginButton.textContent = 'Logging in...';
-
-        const email = document.getElementById('email').value;
+        const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
+        const errorEl = document.getElementById('login-error');
+        const button = document.getElementById('login-button');
 
-        console.log(`Attempting to log in with email: ${email}`);
+        // Provide user feedback
+        button.disabled = true;
+        button.textContent = 'Logging in...';
+        errorEl.classList.add('hidden');
 
-        fetch(`${API_BASE_URL}/api/admin-login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email, password: password })
-        })
-        .then(response => {
-            if (!response.ok) {
-                // If response is not OK, get the error message from the body
-                return response.json().then(errorData => {
-                    // Create a detailed error to throw
-                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.token) {
-                console.log("Login successful. Token received.");
+        try {
+            const res = await fetch(LOGIN_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.token) {
+                // SUCCESS! Save the token and redirect to the view page.
                 localStorage.setItem('adminToken', data.token);
-                showReportsPage();
+                window.location.href = 'view.html';
             } else {
-                // This case should ideally not be hit if the server response is consistent
-                throw new Error('Login failed: No token received from server.');
+                // Show a specific error from the server, or a generic one.
+                errorEl.textContent = data.error || `Login failed (Status: ${res.status})`;
+                errorEl.classList.remove('hidden');
             }
-        })
-        .catch(error => {
-            console.error('LOGIN FAILED:', error);
-            errorMessage.textContent = `Login failed: ${error.message}`;
-            loginButton.disabled = false;
-            loginButton.textContent = 'Login';
-        });
+        } catch (err) {
+            console.error('Login Fetch Error:', err);
+            errorEl.textContent = 'Network error. Could not connect to the server.';
+            errorEl.classList.remove('hidden');
+        } finally {
+            // Re-enable the button
+            button.disabled = false;
+            button.textContent = 'Login';
+        }
     });
-
-    // --- Event Listener for the Logout Button ---
-    logoutButton.addEventListener('click', function() {
-        console.log("Logout button clicked.");
-        localStorage.removeItem('adminToken');
-        showLoginPage();
-    });
-
-    // --- Data Fetching and Rendering ---
-    let currentPage = 1;
-
-function fetchReports(page=1) {
-  const token = localStorage.getItem('adminToken');
-  fetch(`${API_BASE_URL}/api/admin/reports?page=${page}&per_page=10`, {
-    headers: { 'Authorization': `Bearer ${token}` }
-  })
-  .then(r => {
-    if (r.status === 401 || r.status === 403) throw new Error('Session expired');
-    return r.json();
-  })
-  .then(data => {
-    if (!data.ok) throw new Error(data.error || 'Failed to load');
-    renderReports(data.reports);
-    renderPagination(data.page, data.total_pages);
-  })
-  .catch(err => {
-    console.error(err);
-    // show error row if needed
-  });
 }
 
-    // --- Render Functions (No changes needed here) ---
 
-function renderReports(reports) {
-  const tbody = document.querySelector('#reports-table tbody');
-  tbody.innerHTML = '';
-  if (!reports || reports.length === 0) {
-     tbody.innerHTML = '<tr><td colspan="8">No reports found.</td></tr>';
-     return;
-  }
-  reports.forEach(r => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${r.id}</td>
-      <td>${r.email || ''}</td>
-      <td>${r.mobile_number || ''}</td>
-      <td>${r.name || ''}</td>
-      <td>${r.dob || ''}</td>
-      <td>${new Date(r.created_at).toLocaleString()}</td>
-      <td><button class="view-report-btn" data-report-id="${r.id}">View</button></td>
-      <td><button class="del-user-btn" data-email="${r.email || ''}">Delete User</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
+// --- 2. VIEW REPORTS PAGE LOGIC (runs if it finds the reports container) ---
+const reportsContainer = document.getElementById('reports-container');
+const logoutButton = document.getElementById('logout-button');
 
-  // View handlers remain same...
-  document.querySelectorAll('.del-user-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const email = btn.getAttribute('data-email');
-      if (!email) return alert('No email for this row.');
-      if (!confirm(`Delete ALL data for ${email}? This cannot be undone.`)) return;
-      deleteByEmail(email);
-    });
-  });
-}
+if (reportsContainer) {
+    // If we're on the view page but have no token, redirect back to the login page.
+    if (!token) {
+        window.location.href = 'admin.html';
+    } else {
+        // If the logout button exists, add a click listener.
+        if (logoutButton) {
+            logoutButton.addEventListener('click', () => {
+                localStorage.removeItem('adminToken');
+                window.location.href = 'admin.html';
+            });
+        }
 
-function deleteByEmail(email) {
-  const token = localStorage.getItem('adminToken');
-  fetch(`${API_BASE_URL}/api/admin/delete-by-email`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-    body: JSON.stringify({ email })
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (!data.ok) throw new Error(data.error || 'Delete failed');
-    alert(`Deleted data for ${email}`);
-    fetchReports(1);
-  })
-  .catch(err => alert(err.message));
-}
+        // Fetch and display all user reports.
+        const fetchReports = async () => {
+            try {
+                const res = await fetch(GET_REPORTS_URL, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
 
-function renderPagination(page, total_pages) {
-        const paginationContainer = document.getElementById('pagination-controls');
-        paginationContainer.innerHTML = '';
-        if (!total_pages || total_pages <= 1) return;
-        const prevButton = document.createElement('button');
-        prevButton.textContent = 'Previous';
-        prevButton.disabled = page === 1;
-        prevButton.addEventListener('click', () => fetchReports(page - 1));
-        paginationContainer.appendChild(prevButton);
-        const pageIndicator = document.createElement('span');
-        pageIndicator.textContent = ` Page ${page} of ${total_pages} `;
-        paginationContainer.appendChild(pageIndicator);
-        const nextButton = document.createElement('button');
-        nextButton.textContent = 'Next';
-        nextButton.disabled = page === total_pages;
-        nextButton.addEventListener('click', () => fetchReports(page + 1));
-        paginationContainer.appendChild(nextButton);
+                const data = await res.json();
+
+                if (res.ok && data.reports) {
+                    renderReports(data.reports);
+                } else if (res.status === 401) {
+                    // If token is invalid/expired, clear it and redirect to login.
+                    localStorage.removeItem('adminToken');
+                    window.location.href = 'admin.html';
+                } else {
+                    reportsContainer.innerHTML = `<p class="text-red-500">Error: ${data.error || 'Could not fetch reports.'}</p>`;
+                }
+            } catch (err) {
+                console.error('Fetch Reports Error:', err);
+                reportsContainer.innerHTML = '<p class="text-red-500">A network error occurred while fetching reports.</p>';
+            }
+        };
+
+        fetchReports();
     }
-});
+}
 
+// --- 3. UTILITY FUNCTIONS ---
+
+/**
+ * Renders the list of reports into the reportsContainer.
+ * @param {Array} reports - An array of report objects from the API.
+ */
+function renderReports(reports) {
+    if (reports.length === 0) {
+        reportsContainer.innerHTML = '<p>No reports found.</p>';
+        return;
+    }
+
+    // Create a table to display the reports
+    const table = document.createElement('table');
+    table.className = 'min-w-full bg-white divide-y divide-gray-200';
+    table.innerHTML = `
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date of Birth</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">View Details</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            ${reports.map(report => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">${report.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${report.firstName || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${report.dob || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <button class="view-details-btn text-indigo-600 hover:text-indigo-900" data-report='${JSON.stringify(report)}'>
+                            View
+                        </button>
+                    </td>
+                </tr>
+            `).join('')}
+        </tbody>
+    `;
+
+    reportsContainer.innerHTML = ''; // Clear previous content
+    reportsContainer.appendChild(table);
+
+    // Add event listeners for the "View" buttons (event delegation)
+    reportsContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('view-details-btn')) {
+            const reportData = JSON.parse(e.target.dataset.report);
+            // Here you can implement a modal or a separate view to show the full report details
+            alert(`Viewing details for report ID: ${reportData.id}\n\nFull Data:\n${JSON.stringify(reportData, null, 2)}`);
+        }
+    });
+}

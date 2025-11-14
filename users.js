@@ -1,90 +1,127 @@
-// ------------------ REPLACEMENT CODE FOR users.js (Corrected API Path) ------------------
-document.addEventListener('DOMContentLoaded', function() {
-    const token = localStorage.getItem('adminToken');
+const API_BASE_URL = 'https://keshvaggrawal.pythonanywhere.com';
+const GET_USERS_URL = `${API_BASE_URL}/api/admin/get-users`;
+const SET_STATUS_URL = `${API_BASE_URL}/api/admin/set-user-status`;
 
-    if (!token) {
-        window.location.href = 'admin.html';
+const token = localStorage.getItem('adminToken');
+const usersContainer = document.getElementById('users-container');
+const logoutButton = document.getElementById('logout-button');
+
+// Redirect to login if no token is found
+if (!token) {
+    window.location.href = 'admin.html';
+}
+
+// Handle logout
+logoutButton.addEventListener('click', () => {
+    localStorage.removeItem('adminToken');
+    window.location.href = 'admin.html';
+});
+
+/**
+ * Fetches all users from the API and renders them.
+ */
+const fetchUsers = async () => {
+    try {
+        const res = await fetch(GET_USERS_URL, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.status === 401 || res.status === 403) {
+            localStorage.removeItem('adminToken');
+            window.location.href = 'admin.html';
+            return;
+        }
+
+        const data = await res.json();
+        if (data.ok) {
+            renderUsers(data.users);
+        } else {
+            usersContainer.innerHTML = `<p class="text-red-400">Error: ${data.error}</p>`;
+        }
+    } catch (err) {
+        usersContainer.innerHTML = '<p class="text-red-400">A network error occurred.</p>';
+    }
+};
+
+/**
+ * Renders the list of users into a table.
+ * @param {Array} users - An array of user objects.
+ */
+function renderUsers(users) {
+    if (users.length === 0) {
+        usersContainer.innerHTML = '<p>No users found.</p>';
         return;
     }
 
-    const API_BASE_URL = 'https://keshvaggrawal.pythonanywhere.com';
-    let currentPage = 1;
+    const table = `
+        <table class="min-w-full divide-y divide-gray-700">
+            <thead class="bg-gray-700">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Joined</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-gray-800 divide-y divide-gray-700">
+                ${users.map(user => `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">${user.email}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.status === 'active' ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}">
+                                ${user.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${new Date(user.created_at).toLocaleDateString()}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <button class="toggle-status-btn text-indigo-400 hover:text-indigo-300" data-userid="${user.id}" data-status="${user.status}">
+                                ${user.status === 'active' ? 'Deactivate' : 'Activate'}
+                            </button>
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    usersContainer.innerHTML = table;
+}
 
-    function fetchUsers(page) {
-        // *** THIS IS THE CORRECTED LINE ***
-        fetch(`${API_BASE_URL}/api/admin/users?page=${page}`, {
+/**
+ * Handles the click event for toggling user status.
+ */
+async function handleToggleStatus(userId, currentStatus) {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    const confirmation = confirm(`Are you sure you want to set user ${userId} to '${newStatus}'?`);
+
+    if (!confirmation) return;
+
+    try {
+        const res = await fetch(SET_STATUS_URL, {
+            method: 'POST',
             headers: {
+                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
-            }
-        })
-        .then(response => {
-            if (response.status === 401 || response.status === 403) {
-                localStorage.removeItem('adminToken');
-                window.location.href = 'admin.html';
-                return Promise.reject('Admin access required. Redirecting to login.');
-            }
-             if (!response.ok) {
-                return response.text().then(text => { throw new Error(text) });
-            }
-            return response.json();
-        })
-        .then(data => {
-            renderUsers(data.users);
-            renderPagination(data.page, data.total_pages);
-            currentPage = data.page;
-        })
-        .catch(error => {
-            console.error('Error fetching users:', error);
-            if (error.message !== 'Admin access required. Redirecting to login.') {
-                 const tableBody = document.querySelector("#users-table tbody");
-                 tableBody.innerHTML = `<tr><td colspan="5">Error loading users. See console.</td></tr>`;
-            }
+            },
+            body: JSON.stringify({ user_id: userId, status: newStatus })
         });
-    }
 
-    function renderUsers(users) {
-        const tableBody = document.querySelector("#users-table tbody");
-        tableBody.innerHTML = '';
-        if (!users || users.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="5">No users found.</td></tr>';
-            return;
+        const data = await res.json();
+        if (data.ok) {
+            fetchUsers(); // Refresh the list
+        } else {
+            alert(`Failed to update status: ${data.error}`);
         }
-        users.forEach(user => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${user.id}</td>
-                <td>${user.name}</td>
-                <td>${user.email}</td>
-                <td>${user.mobile || 'N/A'}</td>
-                <td>${new Date(user.created_at).toLocaleString()}</td>
-            `;
-            tableBody.appendChild(row);
-        });
+    } catch (err) {
+        alert('A network error occurred while updating status.');
     }
+}
 
-    function renderPagination(page, total_pages) {
-        const paginationContainer = document.getElementById('pagination-controls');
-        paginationContainer.innerHTML = '';
-
-        if (!total_pages || total_pages <= 1) return;
-
-        const prevButton = document.createElement('button');
-        prevButton.textContent = 'Previous';
-        prevButton.disabled = page === 1;
-        prevButton.addEventListener('click', () => fetchUsers(page - 1));
-        paginationContainer.appendChild(prevButton);
-
-        const pageIndicator = document.createElement('span');
-        pageIndicator.textContent = ` Page ${page} of ${total_pages} `;
-        pageIndicator.style.margin = '0 10px';
-        paginationContainer.appendChild(pageIndicator);
-
-        const nextButton = document.createElement('button');
-        nextButton.textContent = 'Next';
-        nextButton.disabled = page === total_pages;
-        nextButton.addEventListener('click', () => fetchUsers(page + 1));
-        paginationContainer.appendChild(nextButton);
+// --- Event Listeners ---
+document.addEventListener('DOMContentLoaded', fetchUsers);
+usersContainer.addEventListener('click', (e) => {
+    if (e.target.classList.contains('toggle-status-btn')) {
+        const userId = e.target.dataset.userid;
+        const status = e.target.dataset.status;
+        handleToggleStatus(Number(userId), status);
     }
-
-    fetchUsers(currentPage);
 });
