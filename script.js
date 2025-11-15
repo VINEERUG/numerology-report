@@ -76,15 +76,15 @@ function renderTeaserReport(r) {
 function renderFullReport(r, i) {
     const c = pageSections.report;
     const zs={'Aries':'♈','Taurus':'♉','Gemini':'♊','Cancer':'♋','Leo':'♌','Virgo':'♍','Libra':'♎','Scorpio':'♏','Sagittarius':'♐','Capricorn':'♑','Aquarius':'♒','Pisces':'♓'};
-    const ni={1:{title:"The Leader",text:"Core identity."},
-              2:{title:"The Peacemaker",text:"Core identity."},
-              3:{title:"The Communicator",text:"A creative, optimistic, and charismatic individual with strong communication skills and a joyful personality."},
-              4:{title:"The Builder",text:"Core identity."},
-              5:{title:"The Adventurer",text:"Core identity."},
-              6:{title:"The Nurturer",text:"Core identity."},
-              7:{title:"The Seeker",text:"Core identity."},
-              8:{title:"The Powerhouse",text:"Core identity."},
-              9:{title:"The Humanitarian",text:"Core identity."},
+    const ni={1:{title:"The Leader",text:"Leader, independent, ambitious, and innovative."},
+              2:{title:"The Peacemaker",text:"Diplomatic, sensitive, nurturing, and cooperative."},
+              3:{title:"The Communicator",text:"Creative, expressive, optimistic, and charismatic."},
+              4:{title:"The Builder",text:"Practical, disciplined, organized, and reliable."},
+              5:{title:"The Adventurer",text:"Adventurous, freedom-loving, dynamic, and curious."},
+              6:{title:"The Nurturer",text:"Caring, responsible, harmonious, and family-oriented."},
+              7:{title:"The Seeker",text:"Intellectual, spiritual, introspective, and analytical."},
+              8:{title:"The Powerhouse",text:"Ambitious, determined, powerful, and business-minded."},
+              9:{title:"The Humanitarian",text:"Compassionate, idealistic, humanitarian, and courageous."},
               11:{title:"The Visionary",text:"Master Number."},
               22:{title:"The Master Builder",text:"Master Number."},
               33:{title:"The Master Teacher",text:"Master Number."}};
@@ -288,3 +288,4 @@ async function loadUserReports() {
 }
 
 // --- END OF SCRIPT ---
+
