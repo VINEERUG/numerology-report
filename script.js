@@ -85,9 +85,9 @@ function renderFullReport(r, i) {
               7:{title:"The Seeker",text:"Intellectual, spiritual, introspective, and analytical."},
               8:{title:"The Powerhouse",text:"Ambitious, determined, powerful, and business-minded."},
               9:{title:"The Humanitarian",text:"Compassionate, idealistic, humanitarian, and courageous."},
-              11:{title:"The Visionary",text:"Master Number."},
-              22:{title:"The Master Builder",text:"Master Number."},
-              33:{title:"The Master Teacher",text:"Master Number."}};
+              11:{title:"The Visionary",text:"The intuitive visionary with heightened spiritual insight and charismatic leadership. A psychic number with deep emotional sensitivity and inspirational power."},
+              22:{title:"The Master Builder",text:"The master builder who turns dreams into reality through practical and visionary skills. Ambitious and determined, with the ability to create lasting positive change."},
+              33:{title:"The Master Teacher",text:"The master teacher and healer driven by compassion and selfless service. Embodies spiritual wisdom and uplifts humanity through love and guidance."}};
     const cd={1:{1:{title:"The Royal Combination",type:"Friendly",text:"Sun driving Sun. Powerful and ambitious."},
     2:{title:"The King and Queen",type:"Neutral",text:"Sun and Moon. Balance authority with sensitivity."},
     3:{title:"The Respected Leader",type:"Friendly",text:"Sun and Jupiter. Wisdom guides leadership."},
@@ -288,4 +288,5 @@ async function loadUserReports() {
 }
 
 // --- END OF SCRIPT ---
+
 
