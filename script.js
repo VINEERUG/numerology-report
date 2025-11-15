@@ -76,7 +76,18 @@ function renderTeaserReport(r) {
 function renderFullReport(r, i) {
     const c = pageSections.report;
     const zs={'Aries':'♈','Taurus':'♉','Gemini':'♊','Cancer':'♋','Leo':'♌','Virgo':'♍','Libra':'♎','Scorpio':'♏','Sagittarius':'♐','Capricorn':'♑','Aquarius':'♒','Pisces':'♓'};
-    const ni={1:{title:"The Leader",text:"Core identity."},2:{title:"The Peacemaker",text:"Core identity."},3:{title:"The Communicator",text:"Core identity."},4:{title:"The Builder",text:"Core identity."},5:{title:"The Adventurer",text:"Core identity."},6:{title:"The Nurturer",text:"Core identity."},7:{title:"The Seeker",text:"Core identity."},8:{title:"The Powerhouse",text:"Core identity."},9:{title:"The Humanitarian",text:"Core identity."},11:{title:"The Visionary",text:"Master Number."},22:{title:"The Master Builder",text:"Master Number."},33:{title:"The Master Teacher",text:"Master Number."}};
+    const ni={1:{title:"The Leader",text:"Core identity."},
+              2:{title:"The Peacemaker",text:"Core identity."},
+              3:{title:"The Communicator",text:"A creative, optimistic, and charismatic individual with strong communication skills and a joyful personality."},
+              4:{title:"The Builder",text:"Core identity."},
+              5:{title:"The Adventurer",text:"Core identity."},
+              6:{title:"The Nurturer",text:"Core identity."},
+              7:{title:"The Seeker",text:"Core identity."},
+              8:{title:"The Powerhouse",text:"Core identity."},
+              9:{title:"The Humanitarian",text:"Core identity."},
+              11:{title:"The Visionary",text:"Master Number."},
+              22:{title:"The Master Builder",text:"Master Number."},
+              33:{title:"The Master Teacher",text:"Master Number."}};
     const cd={1:{1:{title:"The Royal Combination",type:"Friendly",text:"Sun driving Sun. Powerful and ambitious."},
     2:{title:"The King and Queen",type:"Neutral",text:"Sun and Moon. Balance authority with sensitivity."},
     3:{title:"The Respected Leader",type:"Friendly",text:"Sun and Jupiter. Wisdom guides leadership."},
@@ -275,4 +286,5 @@ async function loadUserReports() {
         else c.innerHTML='<p class="text-gray-400">No reports.</p>';
     } catch(e) { c.innerHTML='<p class="text-red-400">Error loading.</p>'; }
 }
+
 // --- END OF SCRIPT ---
