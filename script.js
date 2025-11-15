@@ -257,10 +257,13 @@ function formatDateWithOrdinal(dateString) {
         createCard('Kua',r.kuaNumber,ni[r.kuaNumber],d+=100)}${
         createCard('Success',r.successNumber,ni[r.successNumber],d+=100)}</div>`;
     html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">${
-        createCard('Karmic Debt',r.karmicDebt,{title:"Indicator",text:"Past life lessons."},d+=100)}${
-        
-        let masterDesc = ni[r.masterNumber] ? ni[r.masterNumber].text : "High potential.";
-        html += createCard("Master Number", r.masterNumber, { title: "Indicator", text: masterDesc }, d100);
+        // PASTE THIS CORRECTED BLOCK
+const masterDesc = ni[r.masterNumber] ? ni[r.masterNumber].text : "High potential.";
+html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+    ${createCard('Karmic Debt', r.karmicDebt, {title: "Indicator", text: "Past life lessons."}, d+=100)}
+    ${createCard("Master Number", r.masterNumber, { title: "Indicator", text: masterDesc }, d100)}
+</div>`;
+
 
 
     html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">${createCard('Lucky Numbers',r.luckyNumbers,{title:"Harmonious",text:""},d+=100)}${createCard('Lucky Colors',r.luckyColors,{title:"Vibrational",text:""},d+=100)}</div>`;
@@ -297,6 +300,7 @@ async function loadUserReports() {
 }
 
 // --- END OF SCRIPT ---
+
 
 
 
