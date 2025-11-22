@@ -264,9 +264,33 @@ function formatDateWithOrdinal(dateString) {
     const harmData = cd[r.driverNumber]?.[r.conductorNumber] || {title:"Unique Pair",type:"N/A",text:""};
     html += `<div class="mt-6">${createCard(`Core Number Harmony (${harmData.type||'N/A'})`, `${r.driverNumber}-${r.conductorNumber}`, harmData, d+=100)}</div>`;
     html += `<div class="mt-4">${createStandardChecklistCard('Harmony Checklist', r.coreHarmonyList, d+=100)}</div>`;
+    // Helper to format "Total (Single)" e.g., "14 (5)"
 
-    html += h("Name Analysis") + `<div class="grid grid-cols-1 md:grid-cols-3 gap-4">${createCard('Total Name',r.fullNameNumber,ni[r.fullNameNumber],d+=100)}${createCard('Soul Urge',r.soulUrgeNumber,ni[r.soulUrgeNumber],d+=100)}${createCard('Personality',r.personalityNumber,ni[r.personalityNumber],d+=100)}</div>`;
+    const fmt = (t, s) => (t !== s && t !== 0) ? `${t} (${s})` : `${s}`;
+
+    html += '<h3>Name Analysis</h3>';
+    html += '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">';
     
+    // 1. First Name Card
+    html += createCard('First Name', fmt(r.firstNameTotal, r.firstNameNumber), ni[r.firstNameNumber], d+100);
+    
+    // 2. Middle Name Card (only if it exists)
+    if (r.middleNameTotal > 0) {
+         html += createCard('Middle Name', fmt(r.middleNameTotal, r.middleNameNumber), ni[r.middleNameNumber], d+100);
+    }
+    
+    // 3. Last Name Card
+    html += createCard('Last Name', fmt(r.lastNameTotal, r.lastNameNumber), ni[r.lastNameNumber], d+100);
+    
+    // 4. Total Name Card (Existing)
+    html += createCard('Total Name', r.fullNameNumber, ni[r.fullNameNumber], d+100);
+    
+    // 5. Soul Urge & Personality (Existing)
+    html += createCard('Soul Urge', r.soulUrgeNumber, ni[r.soulUrgeNumber], d+100);
+    html += createCard('Personality', r.personalityNumber, ni[r.personalityNumber], d+100);
+    
+    html += '</div>';
+ 
     const corrTitle = r.nameCorrectionRequired === "Yes" ? "Correction Recommended" : r.nameCorrectionRequired === "Optional" ? "Correction Optional" : "Harmonious Name";
     html += `<div class="mt-6">${createCard('Name Correction Required', r.nameCorrectionRequired, {title: corrTitle, text: "See detailed checklist below."}, d+=100)}</div>`;
     html += `<div class="mt-4">${createStandardChecklistCard('Name Correction Checklist', r.nameChecklist, d+=100)}</div>`;
@@ -317,6 +341,7 @@ async function loadUserReports() {
 }
 
 // --- END OF SCRIPT ---
+
 
 
 
