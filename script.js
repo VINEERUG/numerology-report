@@ -266,31 +266,35 @@ function formatDateWithOrdinal(dateString) {
     html += `<div class="mt-4">${createStandardChecklistCard('Harmony Checklist', r.coreHarmonyList, d+=100)}</div>`;
     // Helper to format "Total (Single)" e.g., "14 (5)"
 
-    const fmt = (t, s) => (t !== s && t !== 0) ? `${t} (${s})` : `${s}`;
-
+    // --- START: Name Analysis with Breakdown in Total Name Card ---
     html += '<h3>Name Analysis</h3>';
     html += '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">';
-    
-    // 1. First Name Card
-    html += createCard('First Name', fmt(r.firstNameTotal, r.firstNameNumber), ni[r.firstNameNumber], d+100);
-    
-    // 2. Middle Name Card (only if it exists)
-    if (r.middleNameTotal > 0) {
-         html += createCard('Middle Name', fmt(r.middleNameTotal, r.middleNameNumber), ni[r.middleNameNumber], d+100);
+
+    // 1. Build the breakdown string for the last line
+    let breakdownLine = `FName ${r.firstNameNumber}`;
+    if (r.middleNameTotal > 0) { // Check if Middle Name exists
+        breakdownLine += ` + MName ${r.middleNameNumber}`;
     }
-    
-    // 3. Last Name Card
-    html += createCard('Last Name', fmt(r.lastNameTotal, r.lastNameNumber), ni[r.lastNameNumber], d+100);
-    
-    // 4. Total Name Card (Existing)
-    html += createCard('Total Name', r.fullNameNumber, ni[r.fullNameNumber], d+100);
-    
-    // 5. Soul Urge & Personality (Existing)
+    breakdownLine += ` + LName ${r.lastNameNumber}`;
+
+    // 2. Get the original info for the Total Name card
+    const originalTotalNameInfo = ni[r.fullNameNumber];
+
+    // 3. Create a NEW info object with the added breakdown line
+    const modifiedTotalNameInfo = {
+        title: originalTotalNameInfo.title,
+        // Append the breakdown line to the existing description
+        text: originalTotalNameInfo.text + `<div class="mt-4 pt-2 border-t border-gray-700/50 text-sm text-gray-400">${breakdownLine}</div>`
+    };
+
+    // 4. Create the cards, using the MODIFIED info for Total Name
+    html += createCard('Total Name', r.fullNameNumber, modifiedTotalNameInfo, d+100);
     html += createCard('Soul Urge', r.soulUrgeNumber, ni[r.soulUrgeNumber], d+100);
     html += createCard('Personality', r.personalityNumber, ni[r.personalityNumber], d+100);
-    
+
     html += '</div>';
- 
+    // --- END: Name Analysis ---
+
     const corrTitle = r.nameCorrectionRequired === "Yes" ? "Correction Recommended" : r.nameCorrectionRequired === "Optional" ? "Correction Optional" : "Harmonious Name";
     html += `<div class="mt-6">${createCard('Name Correction Required', r.nameCorrectionRequired, {title: corrTitle, text: "See detailed checklist below."}, d+=100)}</div>`;
     html += `<div class="mt-4">${createStandardChecklistCard('Name Correction Checklist', r.nameChecklist, d+=100)}</div>`;
@@ -341,6 +345,7 @@ async function loadUserReports() {
 }
 
 // --- END OF SCRIPT ---
+
 
 
 
