@@ -7,11 +7,15 @@ let pageSections = {}, guestCta;
 
 document.addEventListener('DOMContentLoaded', () => {
     pageSections = {
-        mainForm: document.getElementById('page-main-form'), report: document.getElementById('page-report'),
-        login: document.getElementById('page-login'), register: document.getElementById('page-register'),
-        loading: document.getElementById('page-loading'), myReports: document.getElementById('page-my-reports'),
-    };
-        // Add listener for new My Reports button in header
+        mainForm: document.getElementById('page-main-form'), 
+        report: document.getElementById('page-report'),
+        login: document.getElementById('page-login'), 
+        register: document.getElementById('page-register'),
+        loading: document.getElementById('page-loading'), 
+        myReports: document.getElementById('page-my-reports')
+    }; // <--- CLOSING BRACE ADDED HERE
+
+    // Add listener for new My Reports button in header
     const headerMyReportsBtn = document.getElementById('header-my-reports');
     if (headerMyReportsBtn) {
         headerMyReportsBtn.addEventListener('click', function(e) {
@@ -20,10 +24,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof navigate === 'function') {
                 navigate();
             }
-       });
-    }    
+        });
+    }
+
     guestCta = document.getElementById('guest-cta');
-    updateNavUI(); window.addEventListener('hashchange', navigate); navigate(); attachListeners();
+    updateNavUI();
+    window.addEventListener('hashchange', navigate);
+    navigate();
+    attachListeners();
 });
 
 function getActiveDropdown() { return APP_STATE.token ? document.getElementById('user-menu-user') : document.getElementById('user-menu-guest'); }
@@ -309,6 +317,7 @@ async function loadUserReports() {
 }
 
 // --- END OF SCRIPT ---
+
 
 
 
