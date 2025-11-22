@@ -7,12 +7,31 @@ let pageSections = {}, guestCta;
 
 document.addEventListener('DOMContentLoaded', () => {
     pageSections = {
-        mainForm: document.getElementById('page-main-form'), report: document.getElementById('page-report'),
-        login: document.getElementById('page-login'), register: document.getElementById('page-register'),
-        loading: document.getElementById('page-loading'), myReports: document.getElementById('page-my-reports'),
-    };
+        mainForm: document.getElementById('page-main-form'), 
+        report: document.getElementById('page-report'),
+        login: document.getElementById('page-login'), 
+        register: document.getElementById('page-register'),
+        loading: document.getElementById('page-loading'), 
+        myReports: document.getElementById('page-my-reports')
+    }; // <--- CLOSING BRACE ADDED HERE
+
+    // Add listener for new My Reports button in header
+    const headerMyReportsBtn = document.getElementById('header-my-reports');
+    if (headerMyReportsBtn) {
+        headerMyReportsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.hash = '#my-reports';
+            if (typeof navigate === 'function') {
+                navigate();
+            }
+        });
+    }
+
     guestCta = document.getElementById('guest-cta');
-    updateNavUI(); window.addEventListener('hashchange', navigate); navigate(); attachListeners();
+    updateNavUI();
+    window.addEventListener('hashchange', navigate);
+    navigate();
+    attachListeners();
 });
 
 function getActiveDropdown() { return APP_STATE.token ? document.getElementById('user-menu-user') : document.getElementById('user-menu-guest'); }
@@ -76,7 +95,18 @@ function renderTeaserReport(r) {
 function renderFullReport(r, i) {
     const c = pageSections.report;
     const zs={'Aries':'♈','Taurus':'♉','Gemini':'♊','Cancer':'♋','Leo':'♌','Virgo':'♍','Libra':'♎','Scorpio':'♏','Sagittarius':'♐','Capricorn':'♑','Aquarius':'♒','Pisces':'♓'};
-    const ni={1:{title:"The Leader",text:"Core identity."},2:{title:"The Peacemaker",text:"Core identity."},3:{title:"The Communicator",text:"Core identity."},4:{title:"The Builder",text:"Core identity."},5:{title:"The Adventurer",text:"Core identity."},6:{title:"The Nurturer",text:"Core identity."},7:{title:"The Seeker",text:"Core identity."},8:{title:"The Powerhouse",text:"Core identity."},9:{title:"The Humanitarian",text:"Core identity."},11:{title:"The Visionary",text:"Master Number."},22:{title:"The Master Builder",text:"Master Number."},33:{title:"The Master Teacher",text:"Master Number."}};
+    const ni={1:{title:"The Leader",text:"Leader, independent, ambitious, and innovative."},
+              2:{title:"The Peacemaker",text:"Diplomatic, sensitive, nurturing, and cooperative."},
+              3:{title:"The Communicator",text:"Creative, expressive, optimistic, and charismatic."},
+              4:{title:"The Builder",text:"Practical, disciplined, organized, and reliable."},
+              5:{title:"The Adventurer",text:"Adventurous, freedom-loving, dynamic, and curious."},
+              6:{title:"The Nurturer",text:"Caring, responsible, harmonious, and family-oriented."},
+              7:{title:"The Seeker",text:"Intellectual, spiritual, introspective, and analytical."},
+              8:{title:"The Powerhouse",text:"Ambitious, determined, powerful, and business-minded."},
+              9:{title:"The Humanitarian",text:"Compassionate, idealistic, humanitarian, and courageous."},
+              11:{title:"The Visionary",text:"The intuitive visionary with heightened spiritual insight and charismatic leadership. A psychic number with deep emotional sensitivity and inspirational power."},
+              22:{title:"The Master Builder",text:"The master builder who turns dreams into reality through practical and visionary skills. Ambitious and determined, with the ability to create lasting positive change."},
+              33:{title:"The Master Teacher",text:"The master teacher and healer driven by compassion and selfless service. Embodies spiritual wisdom and uplifts humanity through love and guidance."}};
     const cd={1:{1:{title:"The Royal Combination",type:"Friendly",text:"Sun driving Sun. Powerful and ambitious."},
     2:{title:"The King and Queen",type:"Neutral",text:"Sun and Moon. Balance authority with sensitivity."},
     3:{title:"The Respected Leader",type:"Friendly",text:"Sun and Jupiter. Wisdom guides leadership."},
@@ -241,8 +271,18 @@ function formatDateWithOrdinal(dateString) {
     html += `<div class="mt-6">${createCard('Name Correction Required', r.nameCorrectionRequired, {title: corrTitle, text: "See detailed checklist below."}, d+=100)}</div>`;
     html += `<div class="mt-4">${createStandardChecklistCard('Name Correction Checklist', r.nameChecklist, d+=100)}</div>`;
 
-    html += h("Influences") + `<div class="grid grid-cols-1 md:grid-cols-3 gap-4">${createCard('Zodiac',zs[r.zodiacSign]||'?',{title:r.zodiacSign,text:"Sun Sign"},d+=100)}${createCard('Kua',r.kuaNumber,ni[r.kuaNumber],d+=100)}${createCard('Success',r.successNumber,ni[r.successNumber],d+=100)}</div>`;
-    html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">${createCard('Karmic Debt',r.karmicDebt,{title:"Indicator",text:"Past life lessons."},d+=100)}${createCard('Master Number',r.masterNumber,{title:"Indicator",text:"High potential."},d+=100)}</div>`;
+    html += h("Influences") + `<div class="grid grid-cols-1 md:grid-cols-3 gap-4">${
+        createCard('Zodiac',zs[r.zodiacSign]||'?',{title:r.zodiacSign,text:"Sun Sign"},d+=100)}${
+        createCard('Kua',r.kuaNumber,ni[r.kuaNumber],d+=100)}${
+        createCard('Success',r.successNumber,ni[r.successNumber],d+=100)}</div>`;
+
+const masterNumberValue = r.masterNumber.split(' ')[0];
+const masterDesc = ni[masterNumberValue] ? ni[masterNumberValue].text : "High potential.";    
+html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+    ${createCard('Karmic Debt', r.karmicDebt, {title: "Indicator", text: "Past life lessons."}, d+=100)}
+    ${createCard("Master Number", r.masterNumber, { title: "Indicator", text: masterDesc }, d+=100)}
+</div>`;
+
     html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">${createCard('Lucky Numbers',r.luckyNumbers,{title:"Harmonious",text:""},d+=100)}${createCard('Lucky Colors',r.luckyColors,{title:"Vibrational",text:""},d+=100)}</div>`;
 
     const gridExpl = `Includes Moolank (${r.driverNumber}), Bhagyank (${r.conductorNumber}), Kua No. (${r.kuaNumber}), & Name No. (${r.fullNameNumber}).`;
@@ -275,4 +315,17 @@ async function loadUserReports() {
         else c.innerHTML='<p class="text-gray-400">No reports.</p>';
     } catch(e) { c.innerHTML='<p class="text-red-400">Error loading.</p>'; }
 }
+
 // --- END OF SCRIPT ---
+
+
+
+
+
+
+
+
+
+
+
+
