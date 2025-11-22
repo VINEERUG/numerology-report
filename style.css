@@ -68,7 +68,22 @@ body {
 .logo-img:hover {
     opacity: 0.8;
 }
+.header-my-reports-button {
+    color: var(--text-muted);
+    padding: 8px 16px;
+    margin-left: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.3s, color 0.3s;
+}
 
+.header-my-reports-button:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
 /* --- NEW: User Icon Menu Styles --- */
 .user-menu {
     position: relative;
@@ -372,4 +387,5 @@ header #header-subtitle {
 }
 .view-report-btn:hover {
     background-color: #a78bfa; /* violet-400 */
+
 }
