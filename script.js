@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof navigate === 'function') {
                 navigate();
             }
-      }
-    };
+       });
+    }    
     guestCta = document.getElementById('guest-cta');
     updateNavUI(); window.addEventListener('hashchange', navigate); navigate(); attachListeners();
 });
@@ -308,6 +308,7 @@ async function loadUserReports() {
 }
 
 // --- END OF SCRIPT ---
+
 
 
 
