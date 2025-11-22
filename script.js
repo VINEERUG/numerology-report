@@ -10,6 +10,16 @@ document.addEventListener('DOMContentLoaded', () => {
         mainForm: document.getElementById('page-main-form'), report: document.getElementById('page-report'),
         login: document.getElementById('page-login'), register: document.getElementById('page-register'),
         loading: document.getElementById('page-loading'), myReports: document.getElementById('page-my-reports'),
+        // Add listener for new My Reports button in header
+    const headerMyReportsBtn = document.getElementById('header-my-reports');
+    if (headerMyReportsBtn) {
+        headerMyReportsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.hash = '#my-reports';
+            if (typeof navigate === 'function') {
+                navigate();
+            }
+      }
     };
     guestCta = document.getElementById('guest-cta');
     updateNavUI(); window.addEventListener('hashchange', navigate); navigate(); attachListeners();
@@ -298,6 +308,7 @@ async function loadUserReports() {
 }
 
 // --- END OF SCRIPT ---
+
 
 
 
