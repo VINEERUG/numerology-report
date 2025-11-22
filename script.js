@@ -259,19 +259,48 @@ function formatDateWithOrdinal(dateString) {
     let html=`<div class="result-card p-6 mb-8"><h2 class="font-serif text-3xl font-bold text-white mb-4">Numerology Report</h2><p class="text-purple-300">For: <span class="text-white">${formattedName}</span> | DOB: <span class="text-white">${formatDateWithOrdinal(i.dob)}</span></p></div>`;
 
     // --- ADDED (Moolank) and (Bhagyank) ---
-    html += h("Core Numbers") + `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">${createCard('Driver (Moolank)',r.driverNumber,ni[r.driverNumber],d+=100,'',r.driverRuler)}${createCard('Conductor (Bhagyank)',r.conductorNumber,ni[r.conductorNumber],d+=100,'',r.conductorRuler)}</div>`;
+    html += h("Core Numbers Analysis") + `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">${createCard('Driver (Moolank)',r.driverNumber,ni[r.driverNumber],d+=100,'',r.driverRuler)}${createCard('Conductor (Bhagyank)',r.conductorNumber,ni[r.conductorNumber],d+=100,'',r.conductorRuler)}</div>`;
     
     const harmData = cd[r.driverNumber]?.[r.conductorNumber] || {title:"Unique Pair",type:"N/A",text:""};
     html += `<div class="mt-6">${createCard(`Core Number Harmony (${harmData.type||'N/A'})`, `${r.driverNumber}-${r.conductorNumber}`, harmData, d+=100)}</div>`;
     html += `<div class="mt-4">${createStandardChecklistCard('Harmony Checklist', r.coreHarmonyList, d+=100)}</div>`;
+    // Helper to format "Total (Single)" e.g., "14 (5)"
 
-    html += h("Name Analysis") + `<div class="grid grid-cols-1 md:grid-cols-3 gap-4">${createCard('Total Name',r.fullNameNumber,ni[r.fullNameNumber],d+=100)}${createCard('Soul Urge',r.soulUrgeNumber,ni[r.soulUrgeNumber],d+=100)}${createCard('Personality',r.personalityNumber,ni[r.personalityNumber],d+=100)}</div>`;
+    // --- START: Name Analysis with Breakdown in Total Name Card ---
     
+    html += h('Name Numbers Analysis');
+    html += '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">';
+   
+    // 1. Build the breakdown string for the last line
+    let breakdownLine = `FName ${r.firstNameNumber}`;
+    if (r.middleNameTotal > 0) { // Check if Middle Name exists
+        breakdownLine += ` + MName ${r.middleNameNumber}`;
+    }
+    breakdownLine += ` + LName ${r.lastNameNumber}`;
+
+    // 2. Get the original info for the Total Name card
+    const originalTotalNameInfo = ni[r.fullNameNumber];
+
+    // 3. Create a NEW info object with the added breakdown line
+    const modifiedTotalNameInfo = {
+        title: originalTotalNameInfo.title,
+        // Append the breakdown line to the existing description
+        text: originalTotalNameInfo.text + `<div class="mt-4 pt-2 border-t border-gray-700/50 text-sm text-gray-400">${breakdownLine}</div>`
+    };
+
+    // 4. Create the cards, using the MODIFIED info for Total Name
+    html += createCard('Total Name', r.fullNameNumber, modifiedTotalNameInfo, d+100);
+    html += createCard('Soul Urge', r.soulUrgeNumber, ni[r.soulUrgeNumber], d+100);
+    html += createCard('Personality', r.personalityNumber, ni[r.personalityNumber], d+100);
+
+    html += '</div>';
+    // --- END: Name Analysis ---
+
     const corrTitle = r.nameCorrectionRequired === "Yes" ? "Correction Recommended" : r.nameCorrectionRequired === "Optional" ? "Correction Optional" : "Harmonious Name";
     html += `<div class="mt-6">${createCard('Name Correction Required', r.nameCorrectionRequired, {title: corrTitle, text: "See detailed checklist below."}, d+=100)}</div>`;
     html += `<div class="mt-4">${createStandardChecklistCard('Name Correction Checklist', r.nameChecklist, d+=100)}</div>`;
 
-    html += h("Influences") + `<div class="grid grid-cols-1 md:grid-cols-3 gap-4">${
+    html += h("Cosmic Influences") + `<div class="grid grid-cols-1 md:grid-cols-3 gap-4">${
         createCard('Zodiac',zs[r.zodiacSign]||'?',{title:r.zodiacSign,text:"Sun Sign"},d+=100)}${
         createCard('Kua',r.kuaNumber,ni[r.kuaNumber],d+=100)}${
         createCard('Success',r.successNumber,ni[r.successNumber],d+=100)}</div>`;
@@ -286,7 +315,7 @@ html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
     html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">${createCard('Lucky Numbers',r.luckyNumbers,{title:"Harmonious",text:""},d+=100)}${createCard('Lucky Colors',r.luckyColors,{title:"Vibrational",text:""},d+=100)}</div>`;
 
     const gridExpl = `Includes Moolank (${r.driverNumber}), Bhagyank (${r.conductorNumber}), Kua No. (${r.kuaNumber}), & Name No. (${r.fullNameNumber}).`;
-    html += h("Charts") + `<div class="grid grid-cols-1 md:grid-cols-2 gap-6">${createLoShu('Birth Chart',r.baseGridCounts,d+=100)}${createLoShu('Full Chart',r.fullGridCounts,d+=100,gridExpl)}</div>`;
+    html += h("Charts & Planes Analysis") + `<div class="grid grid-cols-1 md:grid-cols-2 gap-6">${createLoShu('Birth Chart',r.baseGridCounts,d+=100)}${createLoShu('Full Chart',r.fullGridCounts,d+=100,gridExpl)}</div>`;
     
     let warningsHTML = '';
     if (r.repetitionRemedyRequired) warningsHTML += `<span class="inline-block mx-2 mb-2">⚠ **Repeated Numbers**</span>`;
@@ -317,6 +346,10 @@ async function loadUserReports() {
 }
 
 // --- END OF SCRIPT ---
+
+
+
+
 
 
 
