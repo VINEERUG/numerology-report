@@ -267,9 +267,10 @@ function formatDateWithOrdinal(dateString) {
     // Helper to format "Total (Single)" e.g., "14 (5)"
 
     // --- START: Name Analysis with Breakdown in Total Name Card ---
-    html += '<h3>Name Analysis</h3>';
+    
+    html += h('Name Analysis');
     html += '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">';
-
+   
     // 1. Build the breakdown string for the last line
     let breakdownLine = `FName ${r.firstNameNumber}`;
     if (r.middleNameTotal > 0) { // Check if Middle Name exists
@@ -345,6 +346,7 @@ async function loadUserReports() {
 }
 
 // --- END OF SCRIPT ---
+
 
 
 
