@@ -225,7 +225,7 @@ function renderFullReport(r, i) {
 
     function createCard(t, v, interp, d, f='', ruler=null) {
         const isLong = t==='Master Number'||t==='Lucky Colors'||t==='Lucky Numbers', style = isLong ? 'style="white-space:normal;overflow-wrap:break-word;line-height:1.3;"' : '';
-        const numClass = isLong ? 'text-2xl md:text-3xl' : 'text-4xl md:text-5xl';
+        const numClass = isLong ? 'text-xl md:text-2xl' : 'text-3xl md:text-4xl';
         return `<div class="result-card p-6" style="animation-delay:${d}ms"><div class="flex justify-between items-start mb-2"><div><p class="text-purple-300">${t}</p>${ruler?`<p class="text-sm text-purple-300 mb-2">Ruler: ${ruler.name}</p>`:''}<h3 class="font-serif text-xl text-white">${interp?.title||''}</h3></div><div class="${numClass} font-bold text-right" ${style}>${v}</div></div><p class="text-gray-400 text-sm">${interp?.text||''}</p>${f?`<div class="mt-4 pt-3 border-t border-gray-700 text-sm text-purple-200">${f}</div>`:''}</div>`;
     }
 
@@ -354,4 +354,5 @@ async function loadUserReports() {
 }
 
 // --- END OF SCRIPT ---
+
 
