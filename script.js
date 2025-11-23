@@ -225,7 +225,7 @@ function renderFullReport(r, i) {
 
     function createCard(t, v, interp, d, f='', ruler=null) {
         const isLong = t==='Master Number'||t==='Lucky Colors'||t==='Lucky Numbers', style = isLong ? 'style="white-space:normal;overflow-wrap:break-word;line-height:1.3;"' : '';
-        const numClass = isLong ? 'text-2xl md:text-3xl' : 'text-4xl md:text-5xl';
+        const numClass = isLong ? 'text-xl md:text-2xl' : 'text-3xl md:text-4xl';
         return `<div class="result-card p-6" style="animation-delay:${d}ms"><div class="flex justify-between items-start mb-2"><div><p class="text-purple-300">${t}</p>${ruler?`<p class="text-sm text-purple-300 mb-2">Ruler: ${ruler.name}</p>`:''}<h3 class="font-serif text-xl text-white">${interp?.title||''}</h3></div><div class="${numClass} font-bold text-right" ${style}>${v}</div></div><p class="text-gray-400 text-sm">${interp?.text||''}</p>${f?`<div class="mt-4 pt-3 border-t border-gray-700 text-sm text-purple-200">${f}</div>`:''}</div>`;
     }
 
@@ -308,8 +308,9 @@ function formatDateWithOrdinal(dateString) {
 const masterNumberValue = r.masterNumber.split(' ')[0];
 const masterDesc = ni[masterNumberValue] ? ni[masterNumberValue].text : "High potential.";    
 html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-    ${createCard('Karmic Debt', r.karmicDebt, {title: "Indicator", text: "Past life lessons."}, d+=100)}
-    ${createCard("Master Number", r.masterNumber, { title: "Indicator", text: masterDesc }, d+=100)}
+
+    ${createCard('Karmic Debt', `<span class="text-3xl md:text-4xl">${r.karmicDebt}</span>`, {title: "Indicator", text: "Past life lessons."}, d+=100)}
+    ${createCard("Master Number",`<span class="text-3xl md:text-4xl">${r.masterNumber}</span>`, { title: "Indicator", text: masterDesc }, d+=100)}
 </div>`;
 
     html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">${createCard('Lucky Numbers',r.luckyNumbers,{title:"Harmonious",text:""},d+=100)}${createCard('Lucky Colors',r.luckyColors,{title:"Vibrational",text:""},d+=100)}</div>`;
@@ -330,9 +331,9 @@ html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
     let planes=[]; if(r.planesData){ planeOrder.forEach(k=>{ if(r.planesData.hasOwnProperty(k)) planes.push({label:k,isCompliant:r.planesData[k]}); }); }
     html += `<div class="mt-6">${createGridChecklistCard('Numerology Planes', planes, d+=100)}</div>`;
 
-    if(r.mobileAnalysis!=='No mobile provided.') html+=`<div class="mt-6">${createCard('Mobile Analysis',r.mobileNumber,{title:"Compatibility",text:r.mobileAnalysis},d+=100)}</div>`;
-    if(r.carAnalysis!=='No car provided.') html+=`<div class="mt-6">${createCard('Car Analysis',r.carNumber,{title:"Compatibility",text:r.carAnalysis},d+=100)}</div>`;
-
+    if(r.mobileAnalysis!=='No mobile provided.') html+=`<div class="mt-6">${createCard('Mobile Analysis',`<span style="font-size: 1.75rem; line-height: 1.5rem;">${r.mobileNumber}</span>`,{title:"Compatibility",text:r.mobileAnalysis},d+=100)}</div>`;
+    if(r.carAnalysis!=='No car provided.') html+=`<div class="mt-6">${createCard('Car Analysis',`<span style="font-size: 1.75rem; line-height: 1.5rem;">${r.carNumber}</span>`,{title:"Compatibility",text:r.carAnalysis},d+=100)}</div>`;
+    
     c.innerHTML = html + `<div class="text-center mt-8"><a href="#home" class="text-gray-400 hover:text-white">Back to Form</a></div>`;
     c.querySelectorAll('.result-card').forEach(card => void card.offsetWidth);
 }
@@ -346,15 +347,6 @@ async function loadUserReports() {
 }
 
 // --- END OF SCRIPT ---
-
-
-
-
-
-
-
-
-
 
 
 
