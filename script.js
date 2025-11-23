@@ -308,8 +308,9 @@ function formatDateWithOrdinal(dateString) {
 const masterNumberValue = r.masterNumber.split(' ')[0];
 const masterDesc = ni[masterNumberValue] ? ni[masterNumberValue].text : "High potential.";    
 html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-    ${createCard('Karmic Debt', r.karmicDebt, {title: "Indicator", text: "Past life lessons."}, d+=100)}
-    ${createCard("Master Number", r.masterNumber, { title: "Indicator", text: masterDesc }, d+=100)}
+
+    ${createCard('Karmic Debt', `<span class="text-2xl md:text-3xl">${r.karmicDebt}</span>`, {title: "Indicator", text: "Past life lessons."}, d+=100)}
+    ${createCard("Master Number",`<span class="text-2xl md:text-3xl">${r.masterNumber}</span>`, { title: "Indicator", text: masterDesc }, d+=100)}
 </div>`;
 
     html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">${createCard('Lucky Numbers',r.luckyNumbers,{title:"Harmonious",text:""},d+=100)}${createCard('Lucky Colors',r.luckyColors,{title:"Vibrational",text:""},d+=100)}</div>`;
@@ -354,5 +355,6 @@ async function loadUserReports() {
 }
 
 // --- END OF SCRIPT ---
+
 
 
