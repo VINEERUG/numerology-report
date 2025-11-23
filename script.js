@@ -1,5 +1,5 @@
 // --- START OF SCRIPT ---
-// v39 FINAL - Correctly combines (Moolank) titles AND the custom-width 4-column grid.
+// v41 FINAL - Correctly combines (Moolank) titles AND the custom-width 4-column grid.
 
 const API_URL = "https://keshvaggrawal.pythonanywhere.com/api"; 
 const APP_STATE = { token: localStorage.getItem('numerologyToken'), email: localStorage.getItem('numerologyEmail') };
@@ -331,7 +331,14 @@ html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
     let planes=[]; if(r.planesData){ planeOrder.forEach(k=>{ if(r.planesData.hasOwnProperty(k)) planes.push({label:k,isCompliant:r.planesData[k]}); }); }
     html += `<div class="mt-6">${createGridChecklistCard('Numerology Planes', planes, d+=100)}</div>`;
 
-    if(r.mobileAnalysis!=='No mobile provided.') html+=`<div class="mt-6">${createCard('Mobile Analysis',`<span style="font-size: 1.75rem; line-height: 1.5rem;">${r.mobileNumber}</span>`,{title:"Compatibility",text:r.mobileAnalysis},d+=100)}</div>`;
+    if(r.mobileAnalysis!=='No mobile provided.') {
+        html += `<div class="mt-6">
+        ${createCard('Mobile Analysis', 
+        `<span style="font-size: 1.25rem; line-height: 1.3; display: block; overflow-wrap: break-word; word-break: break-all;">${r.mobileNumber}</span>`, 
+        {title:"Compatibility",text:r.mobileAnalysis}, d+=100)}
+        </div>`;
+    }
+
     if(r.carAnalysis!=='No car provided.') html+=`<div class="mt-6">${createCard('Car Analysis',`<span style="font-size: 1.75rem; line-height: 1.5rem;">${r.carNumber}</span>`,{title:"Compatibility",text:r.carAnalysis},d+=100)}</div>`;
     
     c.innerHTML = html + `<div class="text-center mt-8"><a href="#home" class="text-gray-400 hover:text-white">Back to Form</a></div>`;
