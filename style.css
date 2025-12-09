@@ -13,9 +13,12 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background: var(--bg-dark);
+    /* FAST GRADIENT BACKGROUND - NO IMAGES */
+    background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
     color: var(--text-light);
     transition: background-color 0.3s;
+    min-height: 100vh;
+    margin: 0;
 }
 
 .font-serif {
@@ -388,4 +391,18 @@ header #header-subtitle {
 .view-report-btn:hover {
     background-color: #a78bfa; /* violet-400 */
 
+}
+.show { display: block !important; }
+
+/* --- Mobile Visibility Fix --- */
+@media (max-width: 768px) {
+    .mobile-hide-cta {
+        display: none !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .mobile-hide-cta {
+        display: flex !important;
+    }
 }

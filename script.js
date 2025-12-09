@@ -1,9 +1,11 @@
 // --- START OF SCRIPT ---
-// v41 FINAL - Correctly combines (Moolank) titles AND the custom-width 4-column grid.
+// v=5.0 AUTO-LOGIN - Mandatory Email & Auto-Signup/Login Logic Implemented
 
 const API_URL = "https://keshvaggrawal.pythonanywhere.com/api"; 
 const APP_STATE = { token: localStorage.getItem('numerologyToken'), email: localStorage.getItem('numerologyEmail') };
 let pageSections = {}, guestCta; 
+let CURRENT_REPORT_INPUTS = null;
+
 
 document.addEventListener('DOMContentLoaded', () => {
     pageSections = {
@@ -15,23 +17,38 @@ document.addEventListener('DOMContentLoaded', () => {
         myReports: document.getElementById('page-my-reports')
     }; // <--- CLOSING BRACE ADDED HERE
 
-    // Add listener for new My Reports button in header
-    const headerMyReportsBtn = document.getElementById('header-my-reports');
-    if (headerMyReportsBtn) {
-        headerMyReportsBtn.addEventListener('click', function(e) {
+    // --- FIX: Attach listener to ALL "My Reports" buttons (Header & Dropdown) ---
+    const myReportButtons = [
+    document.getElementById('header-my-reports'), // The one in the top bar (if any)
+    document.getElementById('nav-my-reports')     // The one in the dropdown menu
+    ];
+
+    myReportButtons.forEach(btn => {
+    if (btn) {
+        btn.addEventListener('click', function(e) {
             e.preventDefault();
-            window.location.hash = '#my-reports';
+            closeUserMenu(); // Close the dropdown if open
+            window.location.hash = '#my-reports'; // Change URL hash
             if (typeof navigate === 'function') {
-                navigate();
+                navigate(); // Force navigation update
             }
         });
     }
+});
 
     guestCta = document.getElementById('guest-cta');
-    updateNavUI();
-    window.addEventListener('hashchange', navigate);
-    navigate();
-    attachListeners();
+    function updateNavUI() {
+    const el = document.getElementById('user-menu-email');
+    if (APP_STATE.token) {
+        // Logged in
+        if (el) el.textContent = APP_STATE.email;
+        if (guestCta) guestCta.style.display = 'none';
+    } else {
+        // Logged out
+        if (el) el.textContent = '';
+        if (guestCta) guestCta.style.display = ''; // let CSS classes work
+    }
+}
 });
 
 function getActiveDropdown() { return APP_STATE.token ? document.getElementById('user-menu-user') : document.getElementById('user-menu-guest'); }
@@ -39,19 +56,62 @@ function toggleUserMenu(e) { e.stopPropagation(); const d = getActiveDropdown();
 function closeUserMenu() { const d = getActiveDropdown(); if(d) d.classList.remove('show'); }
 
 function navigate() {
-    closeUserMenu(); const hash = window.location.hash || '#home';
-    Object.values(pageSections).forEach(s => { if(s) s.style.display = 'none'; });
+    closeUserMenu();
+    const hash = window.location.hash || '#home';
+    
+    // 1. Hide ALL sections by ADDING 'hidden' class
+    Object.values(pageSections).forEach(s => {
+        if (s) {
+            s.classList.add('hidden'); // Tailwind hide
+            s.style.display = 'none';  // Fallback hide
+        }
+    });
+
+    // Helper to Show a Section
+    const showSection = (section) => {
+        if (section) {
+            section.classList.remove('hidden'); // Tailwind show
+            section.style.display = 'block';    // Fallback show
+        }
+    };
+
     switch(hash) {
-        case '#login': if(pageSections.login) pageSections.login.style.display = 'block'; break;
-        case '#register': if(pageSections.register) pageSections.register.style.display = 'block'; break;
-        case '#report':
-            const rData = sessionStorage.getItem('viewReportData'), iData = sessionStorage.getItem('viewInputsData');
-            if(hash === '#report' && rData && iData) { renderFullReport(JSON.parse(rData), JSON.parse(iData)); if(pageSections.report) pageSections.report.style.display='block'; sessionStorage.removeItem('viewReportData'); sessionStorage.removeItem('viewInputsData'); }
-            else if(pageSections.report && pageSections.report.innerHTML.trim()!=='') { if(pageSections.report) pageSections.report.style.display='block'; }
-            else { window.location.hash='#home'; if(pageSections.mainForm) pageSections.mainForm.style.display='block'; }
+        case '#login':
+            showSection(pageSections.login);
             break;
-        case '#my-reports': APP_STATE.token ? (pageSections.myReports.style.display='block', loadUserReports()) : window.location.hash='#login'; break;
-        case '#home': default: sessionStorage.removeItem('viewReportData'); sessionStorage.removeItem('viewInputsData'); if(pageSections.mainForm) pageSections.mainForm.style.display='block'; break;
+        case '#register':
+            showSection(pageSections.register);
+            break;
+        case '#report':
+            const rData = sessionStorage.getItem('viewReportData');
+            const iData = sessionStorage.getItem('viewInputsData');
+            
+            if (hash === '#report' && rData && iData) {
+                renderFullReport(JSON.parse(rData), JSON.parse(iData));
+                showSection(pageSections.report);
+                sessionStorage.removeItem('viewReportData');
+                sessionStorage.removeItem('viewInputsData');
+            } else if (pageSections.report && pageSections.report.innerHTML.trim() !== '') {
+                showSection(pageSections.report);
+            } else {
+                window.location.hash = '#home';
+                showSection(pageSections.mainForm);
+            }
+            break;
+        case '#my-reports':
+            if (APP_STATE.token) {
+                showSection(pageSections.myReports);
+                loadUserReports();
+            } else {
+                window.location.hash = '#login';
+            }
+            break;
+        case '#home':
+        default:
+            sessionStorage.removeItem('viewReportData');
+            sessionStorage.removeItem('viewInputsData');
+            showSection(pageSections.mainForm);
+            break;
     }
 }
 
@@ -72,10 +132,116 @@ function attachListeners() {
 async function handleUserLogin(e) { e.preventDefault(); showLoading(); apiCall('/user-login', {email:e.target.email.value, password:e.target.password.value}, (d)=>{ if(d.ok){ setLogin(d.email,d.token); window.location.hash='#home'; } else { showErr('login-error', d.error); navigate(); } }); }
 async function handleUserRegister(e) { e.preventDefault(); showLoading(); apiCall('/register', {email:e.target.email.value, password:e.target.password.value}, (d)=>{ if(d.ok) handleUserLogin(e); else { showErr('register-error', d.error); navigate(); } }); }
 function handleLogout() { closeUserMenu(); clearLogin(); window.location.hash='#home'; }
+
 async function handleNumerologySubmit(e) {
-    e.preventDefault(); document.getElementById('form-error').style.display='none'; showLoading();
-    const p = {firstName:e.target.firstName.value, middleName:e.target.middleName.value, lastName:e.target.lastName.value, dob:e.target.dob.value, gender:e.target.gender.value, mobile:e.target.mobile.value, carNumber:e.target.carNumber.value};
-    apiCall('/calc', p, (d)=>{ if(d.ok){ d.reportType==='full'?renderFullReport(d.report,p):renderTeaserReport(d.report); window.location.hash='#report'; } else { showErr('form-error', d.error); navigate(); } }, true);
+    e.preventDefault();
+    document.getElementById('form-error').style.display = 'none';
+
+    // 1. GET DATA
+    // We look for e.target.email (new HTML) or fall back to e.target.emailOptional (old HTML compatibility)
+    const emailInput = e.target.email || e.target.emailOptional;
+    const emailVal = emailInput ? emailInput.value.trim() : "";
+
+    // 2. VALIDATION (Mandatory Email)
+    if (!emailVal) {
+        showErr('form-error', 'Email address is required.');
+        return;
+    }
+
+    showLoading();
+
+    const FIXED_PASSWORD = "123456"; 
+    let loginSuccess = false;
+
+    try {
+        // 3. ATTEMPT REGISTRATION
+        const regRes = await fetch(`${API_URL}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: emailVal, password: FIXED_PASSWORD })
+        });
+        const regData = await regRes.json();
+
+        if (regRes.ok) {
+            // CASE A: NEW USER
+            // Registration worked, now auto-login
+            await performAutoLogin(emailVal, FIXED_PASSWORD);
+            loginSuccess = true;
+        } 
+        else if (regData.error && (regData.error.toLowerCase().includes('exist') || regData.error.toLowerCase().includes('taken'))) {
+            // CASE B: OLD USER (Email exists)
+            // Try to login with the fixed password
+            const loginOk = await performAutoLogin(emailVal, FIXED_PASSWORD);
+            
+            if (loginOk) {
+                // Password was 123456, login success
+                loginSuccess = true;
+            } else {
+                // CASE C: OLD USER WITH DIFFERENT PASSWORD
+                // 1. Stop loading
+                if(pageSections.loading) pageSections.loading.style.display = 'none';
+                if(pageSections.mainForm) pageSections.mainForm.style.display = 'block';
+
+                // 2. Alert and Redirect
+                alert("This email is already registered with a different password. Please log in manually.");
+                
+                // 3. Go to Login Page
+                window.location.hash = '#login';
+                
+                // 4. Pre-fill email in login form
+                setTimeout(() => {
+                    const loginForm = document.getElementById('login-form');
+                    if (loginForm && loginForm.email) {
+                        loginForm.email.value = emailVal;
+                        if(loginForm.password) loginForm.password.focus();
+                    }
+                }, 100);
+                return; // STOP execution here
+            }
+        } 
+        else {
+            // Generic Error
+            showErr('form-error', regData.error || "Registration failed.");
+            if(pageSections.loading) pageSections.loading.style.display = 'none';
+            if(pageSections.mainForm) pageSections.mainForm.style.display = 'block';
+            return;
+        }
+
+        // 4. CALCULATE REPORT (Only if logged in)
+        if (loginSuccess) {
+            const p = {
+                firstName: e.target.firstName.value,
+                middleName: e.target.middleName.value,
+                lastName: e.target.lastName.value,
+                dob: e.target.dob.value,
+                gender: e.target.gender.value,
+                mobile: e.target.mobile.value,
+                // We map the new mandatory email back to 'emailOptional' key 
+                // so your Python backend (which expects this key) doesn't break.
+                emailOptional: emailVal, 
+                carNumber: e.target.carNumber.value
+            };
+
+            // Call your existing apiCall function
+            apiCall('/calc', p, (d) => {
+                if(d.ok){
+                    d.reportType === 'full' ? renderFullReport(d.report, p) : renderTeaserReport(d.report);
+                    window.location.hash = '#report';
+                    
+                    // Show the green credential box
+                    showCredentials(emailVal, FIXED_PASSWORD);
+                } else {
+                    showErr('form-error', d.error);
+                    navigate();
+                }
+            }, true); // true = authorized call
+        }
+
+    } catch (err) {
+        console.error(err);
+        showErr('form-error', 'Network error during signup process.');
+        navigate();
+    }
 }
 
 async function apiCall(ept, body, cb, auth=false) {
@@ -93,6 +259,9 @@ function renderTeaserReport(r) {
 }
 
 function renderFullReport(r, i) {
+    // 1. SAVE INPUTS GLOBALLY (Required for the re-check feature)
+    CURRENT_REPORT_INPUTS = i;
+
     const c = pageSections.report;
     const zs={'Aries':'♈','Taurus':'♉','Gemini':'♊','Cancer':'♋','Leo':'♌','Virgo':'♍','Libra':'♎','Scorpio':'♏','Sagittarius':'♐','Capricorn':'♑','Aquarius':'♒','Pisces':'♓'};
     const ni={1:{title:"The Leader",text:"Leader, independent, ambitious, and innovative."},
@@ -255,8 +424,47 @@ function formatDateWithOrdinal(dateString) {
 }
 
     let d=100, h=(t)=>`<h2 class="font-serif text-2xl text-white mt-8 mb-4 border-b border-purple-500/30 pb-2">${t}</h2>`;
-    const formattedName = `${i.firstName} ${i.lastName}`.toUpperCase();
-    let html=`<div class="result-card p-6 mb-8"><h2 class="font-serif text-3xl font-bold text-white mb-4">Numerology Report</h2><p class="text-purple-300">For: <span class="text-white">${formattedName}</span> | DOB: <span class="text-white">${formatDateWithOrdinal(i.dob)}</span></p></div>`;
+    let fullName = i.firstName;
+    
+    if (i.middleName) {fullName += " " + i.middleName;
+        }
+    fullName += " " + i.lastName;
+
+    const formattedName = fullName.toUpperCase();
+    
+    let html=`<div class="result-card p-6 mb-8"><h2 class="font-serif text-3xl font-bold text-white mb-4">Numerology Report for</h2><p class="text-purple-300">For: <span class="text-white">${formattedName}</span> | DOB: <span class="text-white">${formatDateWithOrdinal(i.dob)}</span></p></div>`;
+    
+    // --- NEW: Name Spelling Check Form ---
+    const recheckFormHTML = `
+    <div class="result-card p-6 mb-8" style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(139, 92, 246, 0.3);">
+        <h4 class="text-xl text-purple-300 mb-4 font-serif">Try New Name Spelling</h4>
+        
+        <!-- UPDATED CONTAINER: Added 'flex-wrap' and 'items-center' -->
+        <div class="flex flex-row flex-wrap md:flex-nowrap gap-4 items-center">
+            
+            <!-- UPDATED INPUTS: Added 'min-w-0' to allow shrinking -->
+            <input type="text" id="recheck-fname" value="${i.firstName}" placeholder="First Name" 
+                class="bg-gray-800 text-white border border-gray-600 rounded px-3 py-2 flex-1 min-w-0 w-full md:w-auto focus:outline-none focus:border-purple-500">
+            
+            <input type="text" id="recheck-mname" value="${i.middleName || ''}" placeholder="Middle Name" 
+                class="bg-gray-800 text-white border border-gray-600 rounded px-3 py-2 flex-1 min-w-0 w-full md:w-auto focus:outline-none focus:border-purple-500">
+            
+            <input type="text" id="recheck-lname" value="${i.lastName}" placeholder="Last Name" 
+                class="bg-gray-800 text-white border border-gray-600 rounded px-3 py-2 flex-1 min-w-0 w-full md:w-auto focus:outline-none focus:border-purple-500">
+            
+            <!-- UPDATED BUTTON: Added 'shrink-0' so it never gets cut off -->
+            <button onclick="handleRecheckName()" 
+                class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded transition-colors duration-200 shrink-0">
+                Check
+            </button>
+        </div>
+        
+        <p class="text-xs text-gray-400 mt-2">Modify the spelling above to see how it affects the vibration (Total Name, Soul Urge, etc.). DOB remains unchanged.</p>
+    </div>
+    `;
+
+    html += recheckFormHTML;
+
 
     // --- ADDED (Moolank) and (Bhagyank) ---
     html += h("Core Numbers Analysis") + `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">${createCard('Driver (Moolank)',r.driverNumber,ni[r.driverNumber],d+=100,'',r.driverRuler)}${createCard('Conductor (Bhagyank)',r.conductorNumber,ni[r.conductorNumber],d+=100,'',r.conductorRuler)}</div>`;
@@ -301,7 +509,7 @@ function formatDateWithOrdinal(dateString) {
     html += `<div class="mt-4">${createStandardChecklistCard('Name Correction Checklist', r.nameChecklist, d+=100)}</div>`;
 
     html += h("Cosmic Influences") + `<div class="grid grid-cols-1 md:grid-cols-3 gap-4">${
-        createCard('Zodiac',zs[r.zodiacSign]||'?',{title:r.zodiacSign,text:"Sun Sign"},d+=100)}${
+        createCard('Zodiac Sun Sign',zs[r.zodiacSign]||'?',{title:r.zodiacSign,text:"Element"},d+=100)}${
         createCard('Kua',r.kuaNumber,ni[r.kuaNumber],d+=100)}${
         createCard('Success',r.successNumber,ni[r.successNumber],d+=100)}</div>`;
 
@@ -332,32 +540,300 @@ html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
     html += `<div class="mt-6">${createGridChecklistCard('Numerology Planes', planes, d+=100)}</div>`;
 
     if(r.mobileAnalysis!=='No mobile provided.') {
-        html += `<div class="mt-6">
+     html += `<div class="mt-6">
         ${createCard('Mobile Analysis', 
         `<span style="font-size: 1.25rem; line-height: 1.3; display: block; overflow-wrap: break-word; word-break: break-all;">${r.mobileNumber}</span>`, 
         {title:"Compatibility",text:r.mobileAnalysis}, d+=100)}
-        </div>`;
+     </div>`;
     }
 
     if(r.carAnalysis!=='No car provided.') html+=`<div class="mt-6">${createCard('Car Analysis',`<span style="font-size: 1.75rem; line-height: 1.5rem;">${r.carNumber}</span>`,{title:"Compatibility",text:r.carAnalysis},d+=100)}</div>`;
+   
+   const createEmailCard = (title, data) => {
+    if (!data) return '';
+    const color = data.compatibility === 'Excellent' ? 'text-green-400' : 
+                  (data.compatibility === 'Avoid' || data.compatibility === 'Challenging' ? 'text-red-400' : 'text-yellow-400');
+    
+    return `<div class="mt-6 result-card p-6 mb-4 border border-purple-500/30 rounded-lg">
+        <h3 class="text-xl font-bold text-white mb-2">${title}</h3>
+        <p class="text-gray-300">Email: <span class="text-white">${data.email}</span></p>
+        <p class="text-gray-300">Vibration: <span class="text-purple-300 font-bold text-2xl">${data.number}</span></p>
+        <p class="mt-2 text-lg">Status: <span class="${color} font-bold">${data.compatibility}</span></p>
+    </div>`;
+};
+
+html += createEmailCard('Email Compatibility (Form Input)', r.emailAnalysisForm);
+html += createEmailCard('Email Compatibility (Login Account)', r.emailAnalysisLogin);
     
     c.innerHTML = html + `<div class="text-center mt-8"><a href="#home" class="text-gray-400 hover:text-white">Back to Form</a></div>`;
     c.querySelectorAll('.result-card').forEach(card => void card.offsetWidth);
 }
 
 async function loadUserReports() {
-    const c=document.getElementById('past-reports-container'); c.innerHTML='<p class="text-gray-400">Loading...</p>';
-    try { const r=await fetch(`${API_URL}/my-reports`,{headers:{'Authorization':`Bearer ${APP_STATE.token}`}}); const d=await r.json();
-        if(d.ok && d.reports.length) c.innerHTML=d.reports.map(r=>`<div class="past-report-card flex justify-between items-center"><div><strong class="text-white">${r.firstName}</strong><br><span class="text-sm text-gray-400">${r.dob}</span></div><button onclick='sessionStorage.setItem("viewReportData",JSON.stringify(${JSON.stringify(r.reportData)}));sessionStorage.setItem("viewInputsData",JSON.stringify(${JSON.stringify(r.inputs)}));window.location.hash="#report";' class="px-3 py-1 bg-purple-600 text-white rounded text-sm">View</button></div>`).join('');
-        else c.innerHTML='<p class="text-gray-400">No reports.</p>';
-    } catch(e) { c.innerHTML='<p class="text-red-400">Error loading.</p>'; }
+    const c = document.getElementById('past-reports-container');
+    c.innerHTML = '<p class="text-gray-400">Loading...</p>';
+    try {
+        const r = await fetch(`${API_URL}/my-reports`, {
+            headers: { 'Authorization': `Bearer ${APP_STATE.token}` }
+        });
+        const d = await r.json();
+        
+        if (d.ok && d.reports.length) {
+            APP_STATE.cachedReports = d.reports; 
+            
+            c.innerHTML = d.reports.map(r => {
+                // FALLBACK: Use empty string if lastName is null/undefined
+                const lastName = r.lastName || '';
+                return `
+                <div class="past-report-card flex justify-between items-center mb-2 p-3 bg-gray-800 rounded">
+                    <div>
+                        <strong class="text-white">${r.firstName} ${lastName}</strong>
+                        <br>
+                        <span class="text-sm text-gray-400">${r.dob}</span>
+                    </div>
+                    <button onclick='restoreReport(${JSON.stringify(r)})' 
+                            class="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm transition-colors">
+                        View
+                    </button>
+                </div>`;
+            }).join('');
+        } else {
+            APP_STATE.cachedReports = []; 
+            c.innerHTML = '<p class="text-gray-400">No reports.</p>';
+        }
+    } catch (e) {
+        c.innerHTML = '<p class="text-red-400">Error loading reports.</p>';
+    }
 }
 
+// --- IMPORTANT: This function must be OUTSIDE loadUserReports ---
+function restoreReport(r) {
+    sessionStorage.setItem("viewReportData", JSON.stringify(r.reportData));
+    sessionStorage.setItem("viewInputsData", JSON.stringify(r.inputs));
+    
+    // Set global inputs so recheck works immediately
+    CURRENT_REPORT_INPUTS = r.inputs;
+    
+    window.location.hash = "#report";
+}
+
+async function handleRecheckName() {
+    if (!CURRENT_REPORT_INPUTS) return;
+
+    // 1. Get New Values
+    const newFirst = document.getElementById('recheck-fname').value.trim();
+    const newMiddle = document.getElementById('recheck-mname').value.trim();
+    const newLast = document.getElementById('recheck-lname').value.trim();
+
+    if (!newFirst) {
+        alert("First Name is required");
+        return;
+    }
+
+    // 2. Define the inputs we are looking for
+    // (Combining new name with original DOB/Gender)
+    const targetPayload = {
+        ...CURRENT_REPORT_INPUTS,
+        firstName: newFirst,
+        middleName: newMiddle,
+        lastName: newLast
+    };
+
+    // 3. CACHE CHECK: Look for existing report
+    // We check if we have reports loaded and if any match our target
+    if (APP_STATE.cachedReports && APP_STATE.cachedReports.length > 0) {
+        
+        const found = APP_STATE.cachedReports.find(r => {
+            const i = r.inputs;
+            // Compare Name (Case Insensitive) and DOB
+            return i.firstName.toLowerCase() === newFirst.toLowerCase() &&
+                   (i.middleName || '').toLowerCase() === (newMiddle || '').toLowerCase() &&
+                   i.lastName.toLowerCase() === newLast.toLowerCase() &&
+                   i.dob === CURRENT_REPORT_INPUTS.dob;
+        });
+
+        if (found) {
+            console.log("Loading from Cache/History...");
+            // A. Hide Loading (if it was somehow shown)
+            if(pageSections.loading) pageSections.loading.style.display = 'none';
+            
+            // B. Render the FOUND report immediately
+            renderFullReport(found.reportData, targetPayload);
+            
+            // C. Show Report Section
+            if(pageSections.report) pageSections.report.style.display = 'block';
+            window.scrollTo(0, 0);
+            
+            // D. Stop here. Do NOT call API.
+            return; 
+        }
+    }
+
+    // 4. API CALL (Only runs if 'found' was false)
+    if(pageSections.loading) pageSections.loading.style.display = 'block';
+    if(pageSections.report) pageSections.report.style.display = 'none';
+
+    apiCall('/calc', targetPayload, (d) => {
+        if(pageSections.loading) pageSections.loading.style.display = 'none';
+
+        if (d.ok) {
+            if (d.reportType === 'full') {
+                renderFullReport(d.report, targetPayload);
+                
+                // OPTIONAL: Add this new report to our local cache 
+                // so if they click "Check" again immediately, it hits cache.
+                if(!APP_STATE.cachedReports) APP_STATE.cachedReports = [];
+                APP_STATE.cachedReports.push({
+                    inputs: targetPayload,
+                    reportData: d.report,
+                    firstName: targetPayload.firstName,
+                    lastName: targetPayload.lastName,
+                    dob: targetPayload.dob
+                });
+                
+            } else {
+                renderTeaserReport(d.report);
+            }
+            
+            if(pageSections.report) pageSections.report.style.display = 'block';
+            window.scrollTo(0, 0);
+            
+            // Update hash if needed
+            if(window.location.hash !== '#report') {
+                window.location.hash = '#report';
+            }
+
+        } else {
+            alert(d.error || "Error checking new name");
+            if(pageSections.report) pageSections.report.style.display = 'block';
+        }
+    }, true);
+}
+
+// 1. Helper to display credentials at the top of the report
+function showCredentials(email, password) {
+    const reportSection = document.getElementById('page-report');
+    
+    // Check if box already exists to avoid duplicates
+    const existingBox = document.getElementById('auto-cred-box');
+    if(existingBox) existingBox.remove();
+
+    // Create a credential box
+    const credBox = document.createElement('div');
+    credBox.id = 'auto-cred-box';
+    credBox.style.background = '#f0fff4'; // Light green
+    credBox.style.border = '2px solid #48bb78'; // Green border
+    credBox.style.padding = '15px';
+    credBox.style.marginBottom = '20px';
+    credBox.style.borderRadius = '8px';
+    credBox.style.textAlign = 'center';
+    credBox.style.color = '#2f855a';
+    
+    credBox.innerHTML = `
+        <h3 style="font-weight: bold; margin-bottom: 8px;">✅ Account Created / Logged In</h3>
+        <p style="margin: 5px 0;"><strong>Login ID:</strong> ${email}</p>
+        <p style="margin: 5px 0;"><strong>Password:</strong> ${password}</p>
+        <p style="font-size: 0.9em; margin-top: 8px; color: #555;">(Please save these details for future login)</p>
+    `;
+
+    // Insert at the very top of the report section
+    reportSection.insertBefore(credBox, reportSection.firstChild);
+}
+
+// 2. Helper to perform background login
+async function performAutoLogin(email, password) {
+    try {
+        const r = await fetch(`${API_URL}/user-login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const d = await r.json();
+        if (r.ok) {
+            setLogin(d.email, d.token); // Uses your existing setLogin function
+            return true;
+        }
+        return false;
+    } catch (e) {
+        return false;
+    }
+}
+
+// --- CHANGE PASSWORD LOGIC ---
+document.addEventListener('DOMContentLoaded', () => {
+    const btnChangePass = document.getElementById('nav-change-pass');
+    const modalChangePass = document.getElementById('modal-change-pass');
+    const btnClosePassModal = document.getElementById('btn-close-pass-modal');
+    const formChangePass = document.getElementById('form-change-pass');
+    const msgChangePass = document.getElementById('msg-change-pass');
+
+    // Open Modal
+    if (btnChangePass) {
+        btnChangePass.addEventListener('click', (e) => {
+            e.preventDefault();
+            closeUserMenu(); // Uses existing function to close dropdown
+            modalChangePass.classList.remove('hidden');
+            msgChangePass.style.display = 'none';
+            formChangePass.reset();
+        });
+    }
+
+    // Close Modal
+    if (btnClosePassModal) {
+        btnClosePassModal.addEventListener('click', () => {
+            modalChangePass.classList.add('hidden');
+        });
+    }
+
+    // Submit Form
+    if (formChangePass) {
+        formChangePass.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const oldPass = e.target.oldPass.value;
+            const newPass = e.target.newPass.value;
+            
+            // Helper to show messages inside modal
+            const showMsg = (text, color) => {
+                msgChangePass.textContent = text;
+                msgChangePass.style.display = 'block';
+                msgChangePass.style.color = color;
+            };
+
+            showMsg('Updating...', '#60a5fa'); // Blue
+
+            try {
+                // IMPORTANT: Ensure your backend has this route '/change-password'
+                const res = await fetch(`${API_URL}/change-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${APP_STATE.token}`
+                    },
+                    body: JSON.stringify({ oldPassword: oldPass, newPassword: newPass })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    showMsg('Password Changed Successfully!', '#4ade80'); // Green
+                    // Update stored password if we are tracking it
+                    if(localStorage.getItem('numerologyPass')) {
+                        localStorage.setItem('numerologyPass', newPass);
+                    }
+                    if(APP_STATE.password) APP_STATE.password = newPass;
+                    updateNavUI(); // Refresh UI
+
+                    setTimeout(() => {
+                        modalChangePass.classList.add('hidden');
+                    }, 1500);
+                } else {
+                    showMsg(data.error || 'Failed to update password', '#f87171'); // Red
+                }
+            } catch (err) {
+                showMsg('Network Error. Try again.', '#f87171');
+            }
+        });
+    }
+});
+
 // --- END OF SCRIPT ---
-
-
-
-
-
-
-
