@@ -1,5 +1,5 @@
 // --- START OF SCRIPT ---
-// v=5.0 AUTO-LOGIN - Mandatory Email & Auto-Signup/Login Logic Implemented
+// v=5.1 AUTO-LOGIN - Mandatory Email & Auto-Signup/Login Logic Implemented
 
 const API_URL = "https://keshvaggrawal.pythonanywhere.com/api"; 
 const APP_STATE = { token: localStorage.getItem('numerologyToken'), email: localStorage.getItem('numerologyEmail') };
@@ -49,6 +49,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (guestCta) guestCta.style.display = ''; // let CSS classes work
     }
 }
+    attachListeners();
+    window.addEventListener('hashchange', navigate);
+    navigate();
+
 });
 
 function getActiveDropdown() { return APP_STATE.token ? document.getElementById('user-menu-user') : document.getElementById('user-menu-guest'); }
