@@ -133,7 +133,7 @@ function attachListeners() {
     window.addEventListener('click', (e) => { if(umB && !umB.contains(e.target)) closeUserMenu(); });
 }
 
-async function handleUserLogin(e) { e.preventDefault(); showLoading(); apiCall('/user-login', {email:e.target.email.value, password:e.target.password.value}, (d)=>{ if(d.ok){ setLogin(d.email,d.token); window.location.hash='#home'; } else { showErr('login-error', d.error); navigate(); } }); }
+async function handleUserLogin(e) { e.preventDefault(); showLoading(); apiCall('/user-login', {email:e.target.email.value, password:e.target.password.value}, (d)=>{ if(d.ok){ setLogin(d.email,d.token); window.location.hash='#my-reports';} else { showErr('login-error', d.error); navigate(); } }); }
 async function handleUserRegister(e) { e.preventDefault(); showLoading(); apiCall('/register', {email:e.target.email.value, password:e.target.password.value}, (d)=>{ if(d.ok) handleUserLogin(e); else { showErr('register-error', d.error); navigate(); } }); }
 function handleLogout() { closeUserMenu(); clearLogin(); window.location.hash='#home'; }
 
